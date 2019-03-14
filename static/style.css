@@ -1,0 +1,83 @@
+.bg-header {
+    background-color: #992e26;
+    padding-top: 0 !important;
+    padding-bottom: 5px !important;
+}
+tr.win {
+  background-color: #ffdf0030 !important;
+}
+tr:nth-of-type(odd).win {
+  background-color: #ffdf0040 !important;
+}
+.games-list {
+    font-size: 18px;
+    line-height: 1.1;
+    padding: .5rem !important;
+}
+.games-list tr {
+    padding: .5rem !important;
+}
+.games-list td {
+    padding: .5rem !important;
+}
+.character-icon {
+    height: 40px;
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+    margin-left: -30px;
+    margin-right: 1px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    /* background-position-y: -5px; */
+    width: 70px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    background-origin: content-box;
+}
+.character-icon.highlight {
+  filter: drop-shadow(1px 0 1px #00d9ffad)
+          drop-shadow(-1px 0 1px #00d9ffad)              
+          drop-shadow(0 1px 1px #00d9ffad)              
+          drop-shadow(0 -1px 1px #00d9ffad);
+  margin-right: 3px;
+}
+td.noheight {
+  padding: 0 !important;
+  margin: 0 !important;
+  line-height: 0;
+}
+td.squad {
+  width: 140px;
+  padding-left: 5px !important;
+}
+td.kills {
+  text-align: right;
+  padding-right: 20px !important;
+  padding-top: 6px !important;
+  /* padding-bottom: 8px !important; */
+  font-size: 24px;
+  line-height: 1;
+  font-weight: bold;
+}
+td.placed {
+    color: #EE3D20;
+    font-size: 28px;
+    line-height: 1;
+    font-weight: bold;
+    padding-top: 3px !important;
+    /* padding-bottom: 8px !important; */
+    text-align: right;
+}
+tr.win > td.placed {
+  color: #ffdf00;
+}
+.text-blue {
+    color: #4d95ff;
+}
+.text-purple {
+    color: #ef20ff;
+}
+.text-gold {
+    color: #ffdf00;
+}

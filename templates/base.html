@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Apex Tracker{% endblock %}</title>
+    {{ bootstrap.load_css() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="text-light bg-dark">
+{% block content %}{% endblock %}
+{{ bootstrap.load_js() }}
+</body>
+</html>

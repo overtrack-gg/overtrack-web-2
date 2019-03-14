@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Games{% endblock %}
+{% block content %}
+    <h1 class="mx-0 mt-0 mb-lg-auto p-md-3 bg-header"><div class="container">Games</div></h1>
+    <div class="container pt-3">
+        <div class="container table-responsive">
+            <table class="table table-borderless table-striped table-hover table-dark shadow games-list">
+                <thead class="">
+                    <tr>
+                        <th>Time</th>
+                        <th>Duration</th>
+                        <th>Squad</th>
+                        <th style="text-align: right;">Kills</th>
+                        <th style="text-align: right;">Placed</th>
+                        <th>Drop Location</th>
+                        <th>Favourite Weapons</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for game in games %}
+                    <tr class="{{ 'win' if game.won else '' }}">
+                        <td>{{ strftime(game.timestamp) }}</td>
+                        <td>{{ s2ts(game.duration) }}</td>
+                        <td class="m-0 p-0 h-100 noheight squad">
+                            <div style="background-image: url('{{ image_url(game.squad.champion) }}')" class="character-icon highlight"></div>
+                            <div style="background-image: url('{{ image_url(game.squad.squadmates[0]) }}')" class="character-icon"> </div>
+                            <div style="background-image: url('{{ image_url(game.squad.squadmates[1]) }}')" class="character-icon"> </div>
+                        </td>
+                        <td class="kills">
+                            {{ game.kills }}
+                        </td>
+                        <td class="placed">
+                            #{{ game.placed }}
+                        </td>
+                        <td>
+                            {{ game.route.landed_name }}
+                        </td>
+                        <td></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
