@@ -41,7 +41,7 @@ def duration(t: float):
 @app.route("/games")
 def games_list():
     context = {
-        'games': ApexGameSummary.user_id_time_index.query(-1),
+        'games': ApexGameSummary.user_id_time_index.query(-1, newest_first=True),
         'to_ordinal': to_ordinal,
         's2ts': duration,
         'strftime': strftime,

@@ -20,8 +20,8 @@ deploy:
     - poetry update
     - git clone git@gitlab.com:OverTrack/overtrack-v2.git
     - mv -t . ./overtrack-v2/models
-    - mkdir util
-    - mv -t ./util ./overtrack-v2/overtrack/util
+    - mkdir -p overtrack/util
+    - mv -t ./overtrack/ ./overtrack-v2/overtrack/util
     - rm overtrack-v2 -Rf
     - zappa update main
   only:
