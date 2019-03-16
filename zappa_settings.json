@@ -1,0 +1,14 @@
+{
+    "base": {
+        "project_name": "apextrack_web_poc",
+        "aws_region": "us-west-2",
+        "app_function": "main.app",
+        "s3_bucket": "overtrack-zappa",
+        "delete_s3_zip": false,
+        "keep_warm": false
+    },
+    "main": {
+        "extends": "base",
+        "apigateway_description": "ApexTrack Web POC",
+    }
+}

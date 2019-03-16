@@ -13,18 +13,18 @@
                         <th style="text-align: right;">Kills</th>
                         <th style="text-align: right;">Placed</th>
                         <th>Drop Location</th>
-                        <th>Favourite Weapons</th>
+                        <!--<th>Favourite Weapons</th>-->
                     </tr>
                 </thead>
                 <tbody>
                 {% for game in games %}
-                    <tr class="{{ 'win' if game.won else '' }}">
+                    <tr data-key="{{game.key}}" class="{{ 'win' if game.won else '' }} placed-{{game.placed}}">
                         <td>{{ strftime(game.timestamp) }}</td>
                         <td>{{ s2ts(game.duration) }}</td>
                         <td class="m-0 p-0 h-100 noheight squad">
-                            <div style="background-image: url('{{ image_url(game.squad.champion) }}')" class="character-icon highlight"></div>
-                            <div style="background-image: url('{{ image_url(game.squad.squadmates[0]) }}')" class="character-icon"> </div>
-                            <div style="background-image: url('{{ image_url(game.squad.squadmates[1]) }}')" class="character-icon"> </div>
+                            <div style="background-image: url('{{ image_url(game.champion) }}')" class="character-icon highlight"></div>
+                            <div style="background-image: url('{{ image_url(game.squadmates[0]) }}')" class="character-icon"> </div>
+                            <div style="background-image: url('{{ image_url(game.squadmates[1]) }}')" class="character-icon"> </div>
                         </td>
                         <td class="kills">
                             {{ game.kills }}
@@ -33,9 +33,9 @@
                             #{{ game.placed }}
                         </td>
                         <td>
-                            {{ game.route.landed_name }}
+                            {{ game.landed }}
                         </td>
-                        <td></td>
+                        <!--<td></td>-->
                     </tr>
                 {% endfor %}
                 </tbody>

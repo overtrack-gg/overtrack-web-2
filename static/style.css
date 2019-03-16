@@ -3,12 +3,6 @@
     padding-top: 0 !important;
     padding-bottom: 5px !important;
 }
-tr.win {
-  background-color: #ffdf0030 !important;
-}
-tr:nth-of-type(odd).win {
-  background-color: #ffdf0040 !important;
-}
 .games-list {
     font-size: 18px;
     line-height: 1.1;
@@ -69,9 +63,29 @@ td.placed {
     /* padding-bottom: 8px !important; */
     text-align: right;
 }
+tr.win {
+  background-color: #ffdf0030 !important;
+}
+tr:nth-of-type(odd).win {
+  background-color: #ffdf0040 !important;
+}
 tr.win > td.placed {
   color: #ffdf00;
 }
+tr.placed-2 {
+  background-color: #ef20ff30 !important;
+}
+tr:nth-of-type(odd).placed-2 {
+  background-color: #ef20ff40 !important;
+}
+tr.placed-3 {
+  background-color: #4d95ff30 !important;
+}
+tr:nth-of-type(odd).placed-3 {
+  background-color: #4d95ff40 !important;
+}
+
+
 .text-blue {
     color: #4d95ff;
 }

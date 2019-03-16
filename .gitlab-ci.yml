@@ -1,0 +1,28 @@
+image: python:3.6
+
+before_script:
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - eval $(ssh-agent -s)
+  - ssh-add <(echo "$SSH_PRIVATE_KEY")
+  - mkdir ~/.ssh
+  - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+  - pip install --upgrade pip
+  - pip install poetry
+
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  script:
+    - python -m venv venv
+    - source venv/bin/activate
+    - poetry update
+    - git clone git@gitlab.com:OverTrack/overtrack-v2.git
+    - mv -t . ./overtrack-v2/models
+    - mkdir util
+    - mv -t ./util ./overtrack-v2/overtrack/util
+    - rm overtrack-v2 -Rf
+    - zappa update main
+  only:
+    - master

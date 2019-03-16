@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "apextrack-web-poc"
+version = "0.1.0"
+description = ""
+authors = ["Simon Pinfold <simon@uint8.me>"]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+
+zappa = "^0.47"
+
+flask = "^1"
+bootstrap-flask = "*"
+
+pynamodb = "^3"
+
+sentry-sdk = "^0.5"
+google-cloud-logging = "^1"
+
+[tool.poetry.dev-dependencies]
+
+#pytest = "*"
+#pytest-ordering = "*"
+#pytest-sugar = "*"
+#pytest-cov = "*"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
