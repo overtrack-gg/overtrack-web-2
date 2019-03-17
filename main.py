@@ -1,11 +1,13 @@
 import logging
 
 from datetime import datetime
+from functools import wraps
+
 from flask import Flask, render_template, url_for
 from flask_bootstrap import Bootstrap
 from typing import Optional
 
-from api.authentication import Authentication
+from api.authentication import require_login
 from api.session import session
 from models.apex_game_summary import ApexGameSummary
 from overtrack.util import s2ts
@@ -13,9 +15,6 @@ from overtrack.util.logging_config import config_logger
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
-authentication = Authentication(
-    app=app
-)
 
 logger = logging.getLogger(__name__)
 
@@ -44,9 +43,22 @@ def duration(t: float):
 
 @app.route("/")
 @app.route("/games")
+@require_login
 def games_list():
     context = {
         'games': ApexGameSummary.user_id_time_index.query(session.user_id, newest_first=True),
+        'to_ordinal': to_ordinal,
+        's2ts': duration,
+        'strftime': strftime,
+        'image_url': image_url
+    }
+    return render_template('games.html', **context)
+
+
+@app.route("/eeveea_")
+def eeveea_games():
+    context = {
+        'games': ApexGameSummary.user_id_time_index.query(-1, newest_first=True),
         'to_ordinal': to_ordinal,
         's2ts': duration,
         'strftime': strftime,

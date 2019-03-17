@@ -10,5 +10,8 @@
     "main": {
         "extends": "base",
         "apigateway_description": "ApexTrack Web POC",
+
+        "domain": "apex-beta.overtrack.gg",
+        "certificate_arn": "arn:aws:acm:us-east-1:377693579846:certificate/7f1b8659-1bba-4375-b97a-b9657c199b2a"
     }
 }
