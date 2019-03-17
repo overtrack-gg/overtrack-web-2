@@ -11,6 +11,8 @@ zappa = "^0.47"
 
 flask = "^1"
 bootstrap-flask = "*"
+pyjwt = "*"
+shortuuid = "*"
 
 pynamodb = "^3"
 
