@@ -6,6 +6,7 @@ authors = ["Simon Pinfold <simon@uint8.me>"]
 
 [tool.poetry.dependencies]
 python = "^3.6"
+dataclasses = "*"
 
 zappa = "^0.47"
 

@@ -26,6 +26,7 @@ deploy:
     - git clone git@gitlab.com:OverTrack/overtrack_2_api.git
     - mv -t . ./overtrack_2_api/api
     - rm overtrack-v2 -Rf
+    - ls
     - zappa update main
   only:
     - master

@@ -13,6 +13,7 @@
                         <th style="text-align: right;">Kills</th>
                         <th style="text-align: right;">Placed</th>
                         <th>Drop Location</th>
+                        <th style="text-align: right;">Squad Kills</th>
                         <!--<th>Favourite Weapons</th>-->
                     </tr>
                 </thead>
@@ -34,6 +35,9 @@
                         </td>
                         <td>
                             {{ game.landed }}
+                        </td>
+                        <td class="squad-kills">
+                            {{ game.squad_kills or "-" }}
                         </td>
                         <!--<td></td>-->
                     </tr>
