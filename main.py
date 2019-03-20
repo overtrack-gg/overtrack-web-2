@@ -7,7 +7,7 @@ from flask import Flask, render_template, url_for
 from flask_bootstrap import Bootstrap
 from typing import Optional
 
-from api.authentication import require_login
+from api.authentication import Authentication, require_authentication
 from api.session import session
 from models.apex_game_summary import ApexGameSummary
 from overtrack.util import s2ts
@@ -43,7 +43,7 @@ def duration(t: float):
 
 @app.route("/")
 @app.route("/games")
-@require_login
+@require_authentication
 def games_list():
     context = {
         'games': ApexGameSummary.user_id_time_index.query(session.user_id, newest_first=True),
@@ -58,7 +58,7 @@ def games_list():
 @app.route("/eeveea_")
 def eeveea_games():
     context = {
-        'games': ApexGameSummary.user_id_time_index.query(-1, newest_first=True),
+        'games': ApexGameSummary.user_id_time_index.query(347766573, newest_first=True),
         'to_ordinal': to_ordinal,
         's2ts': duration,
         'strftime': strftime,
@@ -66,3 +66,15 @@ def eeveea_games():
     }
     return render_template('games.html', **context)
 
+
+@app.route("/by_key/<int:key>")
+@require_authentication(superuser_required=True)
+def games_by_key(key: int):
+    context = {
+        'games': ApexGameSummary.user_id_time_index.query(key, newest_first=True),
+        'to_ordinal': to_ordinal,
+        's2ts': duration,
+        'strftime': strftime,
+        'image_url': image_url
+    }
+    return render_template('games.html', **context)
