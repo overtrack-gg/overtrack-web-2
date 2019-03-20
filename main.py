@@ -28,7 +28,7 @@ def to_ordinal(n: int) -> str:
 
 
 def image_url(champ: Optional[str]) -> str:
-    return url_for('static', filename=f'images/{champ}.png' if champ else 'images/unknown.png')
+    return url_for('static', filename=f'images/{champ.lower()}.png' if champ else 'images/unknown.png')
 
 
 def strftime(t: float):
