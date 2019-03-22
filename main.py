@@ -67,11 +67,11 @@ def eeveea_games():
     return render_template('games.html', **context)
 
 
-@app.route("/by_key/<int:key>")
+@app.route("/by_key/<string:key>")
 @require_authentication(superuser_required=True)
-def games_by_key(key: int):
+def games_by_key(key: str):
     context = {
-        'games': ApexGameSummary.user_id_time_index.query(key, newest_first=True),
+        'games': ApexGameSummary.user_id_time_index.query(int(key), newest_first=True),
         'to_ordinal': to_ordinal,
         's2ts': duration,
         'strftime': strftime,

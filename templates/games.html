@@ -10,6 +10,7 @@
                         <th>Time</th>
                         <th>Duration</th>
                         <th>Squad</th>
+                        <th style="text-align: right;">Downs</th>
                         <th style="text-align: right;">Kills</th>
                         <th style="text-align: right;">Placed</th>
                         <th>Drop Location</th>
@@ -27,6 +28,9 @@
                             <div style="background-image: url('{{ image_url(game.squadmates[0]) }}')" class="character-icon"> </div>
                             <div style="background-image: url('{{ image_url(game.squadmates[1]) }}')" class="character-icon"> </div>
                         </td>
+                        <td class="knockdowns">
+                            {{ game.knockdowns if game.knockdowns != None else "-" }}
+                        </td>
                         <td class="kills">
                             {{ game.kills }}
                         </td>
@@ -37,7 +41,7 @@
                             {{ game.landed }}
                         </td>
                         <td class="squad-kills">
-                            {{ game.squad_kills or "-" }}
+                            {{ game.squad_kills if game.squad_kills != None else "-" }}
                         </td>
                         <!--<td></td>-->
                     </tr>
