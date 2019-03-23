@@ -93,18 +93,40 @@ def games_list():
 @app.route('/game/<path:key>')
 def game(key: str):
     summary = ApexGameSummary.get(key)
+    logger.info(f'Fetching {summary.url}')
     r = requests.get(summary.url)
     if r.status_code == 404:
         return Response(
             "This isn't the game you're looking for",
             status=404
         )
-
     r.raise_for_status()
+    game_data = r.json()
+
+    # used for link previews
+    og_title = f'{game_data["squad"]["player"]["name"]} placed #{summary.placed}'  # TODO: find another way of getting the name
+    theme_color = {
+        1: '#ffdf00',
+        2: '#ef20ff',
+        3: '#ffdf00'
+    }.get(summary.placed, '#992e26')
+    og_description = f'{summary.kills} Kills'
+    if summary.knockdowns:
+        og_description += f'\n{summary.knockdowns} Knockdowns'
+    if summary.squad_kills:
+        og_description += f'\n{summary.squad_kills} Squad Kills'
+    if summary.landed != 'Unknown':
+        og_description += f'\nDropped {summary.landed}'
+
     return render_template(
         'game.html',
         summary=summary,
-        game=r.json(),
+        game=game_data,
+
+        og_title=og_title,
+        theme_colour=theme_color,
+        og_description=og_description,
+
         **base_context
     )
 
