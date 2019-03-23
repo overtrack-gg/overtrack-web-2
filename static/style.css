@@ -3,10 +3,40 @@
     padding-top: 0 !important;
     padding-bottom: 5px !important;
 }
+.bg-header a{
+  color: rgb(248, 249, 250)
+}
+.card-body {
+    padding-top: 0;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    padding: 0.5rem;
+}
+.card-header {
+  padding-bottom: 0;
+  background-color: #992e2690;
+}
+.card {
+  border: 1px solid rgba(255,255,255,.125);
+  margin-bottom: 0.5rem;
+}
+.bg-dark .card {
+  background-color: #282C2F !important;
+}
+.row {
+  padding-bottom: 0;
+}
+
 .games-list {
     font-size: 18px;
     line-height: 1.1;
+    border-radius: .25rem;
     padding: .5rem !important;
+    margin-bottom: 0.5rem;
+}
+.games-list-row {
+  padding-left: 1rem;
+  padding-right: 1rem; 
 }
 .games-list tr {
     padding: .5rem !important;
@@ -23,7 +53,6 @@
     margin-right: 1px;
     background-repeat: no-repeat;
     background-size: contain;
-    /* background-position-y: -5px; */
     width: 70px;
     padding-top: 2px;
     padding-bottom: 2px;
@@ -41,11 +70,11 @@ td.noheight {
   margin: 0 !important;
   line-height: 0;
 }
-td.squad {
+.games-list td.squad {
   width: 140px;
   padding-left: 5px !important;
 }
-td.kills, td.squad-kills, td.knockdowns {
+.games-list td.kills, .games-list td.squad-kills, .games-list td.knockdowns {
   text-align: right;
   padding-right: 20px !important;
   padding-top: 6px !important;
@@ -54,7 +83,7 @@ td.kills, td.squad-kills, td.knockdowns {
   line-height: 1;
   font-weight: bold;
 }
-td.placed {
+.games-list td.placed {
     color: #EE3D20;
     font-size: 28px;
     line-height: 1;
@@ -63,27 +92,80 @@ td.placed {
     /* padding-bottom: 8px !important; */
     text-align: right;
 }
-tr.placed-1 {
+.games-list tr.clickable {
+  cursor: pointer;
+}
+.games-list tr.placed-1 {
   background-color: #ffdf0040 !important;
 }
-tr:nth-of-type(odd).placed-1 {
+.games-list tr:nth-of-type(odd).placed-1 {
   background-color: #ffdf0050 !important;
 }
-tr.placed-1 > td.placed {
+.games-list tr.placed-1 > td.placed {
   color: #ffdf00;
 }
-tr.placed-2 {
+.games-list tr.placed-2 {
   background-color: #ef20ff40 !important;
 }
-tr:nth-of-type(odd).placed-2 {
+.games-list tr:nth-of-type(odd).placed-2 {
   background-color: #ef20ff50 !important;
 }
-tr.placed-3 {
+.games-list tr.placed-3 {
   background-color: #4d95ff40 !important;
 }
-tr:nth-of-type(odd).placed-3 {
+.games-list tr:nth-of-type(odd).placed-3 {
   background-color: #4d95ff50 !important;
 }
+
+.weapons-list td.knockdowns {
+  text-align: right;
+  padding-right: 25px !important;
+  font-size: 20px;
+  line-height: 1;
+  font-weight: bold;
+}
+
+.combat-stats td.value {
+  text-align: right;
+  padding-right: 20px !important;
+  font-size: 20px;
+  line-height: 1;
+  font-weight: bold;
+}
+
+.weapons-col {
+  padding-right: 0.25rem;
+}
+.map-col {
+  padding-left: 0.25rem;
+}
+
+.player-card {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: top -76px left 0px;
+  background-clip: content-box;
+  z-index: 0;
+}
+.player-card::before {
+  opacity: 0.75;
+  background-color: #000;
+  border-radius: .25rem;
+  content: "";
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: 1;
+}
+.player-card * {
+  z-index: 2;
+}
+.player-stats td.value {
+  font-weight: bold;
+}
+
 
 
 .text-blue {
@@ -94,4 +176,9 @@ tr:nth-of-type(odd).placed-3 {
 }
 .text-gold {
     color: #ffdf00;
+}
+
+
+.table-responsive {
+    display: table;
 }

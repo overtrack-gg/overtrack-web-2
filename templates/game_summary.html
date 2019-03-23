@@ -1,0 +1,42 @@
+{% macro header() -%}
+    <tr>
+        <th>Time</th>
+        <th>Duration</th>
+        <th>Squad</th>
+        <th style="text-align: right;">Downs</th>
+        <th style="text-align: right;">Kills</th>
+        <th style="text-align: right;">Placed</th>
+        <th>Dropped</th>
+        <th style="text-align: right;">Squad Kills</th>
+        <!--<th>Favourite Weapons</th>-->
+    </tr>
+{%- endmacro %}
+
+{% macro summary(game, clickable=True) -%}
+    <tr data-href={{url_for('game', key=game.key)}}
+        data-key="{{game.key}}"
+        class="{{'clickable' if game.url and clickable else ''}} {{ 'win' if game.won else '' }} placed-{{game.placed}}">
+        <td>{{ strftime(game.timestamp) }}</td>
+        <td>{{ s2ts(game.duration) }}</td>
+        <td class="m-0 p-0 h-100 noheight squad">
+            <div style="background-image: url('{{ image_url(game.champion) }}')" class="character-icon highlight"></div>
+            <div style="background-image: url('{{ image_url(game.squadmates[0]) }}')" class="character-icon"></div>
+            <div style="background-image: url('{{ image_url(game.squadmates[1]) }}')" class="character-icon"></div>
+        </td>
+        <td class="knockdowns">
+            {{ game.knockdowns if game.knockdowns != None else "-" }}
+        </td>
+        <td class="kills">
+            {{ game.kills }}
+        </td>
+        <td class="placed">
+            #{{ game.placed }}
+        </td>
+        <td>
+            {{ game.landed }}
+        </td>
+        <td class="squad-kills">
+            {{ game.squad_kills if game.squad_kills != None else "-" }}
+        </td>
+    </tr>
+{%- endmacro %}

@@ -1,3 +1,5 @@
+{% import 'game_summary.html' as game_summary with context %}
+
 {% extends "base.html" %}
 {% block title %}Games{% endblock %}
 {% block content %}
@@ -6,45 +8,11 @@
         <div class="container table-responsive">
             <table class="table table-borderless table-striped table-hover table-dark shadow games-list">
                 <thead class="">
-                    <tr>
-                        <th>Time</th>
-                        <th>Duration</th>
-                        <th>Squad</th>
-                        <th style="text-align: right;">Downs</th>
-                        <th style="text-align: right;">Kills</th>
-                        <th style="text-align: right;">Placed</th>
-                        <th>Drop Location</th>
-                        <th style="text-align: right;">Squad Kills</th>
-                        <!--<th>Favourite Weapons</th>-->
-                    </tr>
+                    {{ game_summary.header() }}
                 </thead>
                 <tbody>
                 {% for game in games %}
-                    <tr data-key="{{game.key}}" class="{{ 'win' if game.won else '' }} placed-{{game.placed}}">
-                        <td>{{ strftime(game.timestamp) }}</td>
-                        <td>{{ s2ts(game.duration) }}</td>
-                        <td class="m-0 p-0 h-100 noheight squad">
-                            <div style="background-image: url('{{ image_url(game.champion) }}')" class="character-icon highlight"></div>
-                            <div style="background-image: url('{{ image_url(game.squadmates[0]) }}')" class="character-icon"> </div>
-                            <div style="background-image: url('{{ image_url(game.squadmates[1]) }}')" class="character-icon"> </div>
-                        </td>
-                        <td class="knockdowns">
-                            {{ game.knockdowns if game.knockdowns != None else "-" }}
-                        </td>
-                        <td class="kills">
-                            {{ game.kills }}
-                        </td>
-                        <td class="placed">
-                            #{{ game.placed }}
-                        </td>
-                        <td>
-                            {{ game.landed }}
-                        </td>
-                        <td class="squad-kills">
-                            {{ game.squad_kills if game.squad_kills != None else "-" }}
-                        </td>
-                        <!--<td></td>-->
-                    </tr>
+                    {{ game_summary.summary(game) }}
                 {% endfor %}
                 </tbody>
             </table>

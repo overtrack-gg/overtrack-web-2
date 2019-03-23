@@ -1,0 +1,7 @@
+{% macro map(route, combat) -%}
+    <script type="text/javascript">
+        const route = {{ route | tojson | safe }};
+        const combat = {{ combat | tojson | safe }};
+    </script>
+    <div id="map" class="w-100 h-100" style="height: 550px !important;"></div>
+{%- endmacro -%}

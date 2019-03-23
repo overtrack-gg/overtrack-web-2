@@ -1,9 +1,11 @@
+import json
 import logging
 
 from datetime import datetime
 from functools import wraps
 
-from flask import Flask, render_template, url_for
+import requests
+from flask import Flask, render_template, url_for, Response, jsonify
 from flask_bootstrap import Bootstrap
 from typing import Optional
 
@@ -21,14 +23,41 @@ logger = logging.getLogger(__name__)
 config_logger('apextrack-web', logging.INFO, False)
 
 
+@app.template_filter()
+def ifnone(v, o):
+    if v is None:
+        print(v, '>', o)
+        return o
+    else:
+        return v
+
+
 def to_ordinal(n: int) -> str:
     suffixes = {1: 'st', 2: 'nd', 3: 'rd'}
     i = n if n < 20 else n % 10
     return f'{n}{suffixes.get(i, "th")}'
 
 
-def image_url(champ: Optional[str]) -> str:
-    return url_for('static', filename=f'images/{champ.lower()}.png' if champ else 'images/unknown.png')
+def image_url(champ: Optional[str], large: bool = False) -> str:
+    if large:
+        return url_for('static', filename=f'images/{champ.lower()}_large.png' if champ else '')
+    else:
+        return url_for('static', filename=f'images/{champ.lower()}.png' if champ else 'images/unknown.png')
+
+
+COLOURS = {
+    'octane': '#486F3B',
+    'mirage': '#D09B49',
+    'bloodhound': '#AD2A33',
+    'gibraltar': '#6B4B3C',
+    'caustic': '#689122',
+    'pathfinder': '#58859F',
+    'wraith': '#5F439F',
+    'bangalore': '#572C23',
+    'lifeline': '#C243D8'
+}
+def champion_colour(champ: str) -> str:
+    return COLOURS.get(champ.lower() if champ else None)
 
 
 def strftime(t: float):
@@ -37,44 +66,64 @@ def strftime(t: float):
     return date + ' ' + dt.strftime('%I:%M %p')
 
 
-def duration(t: float):
+def duration(t: Optional[float]):
+    if t is None:
+        return '?'
     return s2ts(t).split(':', 1)[1]
 
+
+base_context = {
+    'to_ordinal': to_ordinal,
+    's2ts': duration,
+    'strftime': strftime,
+    'image_url': image_url,
+    'champion_colour': champion_colour,
+}
 
 @app.route("/")
 @app.route("/games")
 @require_authentication
 def games_list():
-    context = {
-        'games': ApexGameSummary.user_id_time_index.query(session.user_id, newest_first=True),
-        'to_ordinal': to_ordinal,
-        's2ts': duration,
-        'strftime': strftime,
-        'image_url': image_url
-    }
-    return render_template('games.html', **context)
+    return render_template(
+        'games.html',
+        games=ApexGameSummary.user_id_time_index.query(session.user_id, newest_first=True),
+        **base_context
+    )
+
+
+@app.route('/game/<path:key>')
+def game(key: str):
+    summary = ApexGameSummary.get(key)
+    r = requests.get(summary.url)
+    if r.status_code == 404:
+        return Response(
+            "This isn't the game you're looking for",
+            status=404
+        )
+
+    r.raise_for_status()
+    return render_template(
+        'game.html',
+        summary=summary,
+        game=r.json(),
+        **base_context
+    )
 
 
 @app.route("/eeveea_")
 def eeveea_games():
-    context = {
-        'games': ApexGameSummary.user_id_time_index.query(347766573, newest_first=True),
-        'to_ordinal': to_ordinal,
-        's2ts': duration,
-        'strftime': strftime,
-        'image_url': image_url
-    }
-    return render_template('games.html', **context)
+    return render_template(
+        'games.html',
+        games=ApexGameSummary.user_id_time_index.query(347766573, newest_first=True),
+        **base_context
+    )
 
 
 @app.route("/by_key/<string:key>")
 @require_authentication(superuser_required=True)
 def games_by_key(key: str):
-    context = {
-        'games': ApexGameSummary.user_id_time_index.query(int(key), newest_first=True),
-        'to_ordinal': to_ordinal,
-        's2ts': duration,
-        'strftime': strftime,
-        'image_url': image_url
-    }
-    return render_template('games.html', **context)
+    return render_template(
+        'games.html',
+        games=ApexGameSummary.user_id_time_index.query(int(key), newest_first=True),
+        **base_context
+    )

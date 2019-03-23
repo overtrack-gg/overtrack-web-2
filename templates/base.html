@@ -9,5 +9,20 @@
 <body class="text-light bg-dark">
 {% block content %}{% endblock %}
 {{ bootstrap.load_js() }}
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="{{ url_for('static', filename='map.js') }}"></script>
+<script type="text/javascript">
+    $(document).ready(function($) {
+        $("tr.clickable").click(function() {
+            window.document.location = $(this).data("href");
+        });
+        $("tr.clickable").mouseup(function() {
+            if (event.button === 1){
+                window.open($(this).data("href"));
+            }
+        });
+    });
+
+</script>
 </body>
 </html>
