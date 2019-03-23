@@ -20,7 +20,6 @@ bootstrap = Bootstrap(app)
 
 logger = logging.getLogger(__name__)
 
-config_logger('apextrack-web', logging.INFO, False)
 
 
 @app.template_filter()
