@@ -22,7 +22,7 @@ function draw_map() {
     small: 1210, 1209 : 63, 57
     large: 1260, 1256 : 13, 7
     */
-    const TIMESCALE = 3;
+    const TIMESCALE = 10;
 
     const TIMESTART = locations[0][0];
     const TIMEEND = locations[locations.length - 1][0];
@@ -79,12 +79,12 @@ function draw_map() {
             drop_path.attr("stroke-width", LINE_SIZE / d3.event.transform.k);
             travel_path.attr("stroke-width", LINE_SIZE / d3.event.transform.k);
             knocks_a.attr("r", ELIM_SCALE / d3.event.transform.k);
-            knocks_a.attr("stroke-width", 1 / d3.event.transform.k);
             elims_a.attr("r", ELIM_SCALE / d3.event.transform.k);
-            elims_a.attr("stroke-width", 1 / d3.event.transform.k);
             knocks.attr("r", ELIM_SCALE / d3.event.transform.k);
-            knocks.attr("stroke-width", 1 / d3.event.transform.k);
             elims.attr("r", ELIM_SCALE / d3.event.transform.k);
+            knocks_a.attr("stroke-width", 1 / d3.event.transform.k);
+            elims_a.attr("stroke-width", 1 / d3.event.transform.k);
+            knocks.attr("stroke-width", 1 / d3.event.transform.k);
             elims.attr("stroke-width", 1 / d3.event.transform.k);
         });
 
@@ -193,26 +193,24 @@ function draw_map() {
     var drop_path_len = drop_path.node().getTotalLength();
     var travel_path_len = travel_path.node().getTotalLength();
 
-    travel_path
-        .attr("stroke-dasharray", travel_path_len)
-        .attr("stroke-dashoffset", travel_path_len)
-
-    t = d3.transition();
+    var t = d3.transition();
 
     drop_path
         .attr("stroke-dasharray", drop_path_len)
         .attr("stroke-dashoffset", drop_path_len)
         .transition(t)
-        .duration(TIMESCALE * route.time_landed)
+        .duration(TIMESCALE * (route.time_landed - TIMESTART))
         .ease(d3.easeLinear)
-        .attr("stroke-dashoffset", 0)
+        .attr("stroke-dashoffset", 0);
 
     travel_path
+        .attr("stroke-dasharray", travel_path_len)
+        .attr("stroke-dashoffset", travel_path_len)
         .transition(t)
-        .delay(TIMESCALE * route.time_landed)
-        .duration(TIMESCALE * (TIMEDURATION - route.time_landed))
+        .delay(TIMESCALE * (route.time_landed - TIMESTART))
+        .duration(TIMESCALE * (TIMEEND - route.time_landed))
         .ease(d3.easeLinear)
-        .attr("stroke-dashoffset", 0)
+        .attr("stroke-dashoffset", 0);
 
     // landing
     //     .attr("r", LANDING_SCALE_INIT / k)
@@ -224,7 +222,7 @@ function draw_map() {
         .attr("r", ELIM_SCALE_INIT / k)
         .attr("opacity", 0)
         .transition(t)
-        .delay(function (d) { return TIMESCALE * (d.timestamp - TIMESTART) - 250 })
+        .delay(function (d) { return TIMESCALE * (d.timestamp - TIMESTART) })
         .duration(500)
         .attr("r", ELIM_SCALE / k)
         .attr("opacity", 1);
@@ -233,7 +231,7 @@ function draw_map() {
         .attr("r", ELIM_SCALE_INIT / k)
         .attr("opacity", 0)
         .transition(t)
-        .delay(function (d) { return TIMESCALE * (d.timestamp - TIMESTART) - 250 })
+        .delay(function (d) { return TIMESCALE * (d.timestamp - TIMESTART) })
         .duration(500)
         .attr("r", ELIM_SCALE / k)
         .attr("opacity", 1);
@@ -242,7 +240,7 @@ function draw_map() {
         .attr("r", ELIM_SCALE_INIT / k)
         .attr("opacity", 0)
         .transition(t)
-        .delay(function (d) { return TIMESCALE * (d.timestamp - TIMESTART) - 250 })
+        .delay(function (d) { return TIMESCALE * (d.timestamp - TIMESTART) })
         .duration(500)
         .attr("r", ELIM_SCALE / k)
         .attr("opacity", 1);
@@ -251,7 +249,7 @@ function draw_map() {
         .attr("r", ELIM_SCALE_INIT / k)
         .attr("opacity", 0)
         .transition(t)
-        .delay(function (d) { return TIMESCALE * (d.timestamp - TIMESTART) - 250 })
+        .delay(function (d) { return TIMESCALE * (d.timestamp - TIMESTART) })
         .duration(500)
         .attr("r", ELIM_SCALE / k)
         .attr("opacity", 1);
