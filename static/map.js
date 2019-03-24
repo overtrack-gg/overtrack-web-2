@@ -136,6 +136,9 @@ function draw_map() {
                 elims_a.attr("visibility", "hidden")
             }
         })
+        .on("dblclick", function() {
+            d3.event.stopPropagation()
+        })
 
     overlay.append("text")
         .attr("x", 137+10)
