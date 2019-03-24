@@ -447,4 +447,8 @@ function draw_map() {
 }
 
 $(window).resize(draw_map);
-$(document).ready(draw_map);
+$(document).ready(function () {
+    draw_map()
+    $("#map").on("mouseover",function(){ $("body").css("overflow-y","hidden") })
+    $("#map").on("mouseout",function(){ $("body").css("overflow-y","auto") })
+});
