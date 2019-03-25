@@ -136,6 +136,9 @@ function draw_map() {
                 elims_a.attr("visibility", "hidden")
             }
         })
+        .on("dblclick", function() {
+            d3.event.stopPropagation()
+        })
 
     overlay.append("text")
         .attr("x", 137+10)
@@ -447,4 +450,8 @@ function draw_map() {
 }
 
 $(window).resize(draw_map);
-$(document).ready(draw_map);
+$(document).ready(function () {
+    draw_map()
+    $("#map").on("mouseover",function(){ $("body").css("overflow-y","hidden") })
+    $("#map").on("mouseout",function(){ $("body").css("overflow-y","auto") })
+});
