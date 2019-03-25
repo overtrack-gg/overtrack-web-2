@@ -3,8 +3,8 @@ const IMAGE = "/static/images/"
 
 var locations = route.locations;
 var landed_index = route.landed_location_index;
-var [drop, travel] = [route.locations.slice(0, landed_index), route.locations.slice(landed_index)];
-var eliminations = combat;
+var [drop, travel] = [route.locations.slice(0, landed_index), route.locations.slice(landed_index - 1)];
+// var combat = combat;
 
 const TIMESCALE = 10;
 
@@ -16,7 +16,13 @@ const LINE_SIZE = 2;
 const ELIM_SCALE_INIT = 30;
 const ELIM_SCALE = 15;
 
+const BTN = "#992e26";
+const BTN_OVER = "#b92e26";
+const BTN_ACTIVE = "#228b22";
+const BTN_ACTIVE_OVER = "#22bb22";
+
 var assist_visibility = "hidden";
+var heat_visibility = "hidden";
 
 function draw_map() {
     d3.selectAll("svg").remove();
@@ -75,55 +81,62 @@ function draw_map() {
     *************************************************************************/
 
     overlay.append("rect")
-        .attr("x", -20)
+        .attr("x", -40)
         .attr("y", 0)
-        .attr("width", 450)
-        .attr("height", 50)
+        .attr("width", 5 + 11 + 5 + 100 + 20 + 120 + 10 + 115 + 10 + 70 + 10 + 40)
+        .attr("height", 40)
         .attr("fill", "Black")
         .attr("transform", "skewX(-40)")
-        .attr("opacity", 0.5)
+        .attr("opacity", 0.75)
+
+    /* KNOCKDOWN INFO */
 
     overlay.append("image")
         .attr("xlink:href", IMAGE + "knock.svg")
-        .attr("x", 6)
+        .attr("x", 5)
         .attr("y", 6)
-        .attr("width", 16)
-        .attr("height", 16)
+        .attr("width", 11)
+        .attr("height", 11)
 
     overlay.append("text")
-        .attr("x", 28)
-        .attr("y", 19)
+        .attr("x", 5 + 11 + 5)
+        .attr("y", 6 + 10)
         .attr("fill", "White")
         .attr("pointer-events", "none")
         .text("Knockdown")
 
+    /* ELIMINATION INFO */
+
     overlay.append("image")
         .attr("xlink:href", IMAGE + "elim.svg")
-        .attr("x", 6)
-        .attr("y", 28)
-        .attr("width", 16)
-        .attr("height", 16)
+        .attr("x", 5)
+        .attr("y", 6 + 11 + 6)
+        .attr("width", 11)
+        .attr("height", 11)
 
     overlay.append("text")
-        .attr("x", 28)
-        .attr("y", 41)
+        .attr("x", 5 + 11 + 5)
+        .attr("y", 6 + 11 + 6 + 10)
         .attr("fill", "White")
         .attr("pointer-events", "none")
+        .attr("user-select", "none")
         .text("Elimination")
 
+    /* TOGGLE ASSISTS */
+
     overlay.append("rect")
-        .attr("x", 125+30)
-        .attr("y", 10)
-        .attr("width", 125)
-        .attr("height", 30)
-        .attr("fill", "#992e26")
+        .attr("x", 5 + 11 + 5 + 100 + 20)
+        .attr("y", 8)
+        .attr("width", 120)
+        .attr("height", 24)
+        .attr("fill", assist_visibility == "hidden" ? BTN : BTN_ACTIVE)
         .attr("transform", "skewX(-40)")
         .attr("cursor", "pointer")
         .on("mouseover", function () {
-            d3.select(this).attr("fill", "#b92e26")
+            d3.select(this).attr("fill", assist_visibility == "hidden" ? BTN_OVER : BTN_ACTIVE_OVER)
         })
         .on("mouseout", function () {
-            d3.select(this).attr("fill", "#992e26")
+            d3.select(this).attr("fill", assist_visibility == "hidden" ? BTN : BTN_ACTIVE)
         })
         .on("click", function () {
             if (assist_visibility == "hidden") {
@@ -135,23 +148,69 @@ function draw_map() {
                 knocks_a.attr("visibility", "hidden")
                 elims_a.attr("visibility", "hidden")
             }
+            d3.select(this).attr("fill", assist_visibility == "hidden" ? BTN_OVER : BTN_ACTIVE_OVER)
         })
         .on("dblclick", function() {
             d3.event.stopPropagation()
         })
 
     overlay.append("text")
-        .attr("x", 137+10)
-        .attr("y", 30)
+        .attr("x", 5 + 11 + 5 + 100 + 15)
+        .attr("y", 26)
         .attr("fill", "White")
         .attr("pointer-events", "none")
+        .attr("user-select", "none")
         .text("Toggle Assists")
 
+    /* TOGGLE HEATMAP */
+
     overlay.append("rect")
-        .attr("x", 260+30)
-        .attr("y", 10)
-        .attr("width", 125)
-        .attr("height", 30)
+        .attr("x", 5 + 11 + 5 + 100 + 20 + 120 + 10)
+        .attr("y", 8)
+        .attr("width", 115)
+        .attr("height", 24)
+        .attr("fill", heat_visibility == "hidden" ? BTN : BTN_ACTIVE)
+        .attr("transform", "skewX(-40)")
+        .attr("cursor", "pointer")
+        .on("mouseover", function () {
+            d3.select(this).attr("fill", heat_visibility == "hidden" ? BTN_OVER : BTN_ACTIVE_OVER)
+        })
+        .on("mouseout", function () {
+            d3.select(this).attr("fill", heat_visibility == "hidden" ? BTN : BTN_ACTIVE)
+        })
+        .on("click", function () {
+            if (heat_visibility == "hidden") {
+                heat_visibility = "visible";
+                heatmap.attr("visibility", "visible")
+                drop_path.attr("visibility", "hidden")
+                travel_path.attr("visibility", "hidden")
+            } else {
+                heat_visibility = "hidden";
+                heatmap.attr("visibility", "hidden")
+                drop_path.attr("visibility", "visible")
+                travel_path.attr("visibility", "visible")
+            }
+            d3.select(this).attr("fill", heat_visibility == "hidden" ? BTN_OVER : BTN_ACTIVE_OVER)
+        })
+        .on("dblclick", function() {
+            d3.event.stopPropagation()
+        })
+
+    overlay.append("text")
+        .attr("x", 5 + 11 + 5 + 100 + 20 + 120 + 5)
+        .attr("y", 26)
+        .attr("fill", "White")
+        .attr("pointer-events", "none")
+        .attr("user-select", "none")
+        .text("Activity Map")
+
+    /* REPLAY */
+
+    overlay.append("rect")
+        .attr("x", 5 + 11 + 5 + 100 + 20 + 120 + 10 + 115 + 10)
+        .attr("y", 8)
+        .attr("width", 70)
+        .attr("height", 24)
         .attr("fill", "#992e26")
         .attr("transform", "skewX(-40)")
         .attr("cursor", "pointer")
@@ -164,11 +223,11 @@ function draw_map() {
         .on("click", draw_map)
 
     overlay.append("text")
-        .attr("x", 286+10)
-        .attr("y", 30)
+        .attr("x", 5 + 11 + 5 + 100 + 20 + 120 + 10 + 115 + 5)
+        .attr("y", 26)
         .attr("fill", "White")
         .attr("pointer-events", "none")
-        .text("Reset View")
+        .text("Replay")
 
     /************************************************************************
     *** ROUTE SETUP
@@ -184,13 +243,90 @@ function draw_map() {
         .attr("stroke", "Cyan")
         .attr("stroke-width", LINE_SIZE)
         .attr("fill", "none")
-        .attr("opacity", 0.5);
+        .attr("opacity", 0.5)
+        .attr("visibility", heat_visibility == "hidden" ? "visible" : "hidden")
 
     var travel_path = svg.append("path")
         .attr("d", lineFunction(travel))
         .attr("stroke", "Lime")
         .attr("stroke-width", LINE_SIZE)
-        .attr("fill", "none");
+        .attr("fill", "none")
+        .attr("visibility", heat_visibility == "hidden" ? "visible" : "hidden")
+
+    /************************************************************************
+    *** HEATMAP SETUP
+    *************************************************************************/
+
+    defs.append("filter")
+        .attr("id", "blur")
+        .append("feGaussianBlur")
+            .attr("in", "SourceGraphic")
+            .attr("stdDeviation", 10)
+
+    var heatmap = svg
+        .append("g")
+        .style("filter", "url(#blur)")
+        .attr("visibility", heat_visibility)
+
+    heatmap
+        .selectAll("travel-heatmap")
+            .data(travel)
+            .enter()
+            .append("circle")
+            .attr("class", "travel-heatmap")
+            .attr("cx", function (d) { return rescale_x(d[1][0]) })
+            .attr("cy", function (d) { return rescale_y(d[1][1]) })
+            .attr("r", 0)
+            .attr("fill", "Lime")
+            .attr("opacity", 0.1)
+
+    heatmap
+        .selectAll("activity-heatmap")
+            .data(combat.knockdown_assists)
+            .enter()
+            .append("circle")
+            .attr("class", "activity-heatmap")
+            .attr("cx", function (d) { return rescale_x(d.location[0]) })
+            .attr("cy", function (d) { return rescale_y(d.location[1]) })
+            .attr("r", 0)
+            .attr("fill", "Red")
+            .attr("opacity", 0.5)
+
+    heatmap
+        .selectAll("activity-heatmap")
+            .data(combat.elimination_assists)
+            .enter()
+            .append("circle")
+            .attr("class", "activity-heatmap")
+            .attr("cx", function (d) { return rescale_x(d.location[0]) })
+            .attr("cy", function (d) { return rescale_y(d.location[1]) })
+            .attr("r", 0)
+            .attr("fill", "Red")
+            .attr("opacity", 0.5)
+
+    heatmap
+        .selectAll("activity-heatmap")
+            .data(combat.knockdowns)
+            .enter()
+            .append("circle")
+            .attr("class", "activity-heatmap")
+            .attr("cx", function (d) { return rescale_x(d.location[0]) })
+            .attr("cy", function (d) { return rescale_y(d.location[1]) })
+            .attr("r", 0)
+            .attr("fill", "Red")
+            .attr("opacity", 0.5)
+
+    heatmap
+        .selectAll("activity-heatmap")
+            .data(combat.eliminations)
+            .enter()
+            .append("circle")
+            .attr("class", "activity-heatmap")
+            .attr("cx", function (d) { return rescale_x(d.location[0]) })
+            .attr("cy", function (d) { return rescale_y(d.location[1]) })
+            .attr("r", 0)
+            .attr("fill", "Red")
+            .attr("opacity", 0.5)
 
     /************************************************************************
     *** EVENT ICONS
@@ -198,7 +334,7 @@ function draw_map() {
 
     var knocks_a_image = defs
         .selectAll("knocks_a")
-            .data(eliminations.knockdown_assists)
+            .data(combat.knockdown_assists)
             .enter()
             .append("pattern")
             .attr("id", function (d, i) { return "knocks_a_image_" + i + "" })
@@ -214,7 +350,7 @@ function draw_map() {
 
     var knocks_a = svg
         .selectAll("knocks_a")
-            .data(eliminations.knockdown_assists)
+            .data(combat.knockdown_assists)
             .enter()
             .append("circle")
             .attr("class", "can-collide")
@@ -225,7 +361,7 @@ function draw_map() {
 
     var elims_a_image = defs
         .selectAll("elims_a")
-            .data(eliminations.elimination_assists)
+            .data(combat.elimination_assists)
             .enter()
             .append("pattern")
             .attr("id", function (d, i) { return "elims_a_image_" + i + "" })
@@ -241,7 +377,7 @@ function draw_map() {
 
     var elims_a = svg
         .selectAll("elims_a")
-            .data(eliminations.elimination_assists)
+            .data(combat.elimination_assists)
             .enter()
             .append("circle")
             .attr("class", "can-collide")
@@ -252,7 +388,7 @@ function draw_map() {
 
     var elims_image = defs
         .selectAll("elims")
-            .data(eliminations.eliminations)
+            .data(combat.eliminations)
             .enter()
             .append("pattern")
             .attr("id", function (d, i) { return "elims_image_" + i + "" })
@@ -268,7 +404,7 @@ function draw_map() {
 
     var elims = svg
         .selectAll("elims")
-            .data(eliminations.eliminations)
+            .data(combat.eliminations)
             .enter()
             .append("circle")
             .attr("class", "can-collide")
@@ -278,7 +414,7 @@ function draw_map() {
 
     var knocks_image = defs
         .selectAll("knocks")
-            .data(eliminations.knockdowns)
+            .data(combat.knockdowns)
             .enter()
             .append("pattern")
             .attr("id", function (d, i) { return "knocks_image_" + i + "" })
@@ -294,7 +430,7 @@ function draw_map() {
 
     var knocks = svg
         .selectAll("knocks")
-            .data(eliminations.knockdowns)
+            .data(combat.knockdowns)
             .enter()
             .append("circle")
             .attr("class", "can-collide")
@@ -407,6 +543,24 @@ function draw_map() {
             .ease(d3.easeLinear)
             .attr("stroke-dashoffset", travel_length_at[i-1] || 0);
     };
+
+    /************************************************************************
+    *** HEATMAP ANIMATIONS
+    *************************************************************************/
+
+    heatmap.selectAll(".travel-heatmap")
+        .attr("r", 0)
+        .transition(t)
+        .delay(function (d) { return TIMESCALE * (d[0] - TIMESTART) })
+        .duration(500)
+        .attr("r", 10)
+
+    heatmap.selectAll(".activity-heatmap")
+        .attr("r", 0)
+        .transition(t)
+        .delay(function (d) { return TIMESCALE * (d.timestamp - TIMESTART) })
+        .duration(500)
+        .attr("r", 10)
 
     /************************************************************************
     *** EVENT ICON ANIMATIONS
