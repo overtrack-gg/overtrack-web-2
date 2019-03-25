@@ -268,6 +268,13 @@ function draw_map() {
         .style("filter", "url(#blur)")
         .attr("visibility", heat_visibility)
 
+    heatmap.append("rect")
+        .attr("x", 0)
+        .attr("y", 0)
+        .attr("width", "100%")
+        .attr("height", "100%")
+        .attr("visibility", "hidden")
+
     heatmap
         .selectAll("travel-heatmap")
             .data(travel)
