@@ -4,7 +4,7 @@ const IMAGE = "/static/images/"
 var locations = route.locations;
 var landed_index = route.landed_location_index;
 var [drop, travel] = [route.locations.slice(0, landed_index), route.locations.slice(landed_index - 1)];
-var eliminations = combat;
+// var combat = combat;
 
 const TIMESCALE = 10;
 
@@ -198,7 +198,7 @@ function draw_map() {
 
     var knocks_a_image = defs
         .selectAll("knocks_a")
-            .data(eliminations.knockdown_assists)
+            .data(combat.knockdown_assists)
             .enter()
             .append("pattern")
             .attr("id", function (d, i) { return "knocks_a_image_" + i + "" })
@@ -214,7 +214,7 @@ function draw_map() {
 
     var knocks_a = svg
         .selectAll("knocks_a")
-            .data(eliminations.knockdown_assists)
+            .data(combat.knockdown_assists)
             .enter()
             .append("circle")
             .attr("class", "can-collide")
@@ -225,7 +225,7 @@ function draw_map() {
 
     var elims_a_image = defs
         .selectAll("elims_a")
-            .data(eliminations.elimination_assists)
+            .data(combat.elimination_assists)
             .enter()
             .append("pattern")
             .attr("id", function (d, i) { return "elims_a_image_" + i + "" })
@@ -241,7 +241,7 @@ function draw_map() {
 
     var elims_a = svg
         .selectAll("elims_a")
-            .data(eliminations.elimination_assists)
+            .data(combat.elimination_assists)
             .enter()
             .append("circle")
             .attr("class", "can-collide")
@@ -252,7 +252,7 @@ function draw_map() {
 
     var elims_image = defs
         .selectAll("elims")
-            .data(eliminations.eliminations)
+            .data(combat.eliminations)
             .enter()
             .append("pattern")
             .attr("id", function (d, i) { return "elims_image_" + i + "" })
@@ -268,7 +268,7 @@ function draw_map() {
 
     var elims = svg
         .selectAll("elims")
-            .data(eliminations.eliminations)
+            .data(combat.eliminations)
             .enter()
             .append("circle")
             .attr("class", "can-collide")
@@ -278,7 +278,7 @@ function draw_map() {
 
     var knocks_image = defs
         .selectAll("knocks")
-            .data(eliminations.knockdowns)
+            .data(combat.knockdowns)
             .enter()
             .append("pattern")
             .attr("id", function (d, i) { return "knocks_image_" + i + "" })
@@ -294,7 +294,7 @@ function draw_map() {
 
     var knocks = svg
         .selectAll("knocks")
-            .data(eliminations.knockdowns)
+            .data(combat.knockdowns)
             .enter()
             .append("circle")
             .attr("class", "can-collide")
