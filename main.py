@@ -108,7 +108,7 @@ def game(key: str):
     theme_color = {
         1: '#ffdf00',
         2: '#ef20ff',
-        3: '#ffdf00'
+        3: '#d95ff'
     }.get(summary.placed, '#992e26')
     og_description = f'{summary.kills} Kills'
     if summary.knockdowns:
