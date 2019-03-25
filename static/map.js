@@ -3,7 +3,7 @@ const IMAGE = "/static/images/"
 
 var locations = route.locations;
 var landed_index = route.landed_location_index;
-var [drop, travel] = [route.locations.slice(0, landed_index), route.locations.slice(landed_index)];
+var [drop, travel] = [route.locations.slice(0, landed_index), route.locations.slice(landed_index - 1)];
 var eliminations = combat;
 
 const TIMESCALE = 10;
