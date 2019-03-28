@@ -625,6 +625,9 @@ function draw_map() {
 $(window).resize(draw_map);
 $(document).ready(function () {
     draw_map()
-    $("#map").on("mouseover",function(){ $("body").css("overflow-y","hidden") })
-    $("#map").on("mouseout",function(){ $("body").css("overflow-y","auto") })
+    $("#map").on("mousewheel", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    })
 });
