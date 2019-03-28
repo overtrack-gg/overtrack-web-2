@@ -5,6 +5,7 @@ var locations = route.locations;
 var landed_index = route.landed_location_index;
 var [drop, travel] = [route.locations.slice(0, landed_index), route.locations.slice(landed_index - 1)];
 // var combat = combat;
+var placed = 3;
 
 const TIMESCALE = 10;
 
@@ -334,6 +335,17 @@ function draw_map() {
             .attr("r", 0)
             .attr("fill", "Red")
             .attr("opacity", 0.5)
+
+    if (placed > 1) {
+        heatmap.selectAll("activity-heatmap")
+            .append("circle")
+            .attr("class", "activity-heatmap")
+            .attr("cx", rescale_x(travel[travel.length - 1][1][0]))
+            .attr("cy", rescale_y(travel[travel.length - 1][1][1]))
+            .attr("r", 0)
+            .attr("fill", "Red")
+            .attr("opacity", 0.5)
+    }
 
     /************************************************************************
     *** EVENT ICONS
