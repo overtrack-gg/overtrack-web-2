@@ -182,3 +182,10 @@ td.noheight {
 .table-responsive {
     display: table;
 }
+
+
+.btn-twitch {
+    background-image: linear-gradient(#6441A5, #6441A5, 60%, #392E5C);
+    border-color: #392E5C;
+    background-color: #392E5C;
+}

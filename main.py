@@ -1,19 +1,17 @@
-import json
 import logging
-
 from datetime import datetime
 from functools import wraps
-
-import requests
-from flask import Flask, render_template, url_for, Response, jsonify
-from flask_bootstrap import Bootstrap
 from typing import Optional
 
-from api.authentication import Authentication, require_authentication
+import requests
+from flask import Flask, Response, render_template, url_for, request
+from flask_bootstrap import Bootstrap
+from werkzeug.utils import redirect
+
+from api.authentication import require_authentication, check_authentication
 from api.session import session
 from models.apex_game_summary import ApexGameSummary
 from overtrack.util import s2ts
-from overtrack.util.logging_config import config_logger
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
@@ -79,9 +77,39 @@ base_context = {
     'champion_colour': champion_colour,
 }
 
-@app.route("/")
-@app.route("/games")
-@require_authentication
+@app.route('/login')
+def login():
+    if 'next' in request.args:
+        next_ = request.args['next']
+    else:
+        next_ = request.host_url
+    login_url = 'https://api2.overtrack.gg/login/twitch?next=' + next_
+    return render_template(
+        'login.html',
+        login_url=login_url
+    )
+
+
+def require_login(_endpoint=None):
+    def wrap(endpoint):
+        @wraps(endpoint)
+        def check_login(*args, **kwargs):
+            if check_authentication() is None:
+                return endpoint(*args, **kwargs)
+            else:
+                return redirect(url_for('login', next=request.url))
+
+        return check_login
+
+    if _endpoint is None:
+        return wrap
+    else:
+        return wrap(_endpoint)
+
+
+@app.route('/')
+@app.route('/games')
+@require_login
 def games_list():
     return render_template(
         'games.html',
@@ -131,7 +159,10 @@ def game(key: str):
     )
 
 
-@app.route("/eeveea_")
+# TODO: support a summary in link previews for games lists
+
+
+@app.route('/eeveea_')
 def eeveea_games():
     return render_template(
         'games.html',

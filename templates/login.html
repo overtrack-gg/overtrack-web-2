@@ -1,0 +1,24 @@
+{% import 'game_summary.html' as game_summary with context %}
+
+{% extends "base.html" %}
+{% block title %}Games{% endblock %}
+{% block content %}
+    <h1 class="mx-0 mt-0 mb-lg-auto p-md-3 bg-header"><div class="container">Login</div></h1>
+    <div class="container pt-3">
+        <div class="container">
+            <div class="card bg-dark">
+                <div class="card-header">
+                    <h5>Not Logged In</h5>
+                </div>
+                <div class="card-body" style="margin: 10px;">
+                    <p>We use Twitch for logins. Only your twitch account and associated email address will be provided to ApexTrack.</p>
+                    <a href="{{ login_url }}" type="button" class="btn btn-primary btn-lg btn-dark btn-twitch">
+                        <span><img src="{{ url_for('static', filename='images/Glitch_White_RGB.png') }}"></span>&nbsp;
+                        Log in with Twitch
+                    </a>
+                </div>
+                <br/>
+            </div>
+        </div>
+    </div>
+{% endblock %}
