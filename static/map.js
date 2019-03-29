@@ -292,6 +292,7 @@ function draw_map() {
         .selectAll("activity-heatmap")
             .data(combat.knockdown_assists)
             .enter()
+            .filter(function (d) { return "location" in d; })
             .append("circle")
             .attr("class", "activity-heatmap")
             .attr("cx", function (d) { return rescale_x(d.location[0]) })
@@ -304,6 +305,7 @@ function draw_map() {
         .selectAll("activity-heatmap")
             .data(combat.elimination_assists)
             .enter()
+            .filter(function (d) { return "location" in d; })
             .append("circle")
             .attr("class", "activity-heatmap")
             .attr("cx", function (d) { return rescale_x(d.location[0]) })
@@ -316,6 +318,7 @@ function draw_map() {
         .selectAll("activity-heatmap")
             .data(combat.knockdowns)
             .enter()
+            .filter(function (d) { return "location" in d; })
             .append("circle")
             .attr("class", "activity-heatmap")
             .attr("cx", function (d) { return rescale_x(d.location[0]) })
@@ -328,6 +331,7 @@ function draw_map() {
         .selectAll("activity-heatmap")
             .data(combat.eliminations)
             .enter()
+            .filter(function (d) { return "location" in d; })
             .append("circle")
             .attr("class", "activity-heatmap")
             .attr("cx", function (d) { return rescale_x(d.location[0]) })
@@ -340,8 +344,8 @@ function draw_map() {
         heatmap.selectAll("activity-heatmap")
             .append("circle")
             .attr("class", "activity-heatmap")
-            .attr("cx", rescale_x(travel[travel.length - 1][1][0]))
-            .attr("cy", rescale_y(travel[travel.length - 1][1][1]))
+            .attr("cx", rescale_x(locations[locations.length - 1][1][0]))
+            .attr("cy", rescale_y(locations[locations.length - 1][1][1]))
             .attr("r", 0)
             .attr("fill", "Red")
             .attr("opacity", 0.5)
@@ -355,6 +359,7 @@ function draw_map() {
         .selectAll("knocks_a")
             .data(combat.knockdown_assists)
             .enter()
+            .filter(function (d) { return "location" in d; })
             .append("pattern")
             .attr("id", function (d, i) { return "knocks_a_image_" + i + "" })
             .attr("width", 1)
@@ -371,6 +376,7 @@ function draw_map() {
         .selectAll("knocks_a")
             .data(combat.knockdown_assists)
             .enter()
+            .filter(function (d) { return "location" in d; })
             .append("circle")
             .attr("class", "can-collide")
             .attr("cx", function (d) { return rescale_x(d.location[0]) })
@@ -382,6 +388,7 @@ function draw_map() {
         .selectAll("elims_a")
             .data(combat.elimination_assists)
             .enter()
+            .filter(function (d) { return "location" in d; })
             .append("pattern")
             .attr("id", function (d, i) { return "elims_a_image_" + i + "" })
             .attr("width", 1)
@@ -398,6 +405,7 @@ function draw_map() {
         .selectAll("elims_a")
             .data(combat.elimination_assists)
             .enter()
+            .filter(function (d) { return "location" in d; })
             .append("circle")
             .attr("class", "can-collide")
             .attr("cx", function (d) { return rescale_x(d.location[0]) })
@@ -409,6 +417,7 @@ function draw_map() {
         .selectAll("elims")
             .data(combat.eliminations)
             .enter()
+            .filter(function (d) { return "location" in d; })
             .append("pattern")
             .attr("id", function (d, i) { return "elims_image_" + i + "" })
             .attr("width", 1)
@@ -425,6 +434,7 @@ function draw_map() {
         .selectAll("elims")
             .data(combat.eliminations)
             .enter()
+            .filter(function (d) { return "location" in d; })
             .append("circle")
             .attr("class", "can-collide")
             .attr("cx", function (d) { return rescale_x(d.location[0]) })
@@ -435,6 +445,7 @@ function draw_map() {
         .selectAll("knocks")
             .data(combat.knockdowns)
             .enter()
+            .filter(function (d) { return "location" in d; })
             .append("pattern")
             .attr("id", function (d, i) { return "knocks_image_" + i + "" })
             .attr("width", 1)
@@ -451,6 +462,7 @@ function draw_map() {
         .selectAll("knocks")
             .data(combat.knockdowns)
             .enter()
+            .filter(function (d) { return "location" in d; })
             .append("circle")
             .attr("class", "can-collide")
             .attr("cx", function (d) { return rescale_x(d.location[0]) })
@@ -472,8 +484,10 @@ function draw_map() {
     *** ZOOM SETUP
     *************************************************************************/
 
+    const min_scale = Math.min(SIZE_X, SIZE_Y) / Math.max(SIZE_X, SIZE_Y);
+    const max_scale = 50;
     var zoom = d3.zoom()
-        .scaleExtent([Math.min(SIZE_X, SIZE_Y) / Math.max(SIZE_X, SIZE_Y), 50])
+        .scaleExtent([min_scale, max_scale])
         .translateExtent([[0, 0], [SIZE, SIZE]])
         .on("zoom", function () {
             var k = d3.event.transform.k;
@@ -500,7 +514,7 @@ function draw_map() {
         .call(zoom.scaleTo, 1)
         .call(zoom.translateTo, SIZE / 2, SIZE / 2);
     svg_base
-        .call(zoom.scaleBy, (range_x > range_y ? SIZE_X : SIZE_Y) / (Math.max(range_x, range_y) + 20))
+        .call(zoom.scaleBy, Math.max(Math.min((range_x > range_y ? SIZE_X : SIZE_Y) / (Math.max(range_x, range_y) + 40), max_scale), min_scale))
         .call(zoom.translateTo, min_x + range_x / 2, min_y + range_y / 2);
 
     var k = d3.zoomTransform(svg_base.node()).k;
