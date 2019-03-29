@@ -8,7 +8,8 @@ authors = ["Simon Pinfold <simon@uint8.me>"]
 python = "^3.6"
 dataclasses = "*"
 
-zappa = "^0.47"
+typedload = "*"
+zappa = "^0.48"
 
 flask = "^1"
 bootstrap-flask = "*"
