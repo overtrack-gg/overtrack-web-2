@@ -1,12 +1,14 @@
 import logging
 from datetime import datetime
+from functools import wraps
 from typing import Optional
 
 import requests
 from flask import Flask, Response, render_template, url_for, request
 from flask_bootstrap import Bootstrap
+from werkzeug.utils import redirect
 
-from api.authentication import require_authentication, require_login
+from api.authentication import require_authentication, check_authentication
 from api.session import session
 from models.apex_game_summary import ApexGameSummary
 from overtrack.util import s2ts
@@ -15,6 +17,23 @@ app = Flask(__name__)
 bootstrap = Bootstrap(app)
 
 logger = logging.getLogger(__name__)
+
+
+def require_login(_endpoint=None):
+    def wrap(endpoint):
+        @wraps(endpoint)
+        def check_login(*args, **kwargs):
+            if check_authentication() is None:
+                return endpoint(*args, **kwargs)
+            else:
+                return redirect(url_for('login', next=request.url))
+
+        return check_login
+
+    if _endpoint is None:
+        return wrap
+    else:
+        return wrap(_endpoint)
 
 
 @app.template_filter()
