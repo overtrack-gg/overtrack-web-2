@@ -90,23 +90,6 @@ def login():
     )
 
 
-def require_login(_endpoint=None):
-    def wrap(endpoint):
-        @wraps(endpoint)
-        def check_login(*args, **kwargs):
-            if check_authentication() is None:
-                return endpoint(*args, **kwargs)
-            else:
-                return redirect(url_for('login', next=request.url))
-
-        return check_login
-
-    if _endpoint is None:
-        return wrap
-    else:
-        return wrap(_endpoint)
-
-
 @app.route('/')
 @app.route('/games')
 @require_login
