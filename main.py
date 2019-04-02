@@ -4,7 +4,8 @@ from functools import wraps
 from typing import Optional
 
 import requests
-from flask import Flask, Response, render_template, url_for, request
+from flask import Flask, Response, render_template, request
+from flask import url_for as flask_url_for
 from flask_bootstrap import Bootstrap
 from werkzeug.utils import redirect
 
@@ -17,6 +18,16 @@ app = Flask(__name__)
 bootstrap = Bootstrap(app)
 
 logger = logging.getLogger(__name__)
+
+
+def url_for(endpoint, **values):
+    if endpoint == 'static' and 'filename' in values and values['filename'] not in ['style.css', 'map.js']:
+        return 'https://d2igtsro72if25.cloudfront.net/1/' + values['filename']
+    else:
+        return flask_url_for(endpoint, **values)
+
+
+app.jinja_env.globals['url_for'] = url_for
 
 
 def require_login(_endpoint=None):
