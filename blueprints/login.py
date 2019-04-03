@@ -14,10 +14,10 @@ def login_endpoint():
         next_ = request.args['next']
     else:
         next_ = request.host_url
-    login_url = 'https://api2.overtrack.gg/login/twitch?next=' + next_
     return render_template(
         'login.html',
-        login_url=login_url
+        login_twitch='https://api2.overtrack.gg/login/twitch?next=' + next_,
+        login_bnet='https://api2.overtrack.gg/login/battlenet?next=' + next_
     )
 
 

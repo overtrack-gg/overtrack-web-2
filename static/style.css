@@ -205,6 +205,11 @@ td.noheight {
     border-color: #392E5C;
     background-color: #392E5C;
 }
+.btn-bnet {
+    background-image: linear-gradient(#004d80, #004d80, 60%, #002650);
+    border-color: #002650;
+    background-color: #002650;
+}
 
 .discord-notifications li {
   height: 65px;
