@@ -3,47 +3,59 @@
 {% block meta %}
 {% endblock %}
 {% block content %}
+<style>
+.custom-control-lg .custom-control-label::before,
+.custom-control-lg .custom-control-label::after {
+    top: 0 !important;
+    left: 0 !important;
+    width: 2rem !important;
+    height: 2rem !important;
+}
+
+.custom-control-lg .custom-control-label {
+    margin-left: 1rem !important;
+    font-size: 1.25rem !important;
+}
+</style>
 <div class="container">
     <h1 class="my-lg-5">Add bot to <img style="height:50px;width:auto;top:-10px" src="{{ server_icon }}"/> {{ server_name }}</h1>
-    <div class="row">
-        <div class="col mx-lg-5 shadow p-3 rounded">
-            <h2 class="mb-lg-3">Add to existing channel</h2>
-            <form action="{{ url_for('discord_bot.add_to_channel') }}">
+    <form action="{{ url_for('discord_bot.add_to_channel') }}" class="shadow p-3 rounded">
+        <div class="row">
+            <div class="col mx-lg-3 p-3">
+                <div class="custom-control-lg custom-control custom-checkbox">
+                    <input class="custom-control-input" style="transform: scale(2, 2)" type="checkbox" name="only_top_3" id="top_3_check">
+                    <label class="custom-control-label" for="top_3_check">
+                        Only post top 3 finishes
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col mx-3 p-3">
+                <h2 class="mb-lg-3">Add to existing channel</h2>
                 <div class="form-group">
-                    <select name="payload" class="custom-select custom-select-lg mb-3 bg-dark text-white">
+                    <select name="payload_existing" class="custom-select custom-select-lg bg-dark text-white">
                         <option selected disabled>Choose a channel</option>
                         {% for channel in channels %}
-                            <option value="{{ channel['payload'] }}">{{ channel['name'] }}</option>
+                        <option value="{{ channel['payload'] }}">{{ channel['name'] }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                <button type="submit" class="btn btn-primary">Add to channel</button>
-            </form>
-        </div>
-        <div class="col mx-lg-5 shadow p-3 rounded">
-            <h2 class="mb-lg-3">Create new channel</h2>
-            <form action="{{ url_for('discord_bot.add_to_channel') }}">
+                <button type="submit" class="btn btn-primary" name="channel_type" value="existing">Add to channel</button>
+            </div>
+            <div class="col mx-3 p-3">
+                <h2 class="mb-lg-3">Create new channel</h2>
                 <div class="form-group">
-                    <label for="channel_name">Channel name</label>
-                    <input type="text" class="form-control" id="channel_name" name="channel_name" placeholder="Enter channel name">
+                    <input type="text" class="form-control form-control-lg" id="channel_name" name="channel_name" placeholder="Enter channel name">
                 </div>
-                <input type="hidden" name="payload" value="{{ create_channel_payload }}">
+                <input type="hidden" name="payload_new" value="{{ create_channel_payload }}">
                 {% if allow_create_channel %}
-                    <button type="submit" class="btn btn-primary">Create new channel</button>
+                <button type="submit" class="btn btn-primary" name="channel_type" value="new">Create new channel</button>
                 {% else %}
-                    <button type="submit" class="btn btn-primary" disabled>Create new channel</button>
+                <button type="submit" class="btn btn-primary" disabled>Create new channel</button>
                 {% endif %}
-            </form>
+            </div>
         </div>
-    </div>
+    </form>
 </div>
 {% endblock %}
-<!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"-->
-<!--        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"-->
-<!--        crossorigin="anonymous"></script>-->
-<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"-->
-<!--        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"-->
-<!--        crossorigin="anonymous"></script>-->
-<!--<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"-->
-<!--        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"-->
-<!--        crossorigin="anonymous"></script>-->

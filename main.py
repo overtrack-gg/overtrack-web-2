@@ -1,15 +1,13 @@
 import logging
 from datetime import datetime
-from functools import wraps
 from typing import Optional
 
 import requests
-from flask import Flask, Response, render_template, request
-from flask import url_for as flask_url_for
+from flask import Flask, Response, render_template, request, url_for as flask_url_for
 from flask_bootstrap import Bootstrap
-from werkzeug.utils import redirect
 
-from api.authentication import require_authentication, check_authentication
+from api.authentication import require_authentication
+from blueprints.login import login, require_login
 from api.session import session
 from blueprints.discord_bot import discord_bot_blueprint
 from models.apex_game_summary import ApexGameSummary
@@ -20,6 +18,7 @@ bootstrap = Bootstrap(app)
 
 logger = logging.getLogger(__name__)
 
+app.register_blueprint(login)
 app.register_blueprint(discord_bot_blueprint, url_prefix='/discord_bot')
 
 
@@ -31,23 +30,6 @@ def url_for(endpoint, **values):
 
 
 app.jinja_env.globals['url_for'] = url_for
-
-
-def require_login(_endpoint=None):
-    def wrap(endpoint):
-        @wraps(endpoint)
-        def check_login(*args, **kwargs):
-            if check_authentication() is None:
-                return endpoint(*args, **kwargs)
-            else:
-                return redirect(url_for('login', next=request.url))
-
-        return check_login
-
-    if _endpoint is None:
-        return wrap
-    else:
-        return wrap(_endpoint)
 
 
 @app.template_filter()
@@ -106,18 +88,6 @@ base_context = {
     'image_url': image_url,
     'champion_colour': champion_colour,
 }
-
-@app.route('/login')
-def login():
-    if 'next' in request.args:
-        next_ = request.args['next']
-    else:
-        next_ = request.host_url
-    login_url = 'https://api2.overtrack.gg/login/twitch?next=' + next_
-    return render_template(
-        'login.html',
-        login_url=login_url
-    )
 
 
 @app.route('/')
@@ -192,3 +162,7 @@ def games_by_key(key: str):
         games=ApexGameSummary.user_id_time_index.query(int(key), newest_first=True),
         **base_context
     )
+
+
+from overtrack.util.logging_config import config_logger
+config_logger(__name__, logging.INFO, False)

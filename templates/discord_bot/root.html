@@ -4,19 +4,39 @@
 {% endblock %}
 {% block content %}
 <div class="container">
-<!--    <h1 class="my-lg-5">Add Discord Bot</h1>-->
     <div class="row justify-content-md-center">
-        <div class="card col-md-10">
-<!--            <div class="card-header">-->
-<!--                <h5>Discord Bot</h5>-->
-<!--            </div>-->
+        <div class="card card-main col-md-10">
             <div class="card-body">
                 <h4 class="card-title">Discord Bot</h4>
-                <p class="card-text">OverTrack can post your games to discord channel.</p>
 
+                {% if notifications %}
+                    <br/>
+                    <h5 class="card-subtitle mb-2 text-muted">Enabled Channels</h5>
+                    <ul class="list-group discord-notifications">
+                        {% for notification in notifications %}
+                        <li class="list-group-item bg-dark">
+                            <span class="guild">{{ notification['guild_name'] }}</span>
+                            <span class="channel-hash"></span>
+                            <span class="channel">{{ notification['channel_name'] }}</span>
+                            <a href="{{ notification['delete_url'] }}" class="btn btn-danger float-right">x</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="card-text">
+                        OverTrack can post your games to a discord channel.<br/>
+                        Use the "Add to new channel" button then select the server you would like OverTrack to post your games to.
+                    </p>
+                {% endif %}
 
-                <a href="{{ url_for('discord_bot.authorize_bot') }}" class="btn btn-lg btn-primary">Add to new server</a>
-
+                <br/><br/>
+                <a href="{{ url_for('discord_bot.authorize_bot') }}" class="btn btn-lg btn-success">Add to new channel</a>
+                <p class="card-text" style="color: gray; padding-top: 10px; padding-bottom: 10px;">
+                    OverTrack requires the "Send Messages" permission to function.<br/>
+                    If you would like to manually control posing permissions, then you may uncheck "Manage Roles" and "Manage Channels".<br/>
+                    Leaving these enabled will allow OverTrack to post to a channel that may have restricted posting permissions,
+                    and will allow it to create new channels that only it may post to (through a prompt).
+                </p>
             </div>
         </div>
     </div>

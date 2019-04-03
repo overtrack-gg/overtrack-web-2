@@ -2,39 +2,42 @@ import base64
 import json
 import logging
 import os
-from typing import Union, Optional
-
-import time
 from pprint import pprint
+from typing import Optional, Union, Tuple, Dict
 
 import jwt
 import requests
-from flask import Flask, redirect, request, jsonify, url_for, Response, Blueprint, render_template
 import requests_oauthlib
-from jwt import InvalidSignatureError, InvalidTokenError
-from oauthlib.oauth2 import InvalidClientIdError, OAuth2Error
+import time
+from flask import Blueprint, Response, redirect, render_template, request, url_for
+from jwt import InvalidTokenError
+from oauthlib.oauth2 import OAuth2Error
+
+from api.authentication import require_authentication, require_origin
+from api.session import session
+from blueprints.login import require_login
+from models.notifications import DiscordBotNotification
 
 HMAC_KEY = base64.b64decode(os.environ['HMAC_KEY'])
 
 CLIENT_ID = os.environ['DISCORD_CLIENT_ID']
 CLIENT_SECRET = os.environ['DISCORD_CLIENT_SECRET']
 AUTHORISE_URL = 'https://discordapp.com/api/oauth2/authorize'
-VIEW_CHANNEL = 0x00000400
-SEND_MESSAGES = 0x00000800
-MANAGE_ROLES = 0x10000000
-MANAGE_CHANNELS = 0x00000010
-ADD_REACTIONS = 0x00000040
-
 TOKEN_URL = 'https://discordapp.com/api/oauth2/token'
 
 DISCORD_BOT_TOKEN = os.environ['DISCORD_BOT_TOKEN']
 DISCORD_BOT_ID = os.environ.get('DISCORD_BOT_ID', '470874176350191637')
 
-GUILDS_CHANNELS = 'https://discordapp.com/api/guilds/%s/channels'
-
-CHANNELS_EDIT_PERMISSIONS = 'https://discordapp.com/api/channels/%s/permissions/%s'
-CHANNELS_CREATE_MESSAGE = 'https://discordapp.com/api/channels/%s/messages'
-
+GUILD_INFO = 'https://discordapp.com/api/guilds/%s'
+GUILD_LIST_CHANNELS = 'https://discordapp.com/api/guilds/%s/channels'
+CHANNEL_INFO = 'https://discordapp.com/api/channels/%s'
+CHANNEL_EDIT_PERMISSIONS = 'https://discordapp.com/api/channels/%s/permissions/%s'
+CHANNEL_CREATE_MESSAGE = 'https://discordapp.com/api/channels/%s/messages'
+VIEW_CHANNEL = 0x00000400
+SEND_MESSAGES = 0x00000800
+MANAGE_ROLES = 0x10000000
+MANAGE_CHANNELS = 0x00000010
+ADD_REACTIONS = 0x00000040
 TEXT_CHANNEL = 0
 
 logger = logging.getLogger(__name__)
@@ -48,18 +51,33 @@ discord_bot_blueprint = Blueprint('discord_bot', __name__)
 
 
 @discord_bot_blueprint.route('/')
+@require_login
 def root():
-    return render_template('discord_bot/root.html')
+    notifications = []
+    for n in DiscordBotNotification.user_id_index.query(session.user_id):
+        # TODO: should we try update server/channel names?
+        notifications.append({
+            'guild_name': n.guild_name,
+            'channel_name': n.channel_name,
+            'delete_url': url_for('discord_bot.delete_channel') + '?payload=' + _make_signed_payload(key=n.key)
+        })
+    return render_template(
+        'discord_bot/root.html',
+        notifications=notifications
+    )
 
 
 @discord_bot_blueprint.route('/authorize_bot')
+@require_authentication
+@require_origin(or_refererer=True)
 def authorize_bot():
+    # Generate a bot oauth request as per https://discordapp.com/developers/docs/topics/oauth2#advanced-bot-authorization
+    # Specifically we want redirect_uri to redirect back to us and want to specify permissions
     oauth = requests_oauthlib.OAuth2Session(
         CLIENT_ID,
         redirect_uri=url_for('discord_bot.bot_authorized', _external=True),
         scope=['bot'],
     )
-
     authorisation_url, state = oauth.authorization_url(AUTHORISE_URL, permissions=SEND_MESSAGES | MANAGE_ROLES | MANAGE_CHANNELS)
     logger.info(f'Got OAUTH authorisation url: {authorisation_url}')
 
@@ -67,8 +85,10 @@ def authorize_bot():
 
 
 @discord_bot_blueprint.route('/bot_authorized')
+@require_authentication
 def bot_authorized():
-    # verify that this request has gone through discord auth flow
+    # Verify that this request has gone through discord auth flow
+    # While we don't use `token`, we need to check that this request is a true redirect from discord, and not someone CSRFing with just guild_id set
     logger.info(f'Fetching OAUTH token from {request.url}')
     try:
         token = requests_oauthlib.OAuth2Session(
@@ -90,26 +110,32 @@ def bot_authorized():
     print('Token:')
     pprint(token)
 
+    # We need to be able to send messages
+    # Not being able to manage roles and channels is fine if the channel is already postable to us
     if not int(request.args['permissions']) & SEND_MESSAGES:
         return 'Error: did not get permission to send messages'
 
+    # Check what channels we can see
     r = discord_bot.get(
-        GUILDS_CHANNELS % (request.args['guild_id'],)
+        GUILD_LIST_CHANNELS % (request.args['guild_id'],)
     )
     r.raise_for_status()
     channels = r.json()
     print('Channels:')
     pprint(channels)
 
+    # Prepare channels list for user
+    # Each channel we generate a JWT payload with `channel_id` set.
+    # This payload is then used in `add_to_channel` to verify that this is a legit request (ie from a user that went through the oauth flow)
     channel_group = []
     for channel in channels:
         if channel['type'] == TEXT_CHANNEL:
-            # url = _make_signed_url(url_for('discord_bot.add_to_channel'), channel_id=channel['id'])
             channel_group.append({
                 'name': channel['name'],
                 'payload': _make_signed_payload(channel_id=channel['id'])
             })
 
+    # Also provide `create_channel_payload` for creating a new channel
     return render_template(
         'discord_bot/channel_add.html',
         channels=channel_group,
@@ -124,11 +150,28 @@ def bot_authorized():
 
 
 @discord_bot_blueprint.route('/add_to_channel')
+@require_authentication
+@require_origin(or_refererer=True)
 def add_to_channel():
+    if request.args.get('channel_type') == 'existing':
+        payload_type = 'payload_existing'
+    elif request.args.get('channel_type') == 'new':
+        payload_type = 'payload_new'
+    else:
+        logger.error(f'add_to_channel got nonsensical submission')
+        return Response(
+            f'<html><head></head><body>'
+            f'<p>Error processing form</p>'
+            f'</body></html>',
+            content_type='text/html'
+        )
+
+    # Decode JWT `payload`
+    # This ensures that the arguments (channel_id for existing channel, guild_id for creating channel) comes from the actual ouath'd user
     logger.info(f'Decoding JWT payload')
     try:
         args = jwt.decode(
-            request.args.get('payload', ''),
+            request.args.get(payload_type, ''),
             HMAC_KEY,
             algorithms=['HS256']
         )['args']
@@ -143,11 +186,14 @@ def add_to_channel():
     logger.info(f'JWT payload: {args}')
 
     if 'channel_id' in args:
+        # using an existing channel - attempt to add SEND_MESSAGE permission for ourselves... don't mind if this errors
         channel_id = args['channel_id']
         added_post_permission = _add_post_permission(channel_id)
     elif 'create_channel' in args:
+        # creating a new channel - create this channel with SEND_MESSAGE for ourselves and view only for everyone else
         channel_id = _create_channel(args['guild_id'], request.args['channel_name'])
         if not channel_id:
+            # if we didn't create the channel, complain
             return Response(
                 f'<html><head></head><body>'
                 f'<p>Did not have permission to create channel - '
@@ -165,16 +211,21 @@ def add_to_channel():
             status=400
         )
 
+    # Get the channel and guild name
+    # This is used simply for recording in the database, so we can have channel names in the delete list
+    channel_info, guild_info = _get_channel_and_guild_info(channel_id)
+
+    # Try to send the greetings message
     logger.info(f'Sending intro message')
-    create_message = discord_bot.post(
-        CHANNELS_CREATE_MESSAGE % (channel_id,),
+    create_message_r = discord_bot.post(
+        CHANNEL_CREATE_MESSAGE % (channel_id,),
         json={
-            'content': 'Hi!'
+            'content': f'OverTrack is now posting Apex Legends games from {session.username} to this channel!'
         }
     )
-    pprint(create_message.content)
-    if create_message.status_code == 403:
-        logger.warning(f'Failed to send intro message: {create_message.status_code}')
+    pprint(create_message_r.content)
+    if create_message_r.status_code == 403:
+        logger.warning(f'Failed to send intro message: {create_message_r.status_code}')
         return Response(
             f'<html><head></head><body>'
             f'<p>Could not post to channel - '
@@ -182,18 +233,84 @@ def add_to_channel():
             f'</body></html>',
             content_type='text/html'
         )
-    create_message.raise_for_status()
-    pprint(create_message.json())
-    logger.info(f'Intro message sent: {create_message.status_code} - id: {create_message.json()["id"]}')
+    create_message_r.raise_for_status()
+    create_message = create_message_r.json()
+    print('Create message: ')
+    pprint(create_message)
+    logger.info(f'Intro message sent: {create_message_r.status_code} - id: {create_message["id"]}')
+
+    # Save the notification settings
+    notification = DiscordBotNotification.create(
+        user_id=session.user_id,
+        game='apex',
+        channel_id=channel_id,
+        guild_id=channel_info['guild_id'],
+        guild_name=guild_info['name'],
+        channel_name=channel_info['name'],
+        notification_data={
+            'top3_only': request.args.get('only_top_3') == 'on'
+        }
+    )
+    logger.info(f'Created {notification}')
+    notification.save()
 
     return redirect(url_for('discord_bot.root'))
-    # return jsonify(data=create_message.json())
+
+
+@discord_bot_blueprint.route('/delete_channel')
+@require_authentication
+@require_origin(or_refererer=True)
+def delete_channel():
+    logger.info(f'Decoding JWT payload')
+    try:
+        args = jwt.decode(
+            request.args.get('payload', ''),
+            HMAC_KEY,
+            algorithms=['HS256']
+        )['args']
+    except InvalidTokenError as e:
+        logger.error(f'Failed to decode JWT token')
+        return Response(
+            json.dumps({
+                'error': f'Invalid token: {e}'
+            }),
+            status=403
+        )
+    logger.info(f'JWT payload: {args}')
+
+    notification = DiscordBotNotification.get(args['key'])
+    logger.info(f'Deleting {notification}')
+    notification.delete()
+
+    return redirect(url_for('discord_bot.root'))
+
+
+def _get_channel_and_guild_info(channel_id: str) -> Tuple[Dict, Dict]:
+    logger.info(f'Getting channel info for {channel_id}')
+    channel_info_r = discord_bot.get(
+        CHANNEL_INFO % (channel_id,)
+    )
+    channel_info_r.raise_for_status()
+    channel_info = channel_info_r.json()
+    print('Channel info: ')
+    pprint(channel_info)
+    logger.info(f'Got channel info - name={channel_info["name"]}')
+    logger.info(f'Getting guild info for {channel_info["guild_id"]}')
+    guild_info_r = discord_bot.get(
+        GUILD_INFO % (channel_info['guild_id'],)
+    )
+    guild_info_r.raise_for_status()
+    guild_info = guild_info_r.json()
+    print('Guild info: ')
+    pprint(guild_info)
+    logger.info(f'Got guild info - name={guild_info["name"]}')
+    return channel_info, guild_info
 
 
 def _create_channel(guild_id: str, channel_name: str) -> Optional[str]:
     logger.info(f'Creating channel {channel_name} in {guild_id}')
     create_channel = discord_bot.post(
-        GUILDS_CHANNELS % (guild_id, ),
+        GUILD_LIST_CHANNELS % (guild_id,),
         json={
             'name': channel_name,
             'type': TEXT_CHANNEL,
@@ -231,7 +348,7 @@ def _create_channel(guild_id: str, channel_name: str) -> Optional[str]:
 def _add_post_permission(channel_id: str) -> bool:
     logger.info(f'Adding SEND_MESSAGES permission for {DISCORD_BOT_ID} to post to {channel_id}')
     edit_permisions = discord_bot.put(
-        CHANNELS_EDIT_PERMISSIONS % (channel_id, DISCORD_BOT_ID),
+        CHANNEL_EDIT_PERMISSIONS % (channel_id, DISCORD_BOT_ID),
         json={
             'allow': SEND_MESSAGES | VIEW_CHANNEL,
             'type': 'member'
