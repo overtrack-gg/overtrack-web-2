@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Select Channel{% endblock %}
+{% block meta %}
+{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 class="my-lg-5">Add bot to <img style="height:50px;width:auto;top:-10px" src="{{ server_icon }}"/> {{ server_name }}</h1>
+    <div class="row">
+        <div class="col mx-lg-5 shadow p-3 rounded">
+            <h2 class="mb-lg-3">Add to existing channel</h2>
+            <form action="{{ url_for('discord_bot.add_to_channel') }}">
+                <div class="form-group">
+                    <select name="payload" class="custom-select custom-select-lg mb-3 bg-dark text-white">
+                        <option selected disabled>Choose a channel</option>
+                        {% for channel in channels %}
+                            <option value="{{ channel['payload'] }}">{{ channel['name'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Add to channel</button>
+            </form>
+        </div>
+        <div class="col mx-lg-5 shadow p-3 rounded">
+            <h2 class="mb-lg-3">Create new channel</h2>
+            <form action="{{ url_for('discord_bot.add_to_channel') }}">
+                <div class="form-group">
+                    <label for="channel_name">Channel name</label>
+                    <input type="text" class="form-control" id="channel_name" name="channel_name" placeholder="Enter channel name">
+                </div>
+                <input type="hidden" name="payload" value="{{ create_channel_payload }}">
+                {% if allow_create_channel %}
+                    <button type="submit" class="btn btn-primary">Create new channel</button>
+                {% else %}
+                    <button type="submit" class="btn btn-primary" disabled>Create new channel</button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+<!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"-->
+<!--        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"-->
+<!--        crossorigin="anonymous"></script>-->
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"-->
+<!--        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"-->
+<!--        crossorigin="anonymous"></script>-->
+<!--<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"-->
+<!--        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"-->
+<!--        crossorigin="anonymous"></script>-->

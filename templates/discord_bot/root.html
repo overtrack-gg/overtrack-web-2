@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Add Discord Bot{% endblock %}
+{% block meta %}
+{% endblock %}
+{% block content %}
+<div class="container">
+<!--    <h1 class="my-lg-5">Add Discord Bot</h1>-->
+    <div class="row justify-content-md-center">
+        <div class="card col-md-10">
+<!--            <div class="card-header">-->
+<!--                <h5>Discord Bot</h5>-->
+<!--            </div>-->
+            <div class="card-body">
+                <h4 class="card-title">Discord Bot</h4>
+                <p class="card-text">OverTrack can post your games to discord channel.</p>
+
+
+                <a href="{{ url_for('discord_bot.authorize_bot') }}" class="btn btn-lg btn-primary">Add to new server</a>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -11,6 +11,7 @@ from werkzeug.utils import redirect
 
 from api.authentication import require_authentication, check_authentication
 from api.session import session
+from blueprints.discord_bot import discord_bot_blueprint
 from models.apex_game_summary import ApexGameSummary
 from overtrack.util import s2ts
 
@@ -18,6 +19,8 @@ app = Flask(__name__)
 bootstrap = Bootstrap(app)
 
 logger = logging.getLogger(__name__)
+
+app.register_blueprint(discord_bot_blueprint, url_prefix='/discord_bot')
 
 
 def url_for(endpoint, **values):
