@@ -10,6 +10,7 @@ from api.authentication import require_authentication
 from blueprints.login import login, require_login
 from api.session import session
 from blueprints.discord_bot import discord_bot_blueprint
+from blueprints.results import results_blueprint
 from models.apex_game_summary import ApexGameSummary
 from overtrack.util import s2ts
 
@@ -20,6 +21,7 @@ logger = logging.getLogger(__name__)
 
 app.register_blueprint(login)
 app.register_blueprint(discord_bot_blueprint, url_prefix='/discord_bot')
+app.register_blueprint(results_blueprint, url_prefix='/results')
 
 
 def url_for(endpoint, **values):
