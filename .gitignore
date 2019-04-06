@@ -1,0 +1,14 @@
+**/logs/
+
+.idea/
+**/__pycache__/
+
+build_client/build
+build_client/dist
+build_client/source
+
+
+launcher/build
+launcher/dist
+launcher/Output
+launcher/client
