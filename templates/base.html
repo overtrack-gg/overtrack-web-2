@@ -1,4 +1,5 @@
 {% import 'navbar.html' as navbar with context %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,8 +13,6 @@
 {{ navbar.navbar() }}
 {% block content %}{% endblock %}
 {{ bootstrap.load_js() }}
-<script src="https://d3js.org/d3.v5.min.js"></script>
-<script src="{{ url_for('static', filename='map.js') }}"></script>
 <script type="text/javascript">
     $(document).ready(function($) {
         $("tr.clickable").click(function() {
@@ -26,6 +25,7 @@
         });
     });
 </script>
+{% block scripts %}{% endblock %}
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-99105415-2"></script>
 <script>
   window.dataLayer = window.dataLayer || [];

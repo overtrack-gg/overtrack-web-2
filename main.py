@@ -25,7 +25,7 @@ app.register_blueprint(results_blueprint, url_prefix='/results')
 
 
 def url_for(endpoint, **values):
-    if endpoint == 'static' and 'filename' in values and values['filename'] not in ['style.css', 'map.js']:
+    if endpoint == 'static' and 'filename' in values and values['filename'] not in ['style.css', 'map.js'] and not values['filename'].endswith('.js'):
         return 'https://d2igtsro72if25.cloudfront.net/1/' + values['filename']
     else:
         return flask_url_for(endpoint, **values)
@@ -97,7 +97,7 @@ base_context = {
 @require_login
 def games_list():
     return render_template(
-        'games.html',
+        'games/games.html',
         games=ApexGameSummary.user_id_time_index.query(session.user_id, newest_first=True),
         **base_context
     )
@@ -132,7 +132,7 @@ def game(key: str):
         og_description += f'\nDropped {summary.landed}'
 
     return render_template(
-        'game.html',
+        'game/game.html',
         summary=summary,
         game=game_data,
 
@@ -150,7 +150,7 @@ def game(key: str):
 @app.route('/eeveea_')
 def eeveea_games():
     return render_template(
-        'games.html',
+        'games/games.html',
         games=ApexGameSummary.user_id_time_index.query(347766573, newest_first=True),
         **base_context
     )
@@ -160,7 +160,7 @@ def eeveea_games():
 @require_authentication(superuser_required=True)
 def games_by_key(key: str):
     return render_template(
-        'games.html',
+        'games/games.html',
         games=ApexGameSummary.user_id_time_index.query(int(key), newest_first=True),
         **base_context
     )

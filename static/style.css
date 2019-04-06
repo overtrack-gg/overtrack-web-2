@@ -21,6 +21,7 @@
     padding: 0.5rem;
 }
 .card-header {
+  white-space: nowrap;
   padding-bottom: 0;
   background-color: #992e2690;
 }
@@ -233,4 +234,12 @@ td.noheight {
      position: absolute;
      font-weight: bold;
      margin-left: 3pt;
+}
+
+.innercol {
+    padding: 10px;
+}
+
+.card-header {
+    white-space:nowrap;
 }
