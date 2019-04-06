@@ -22,11 +22,14 @@ deploy:
     - mv -t . ./overtrack-v2/models
     - mkdir -p overtrack/util
     - mv -t ./overtrack/ ./overtrack-v2/overtrack/util
+    - mkdir -p overtrack/apex
+    - mv -t ./overtrack/ ./overtrack-v2/overtrack/apex
     - mv -t . ./overtrack-v2/overtrack_legacy
     - git clone git@gitlab.com:OverTrack/overtrack_2_api.git
     - mv -t . ./overtrack_2_api/api
     - rm overtrack-v2 -Rf
     - ls
+    - ls overtrack/
     - zappa update main
   only:
     - master
