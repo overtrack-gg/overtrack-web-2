@@ -25,7 +25,7 @@ results_blueprint = Blueprint('results', __name__)
 @results_blueprint.route('/')
 @require_login
 def results():
-    games = sorted(list(ApexGameSummary.user_id_time_index.query(session.user_id)), key=lambda g: g.placed)
+    games = list(ApexGameSummary.user_id_time_index.query(session.user_id))
 
     hist, edges = np.histogram([g.placed for g in games], np.linspace(1, 21, 21))
     placements_prob = [
