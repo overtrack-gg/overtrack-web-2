@@ -19,6 +19,8 @@ shortuuid = "*"
 
 pynamodb = "^3"
 
+numpy = "*"
+
 sentry-sdk = "^0"
 google-cloud-logging = "^1"
 
