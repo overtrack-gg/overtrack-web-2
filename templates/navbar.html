@@ -27,8 +27,8 @@
             <li class="nav-item {{ 'active' if request.path.startswith('/discord_bot') else '' }}">
                 <a class="nav-link" href="/discord_bot">Discord Bot</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Download Client</a>
+            <li class="nav-item {{ 'active' if request.path == '/client' else '' }}">
+                <a class="nav-link" href="/client">Download Client</a>
             </li>
         </ul>
     </div>

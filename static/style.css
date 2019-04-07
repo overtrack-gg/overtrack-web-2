@@ -42,6 +42,7 @@
     border-top-right-radius: 0;
     border-bottom-right-radius: 0.25rem;
     border-bottom-left-radius: 0.25rem;
+    padding: 20px;
 }
 
 .games-list {
@@ -242,4 +243,9 @@ td.noheight {
 
 .card-header {
     white-space:nowrap;
+}
+
+
+.card-body li {
+    padding-bottom: 10px;
 }

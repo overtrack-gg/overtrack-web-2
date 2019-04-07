@@ -64,7 +64,7 @@ def root():
             'delete_url': url_for('discord_bot.delete_channel') + '?payload=' + _make_signed_payload(key=n.key)
         })
     return render_template(
-        'discord_bot/root.html',
+        'discord_bot/discord_bot.html',
         notifications=notifications
     )
 

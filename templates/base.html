@@ -8,6 +8,7 @@
     {% block meta %}{% endblock %}
     {{ bootstrap.load_css() }}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}"/>
 </head>
 <body class="text-light bg-dark">
 {{ navbar.navbar() }}

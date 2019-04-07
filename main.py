@@ -83,6 +83,11 @@ def duration(t: Optional[float]):
     return s2ts(t).split(':', 1)[1]
 
 
+@app.route('/client')
+def client():
+    return render_template('client.html')
+
+
 base_context = {
     'to_ordinal': to_ordinal,
     's2ts': duration,
