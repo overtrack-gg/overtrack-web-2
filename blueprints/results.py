@@ -27,11 +27,11 @@ results_blueprint = Blueprint('results', __name__)
 def results():
     games = list(ApexGameSummary.user_id_time_index.query(session.user_id))
 
-    hist, edges = np.histogram([g.placed for g in games], np.linspace(1, 21, 21))
-    placements_prob = [
-        (np.sum(hist[:i + 1]) / len(games)) * 100
-        for i in range(1, 21)
-    ]
+    hist, edges = np.histogram([g.placed for g in games], range(1, 22))
+    freq = hist / len(games)
+    placements_prob = [np.sum(freq[:i]) * 100 for i in range(0, 21)]
+    print(freq * 100)
+    print(placements_prob)
 
     statsrow = []
     for name, func in STAT_FUNCTIONS.items():

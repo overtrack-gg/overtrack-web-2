@@ -20,27 +20,12 @@ function placefreq() {
         .domain([0, Math.max(...placements_data)]).nice()
         .range([height - margin.bottom, margin.top]);
 
-    bar = svg.append("g")
-        .selectAll("rect")
-        .data(placements_data)
-        .join("rect")
-        .attr("fill", function (d, i) {
-            if (i === 0)
-                return "#ffdf00";
-            if (i === 1)
-                return "#ef20ff";
-            if (i === 2)
-                return "#4d95ff";
-            return "firebrick";
-        })
-        .attr("x", function (d, i) { return x(i) + 1 })
-        .attr("width", function (d, i) { return Math.max(0, x(i + 1) - x(i) - 1) })
-        .attr("y", function (d) { return y(d) })
-        .attr("height", function (d) { return y(0) - y(d) });
-
     function xAxis(g) {
-        g.attr("transform", `translate(0,${height - margin.bottom})`)
-            .call(d3.axisBottom(x).tickSizeOuter(0))
+        g.attr("transform", `translate(${-(x(1) - x(0)) / 2}, ${height - margin.bottom})`)
+            .call(d3.axisBottom(x)
+                .tickSizeOuter(0)
+                .tickValues([1, 3, 5, 7, 9, 11, 13, 15, 17, 19])
+            )
             .call(function (g) {
                 g.append("text")
                     .attr("x", width - margin.right)
@@ -50,11 +35,14 @@ function placefreq() {
                     .attr("text-anchor", "end")
                     .text("Squad Placed")
             })
+            .call(g => g.select(".domain").remove())
     }
 
     function yAxis(g) {
         g.attr("transform", `translate(${margin.left},0)`)
-            .call(d3.axisLeft(y))
+            .call(
+                d3.axisLeft(y)
+            )
             .call(function (g) {
                 g.select(".domain").remove()
             })
@@ -67,11 +55,30 @@ function placefreq() {
             })
     }
 
-    svg.append("g")
-        .call(xAxis);
+    bar = svg.append("g")
+       .selectAll("rect")
+       .data(placements_data)
+       .join("rect")
+       .attr("fill", function (d, i) {
+           if (i === 0)
+               return "#ffdf00";
+           if (i === 1)
+               return "#ef20ff";
+           if (i === 2)
+               return "#4d95ff";
+           return "firebrick";
+       })
+       .attr("x", function (d, i) { return x(i) + 1 })
+       .attr("width", function (d, i) { return Math.max(0, x(i + 1) - x(i) - 1) })
+       .attr("y", function (d) { return y(d) })
+       .attr("height", function (d) { return y(0) - y(d) })
+       .append("title").text((d, i) => 'Placed #' + (i + 1) + ' ' + d + ' times');
 
     svg.append("g")
         .call(yAxis);
+
+    svg.append("g")
+        .call(xAxis);
 
 }
 
@@ -99,24 +106,64 @@ function placeprob() {
 
 
     let linefunction1 = d3.line()
-        .x((d, i) => x(i+1) + 1)
+        .x((d, i) => x(i+0) + 1)
         .y((d, i) => y(d))
-        .curve(d3.curveStepAfter);
+        .curve(d3.curveStepBefore);
 
     let linefunction2 = d3.line()
-        .x((d, i) => x(i+2) + 1)
+        .x((d, i) => x(i+1) + 1)
         .y((d, i) => y(d))
-        .curve(d3.curveStepAfter);
+        .curve(d3.curveStepBefore);
 
     let linefunction3 = d3.line()
-        .x((d, i) => x(i+3) + 1)
+        .x((d, i) => x(i+2) + 1)
         .y((d, i) => y(d))
-        .curve(d3.curveStepAfter);
+        .curve(d3.curveStepBefore);
 
     let linefunction = d3.line()
-        .x((d, i) => x(i+4) + 1)
+        .x((d, i) => x(i+3) + 1)
         .y((d, i) => y(d))
-        .curve(d3.curveStepAfter);
+        .curve(d3.curveStepBefore);
+
+    function xAxis(g) {
+        g.attr("transform", `translate(0,${height - margin.bottom})`)
+            .call(d3.axisBottom(x)
+                .tickSizeOuter(0)
+                .tickValues([1, 3, 5, 7, 9, 11, 13, 15, 17, 19])
+            ).call(function (g) {
+                g.append("text")
+                    .attr("x", width - margin.right)
+                    .attr("y", -4)
+                    .attr("fill", "#fff")
+                    .attr("font-weight", "bold")
+                    .attr("text-anchor", "end")
+                    .text("Squad Placed At Least")
+            })
+    }
+
+    function yAxis(g) {
+        g.attr("transform", `translate(${margin.left},0)`)
+            .call(
+                d3.axisLeft(y)
+                .tickSizeInner(x(0) - x(20))
+            )
+            .call(function (g) {
+                g.select(".domain").remove()
+            })
+            .call(function (g) {
+                g.selectAll(".tick line").attr("stroke", "gray")
+            })
+            .call(function (g) {
+                g.select(".tick:last-of-type text").clone()
+                    .attr("x", 4)
+                    .attr("text-anchor", "start")
+                    .attr("font-weight", "bold")
+                    .text("% of Time")
+            })
+    }
+
+    svg.append("g")
+        .call(yAxis);
 
     let g = svg.append("g");
 
@@ -144,40 +191,8 @@ function placeprob() {
         .attr("stroke-width", "2")
         .attr("fill", "none");
 
-    function xAxis(g) {
-        g.attr("transform", `translate(0,${height - margin.bottom})`)
-            .call(d3.axisBottom(x).tickSizeOuter(0))
-            .call(function (g) {
-                g.append("text")
-                    .attr("x", width - margin.right)
-                    .attr("y", -4)
-                    .attr("fill", "#fff")
-                    .attr("font-weight", "bold")
-                    .attr("text-anchor", "end")
-                    .text("Squad Placed At Least")
-            })
-    }
-
-    function yAxis(g) {
-        g.attr("transform", `translate(${margin.left},0)`)
-            .call(d3.axisLeft(y))
-            .call(function (g) {
-                g.select(".domain").remove()
-            })
-            .call(function (g) {
-                g.select(".tick:last-of-type text").clone()
-                    .attr("x", 4)
-                    .attr("text-anchor", "start")
-                    .attr("font-weight", "bold")
-                    .text("% of the Time")
-            })
-    }
-
     svg.append("g")
         .call(xAxis);
-
-    svg.append("g")
-        .call(yAxis);
 }
 
 placefreq();
