@@ -33,11 +33,13 @@ GUILD_LIST_CHANNELS = 'https://discordapp.com/api/guilds/%s/channels'
 CHANNEL_INFO = 'https://discordapp.com/api/channels/%s'
 CHANNEL_EDIT_PERMISSIONS = 'https://discordapp.com/api/channels/%s/permissions/%s'
 CHANNEL_CREATE_MESSAGE = 'https://discordapp.com/api/channels/%s/messages'
+# https://discordapp.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags
 VIEW_CHANNEL = 0x00000400
 SEND_MESSAGES = 0x00000800
 MANAGE_ROLES = 0x10000000
 MANAGE_CHANNELS = 0x00000010
 ADD_REACTIONS = 0x00000040
+EMBED_LINKS = 0x00004000
 TEXT_CHANNEL = 0
 
 logger = logging.getLogger(__name__)
@@ -350,7 +352,7 @@ def _add_post_permission(channel_id: str) -> bool:
     edit_permisions = discord_bot.put(
         CHANNEL_EDIT_PERMISSIONS % (channel_id, DISCORD_BOT_ID),
         json={
-            'allow': SEND_MESSAGES | VIEW_CHANNEL,
+            'allow': SEND_MESSAGES | EMBED_LINKS | VIEW_CHANNEL,
             'type': 'member'
         }
     )
