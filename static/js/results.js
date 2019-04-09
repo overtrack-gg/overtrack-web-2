@@ -191,6 +191,17 @@ function placeprob() {
         .attr("stroke-width", "2")
         .attr("fill", "none");
 
+    bar = svg.append("g")
+        .selectAll("rect")
+        .data(placements_prob.slice(1))
+        .join("rect")
+        .attr("opacity", 0)
+        .attr("x", (d, i) => x(i) + 1)
+        .attr("width", (d, i) => Math.max(0, x(i + 1) - x(i) - 1))
+        .attr("y", y(100))
+        .attr("height", y(0) - y(100))
+        .append("title").text((d, i) => `${Math.round(d)}% chance of placing #${i + 1} or better`);
+
     svg.append("g")
         .call(xAxis);
 }
