@@ -147,9 +147,41 @@
 
     </div>
 </div>
+<div class="report-footer">
+    <a href="#" onclick="report_issue()">Report an issue with this game</a>
+</div>
 {% endblock %}
 
 {% block scripts %}
-<script src="https://d3js.org/d3.v5.min.js"></script>
-<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+<script defer src="https://d3js.org/d3.v5.min.js"></script>
+<script defer src="{{ url_for('static', filename='js/map.js') }}"></script>
+
+<script src="https://browser.sentry-cdn.com/5.0.6/bundle.min.js" crossorigin="anonymous"></script>
+<script>
+function report_issue(){
+    Sentry.init({
+        dsn: 'https://3ff0ce0da5ef40c19c6ef3a13a39aea5@sentry.io/1434728',
+        beforeSend(event, hint) {
+            if (event.exception) {
+                Sentry.showReportDialog({
+                    eventId: event.event_id,
+                    labelName: 'Discord Name',
+                    user: {
+                        'name': 'Not Provided',
+                        'email': 'none@example.com'
+                    },
+
+                    title: 'Report Tracking Issue',
+                    subtitle: '',
+                    labelComments: 'What\'s wrong with this game?',
+                    labelSubmit: 'Submit',
+                });
+            }
+            return event;
+        }
+    });
+    let error = new Error('Tracking Issue Reported');
+    Sentry.captureException(error, {fingerprint: ["{{ game['key'] }}"]});
+}
+</script>
 {% endblock %}
