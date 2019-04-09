@@ -158,29 +158,33 @@
 
 <script src="https://browser.sentry-cdn.com/5.0.6/bundle.min.js" crossorigin="anonymous"></script>
 <script>
+class UserReport extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "{{ game['key'] }}";
+  }
+};
 function report_issue(){
     Sentry.init({
         dsn: 'https://3ff0ce0da5ef40c19c6ef3a13a39aea5@sentry.io/1434728',
         beforeSend(event, hint) {
-            if (event.exception) {
-                Sentry.showReportDialog({
-                    eventId: event.event_id,
-                    labelName: 'Discord Name',
-                    user: {
-                        'name': 'Not Provided',
-                        'email': 'none@example.com'
-                    },
+            Sentry.showReportDialog({
+                eventId: event.event_id,
+                labelName: 'Discord Name',
+                user: {
+                    'name': 'Not Provided',
+                    'email': 'none@example.com'
+                },
 
-                    title: 'Report Tracking Issue',
-                    subtitle: '',
-                    labelComments: 'What\'s wrong with this game?',
-                    labelSubmit: 'Submit',
-                });
-            }
+                title: 'Report Tracking Issue',
+                subtitle: '',
+                labelComments: 'What\'s wrong with this game?',
+                labelSubmit: 'Submit',
+            });
             return event;
         }
     });
-    let error = new Error('Tracking Issue Reported');
+    let error = new UserReport('User Reported Issue');
     Sentry.captureException(error, {fingerprint: ["{{ game['key'] }}"]});
 }
 </script>
