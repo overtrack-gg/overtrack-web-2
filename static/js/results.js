@@ -4,7 +4,7 @@ function placefreq() {
     const width = $('#placefreq').width();
     const height = $('#placefreq').height();
 
-    const margin = ({top: 20, right: 20, bottom: 30, left: 40});
+    const margin = ({top: 20, right: 40, bottom: 30, left: 40});
 
     var svg = d3.select("#placefreq")
         .append("svg")
@@ -18,6 +18,10 @@ function placefreq() {
 
     const y = d3.scaleLinear()
         .domain([0, Math.max(...placements_data)]).nice()
+        .range([height - margin.bottom, margin.top]);
+
+    const y2 = d3.scaleLinear()
+        .domain([0, Math.max(...placements_data) / placements_data.reduce((a, b) => a + b, 0)]).nice()
         .range([height - margin.bottom, margin.top]);
 
     function xAxis(g) {
@@ -55,6 +59,20 @@ function placefreq() {
             })
     }
 
+    function y2Axis(g) {
+        g.attr("transform", `translate(${width-margin.right+2},0)`)
+            .call(
+                d3.axisRight(y2).tickFormat(d3.format(".0%"))
+            )
+            .call(g => g.select(".domain").remove())
+            .call(g =>
+                g.select(".tick:last-of-type text").clone()
+                    .attr("text-anchor", "start")
+                    .attr("font-weight", "bold")
+                    .text("Frequency")
+                    .attr("x", -54))
+    }
+
     bar = svg.append("g")
        .selectAll("rect")
        .data(placements_data)
@@ -76,6 +94,9 @@ function placefreq() {
 
     svg.append("g")
         .call(yAxis);
+
+    svg.append("g")
+        .call(y2Axis);
 
     svg.append("g")
         .call(xAxis);
