@@ -25,7 +25,10 @@ app.register_blueprint(results_blueprint, url_prefix='/results')
 
 
 def url_for(endpoint, **values):
-    if endpoint == 'static' and 'filename' in values and values['filename'] not in ['style.css', 'map.js'] and not values['filename'].endswith('.js'):
+    if endpoint == 'static'\
+            and 'filename' in values \
+            and values['filename'] not in ['style.css', 'map.js'] \
+            and not values['filename'].endswith('.js'):
         return 'https://d2igtsro72if25.cloudfront.net/1/' + values['filename']
     else:
         return flask_url_for(endpoint, **values)

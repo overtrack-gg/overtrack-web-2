@@ -14,10 +14,35 @@ Tracks your placement, kills, downs, route, weapons, and stats." property="og:de
     <div class="row justify-content-md-center">
         <div class="card card-main col-md-10">
             <div class="card-body">
-                <h2 class="card-title">Apex Legends Automatic Match History</h2>
+                <h2 class="card-title" style="padding-bottom: 20pt;">Apex Legends Automatic Match History</h2>
                 <p>
-                    Hey there!
+                    <a href="/games" class="btn btn-primary">
+                        I already have an account. Take me to my games!
+                    </a>
                 </p>
+                <h3 style="padding-top: 20pt">How it works</h3>
+                <p>
+                    Using Computer Vision, OverTrack records and processes a screenshot every second.
+                    By extracting relevant information from each screenshot, it can keep track of your Apex games for you.
+                </p>
+                <p>
+                    To track your games, download and install the OverTrack Client.
+                </p>
+                <a href="/client" class="btn btn-success">Client Download</a>
+
+                <h3 style="padding-top: 20pt">Games History</h3>
+                <p>
+                    OverTrack will record a list of each of your games including placement, downs, kills, etc.
+                </p>
+                <img class="img-fluid" src="{{ url_for('static', filename='images/games_list.jpg') }}">
+
+                <h3 style="padding-top: 20pt">Full Game Details</h3>
+                <p>
+                    Each game recorded contains the route taken including all recorded downs and eliminations.
+                    Weapon stats and assists are also recorded and provided.
+                    Endgame statistics are also recorded and displayed (provided you didn't skip those screens).
+                </p>
+                <img class="img-fluid" src="{{ url_for('static', filename='images/game_details.jpg') }}">
             </div>
         </div>
     </div>
