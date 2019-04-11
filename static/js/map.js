@@ -3,7 +3,8 @@ const IMAGE = "https://s3-us-west-2.amazonaws.com/apextrack-web-poc-assets/1/ima
 
 var locations = route.locations;
 var landed_index = route.landed_location_index;
-var [drop, travel] = [route.locations.slice(0, landed_index), route.locations.slice(landed_index - 1)];
+var [drop, travel_full] = [route.locations.slice(0, landed_index), route.locations.slice(landed_index - 1)];
+var travel = [];
 // var combat = combat;
 var placed = 3;
 
@@ -41,10 +42,10 @@ function draw_map() {
     };
 
     function get_initial_zoom() {
-        var [min_x, max_x] = d3.extent(travel, function (d) {
+        var [min_x, max_x] = d3.extent(travel_full, function (d) {
             return rescale_x(d[1][0]);
         });
-        var [min_y, max_y] = d3.extent(travel, function (d) {
+        var [min_y, max_y] = d3.extent(travel_full, function (d) {
             return rescale_y(d[1][1]);
         });
 
@@ -184,12 +185,12 @@ function draw_map() {
                 heat_visibility = "visible";
                 heatmap.attr("visibility", "visible")
                 drop_path.attr("visibility", "hidden")
-                travel_path.attr("visibility", "hidden")
+                d3.selectAll("travel-path").attr("visibility", "hidden");
             } else {
                 heat_visibility = "hidden";
                 heatmap.attr("visibility", "hidden")
                 drop_path.attr("visibility", "visible")
-                travel_path.attr("visibility", "visible")
+                d3.selectAll(".travel-path").attr("visibility", "visible");
             }
             d3.select(this).attr("fill", heat_visibility == "hidden" ? BTN_OVER : BTN_ACTIVE_OVER)
         })
@@ -247,12 +248,19 @@ function draw_map() {
         .attr("opacity", 0.5)
         .attr("visibility", heat_visibility == "hidden" ? "visible" : "hidden")
 
-    var travel_path = svg.append("path")
-        .attr("d", lineFunction(travel))
-        .attr("stroke", "Lime")
-        .attr("stroke-width", LINE_SIZE)
-        .attr("fill", "none")
-        .attr("visibility", heat_visibility == "hidden" ? "visible" : "hidden")
+    let travel_paths = [];
+
+    for (let i = 0; i < travel.length; i++) {
+        travel_paths.push(
+            svg.append("path")
+                .attr("d", lineFunction(travel[i].route))
+                .attr("class", "travel-path")
+                .attr("stroke", "Lime")
+                .attr("stroke-width", LINE_SIZE)
+                .attr("fill", "none")
+                .attr("visibility", heat_visibility === "hidden" ? "visible" : "hidden")
+        );
+    }
 
     /************************************************************************
     *** HEATMAP SETUP
@@ -278,7 +286,7 @@ function draw_map() {
 
     heatmap
         .selectAll("travel-heatmap")
-            .data(travel)
+            .data(travel_full)
             .enter()
             .append("circle")
             .attr("class", "travel-heatmap")
@@ -474,7 +482,7 @@ function draw_map() {
     *************************************************************************/
 
     drop_path.append("title").text("Drop Path");
-    travel_path.append("title").text("Route Taken");
+    d3.selectAll(".travel-path").append("title").text("Route Taken");
     knocks_a.append("title").text("Knockdown Assist");
     elims_a.append("title").text("Elimination Assist");
     knocks.append("title").text("Knockdown");
@@ -499,7 +507,7 @@ function draw_map() {
             }
             svg.attr("transform", d3.event.transform);
             drop_path.attr("stroke-width", LINE_SIZE / ok);
-            travel_path.attr("stroke-width", LINE_SIZE / ok);
+            d3.selectAll(".travel-path").attr("stroke-width", LINE_SIZE / ok);
             knocks_a.attr("r", ELIM_SCALE / k);
             elims_a.attr("r", ELIM_SCALE / k);
             knocks.attr("r", ELIM_SCALE / k);
@@ -526,11 +534,16 @@ function draw_map() {
     }
 
     /************************************************************************
-    *** ROUTE ANIMATIONS
+    *** ANIMATION SETUP
+    *************************************************************************/
+
+    var t = d3.transition();
+
+    /************************************************************************
+    *** DROP ROUTE ANIMATIONS
     *************************************************************************/
 
     var drop_path_len = drop_path.node().getTotalLength();
-    var travel_path_len = travel_path.node().getTotalLength();
 
     var drop_length_at = [];
     for (var i = 1; i < drop.length - 1; i++) {
@@ -540,17 +553,6 @@ function draw_map() {
             .attr("visibility", "hidden");
         drop_length_at.push(path.node().getTotalLength());
     };
-    var travel_length_at = [];
-    for (var i = 1; i < travel.length - 1; i++) {
-        var path = svg.append('path')
-            .attr("d", lineFunction(travel.slice(i)))
-            .attr("class", "temppath")
-            .attr("visibility", "hidden");
-        travel_length_at.push(path.node().getTotalLength());
-    };
-    svg.selectAll('.temppath').remove();
-
-    var t = d3.transition();
 
     var drop_path_trans = drop_path
         .attr("stroke-dasharray", drop_path_len)
@@ -564,18 +566,70 @@ function draw_map() {
             .attr("stroke-dashoffset", drop_length_at[i-1] || 0);
     };
 
-    var travel_path_trans = travel_path
-        .attr("stroke-dasharray", travel_path_len)
-        .attr("stroke-dashoffset", travel_path_len)
-        .transition(t)
-        .delay(TIMESCALE * (route.time_landed - TIMESTART))
+    /************************************************************************
+    *** TRAVEL ROUTE ANIMATIONS
+    *************************************************************************/
 
-    for (var i = 1; i < travel.length; i++) {
-        travel_path_trans = travel_path_trans.transition(t)
-            .duration(TIMESCALE * (travel[i][0] - travel[i-1][0]))
-            .ease(d3.easeLinear)
-            .attr("stroke-dashoffset", travel_length_at[i-1] || 0);
-    };
+    d3.selectAll(".travel-path").each(function (d, i) {
+        path = d3.select(this);
+        let travel_path = travel[i];
+        if (travel_path.jump) {
+            const travel_path_len = path.node().getTotalLength();
+
+            let travel_length_at = [];
+            for (let i = 1; i < travel_path.route.length - 1; i++) {
+                const path = svg.append('path')
+                    .attr("d", lineFunction(travel_path.route.slice(i)))
+                    .attr("class", "temppath")
+                    .attr("visibility", "hidden");
+                travel_length_at.push(path.node().getTotalLength());
+            }
+
+            let travel_path_trans = path
+                .attr("stroke-dasharray", travel_path_len)
+                .attr("stroke-dashoffset", travel_path_len)
+                .attr("stroke", "#bfb")
+                .attr("opacity", 0.8)
+                .transition(t)
+                .delay(TIMESCALE * (travel_path.route[0][0] - TIMESTART));
+
+            for (let i = 1; i < travel_path.route.length; i++) {
+                travel_path_trans = travel_path_trans.transition(t)
+                    .duration(TIMESCALE * (travel_path.route[i][0] - travel_path.route[i - 1][0]))
+                    .attr("stroke-dashoffset", travel_length_at[i - 1] || 0);
+            }
+        } else {
+            const travel_path_len = path.node().getTotalLength();
+
+            let travel_length_at = [];
+            for (let i = 1; i < travel_path.route.length - 1; i++) {
+                const path = svg.append('path')
+                    .attr("d", lineFunction(travel_path.route.slice(i)))
+                    .attr("class", "temppath")
+                    .attr("visibility", "hidden");
+                travel_length_at.push(path.node().getTotalLength());
+            }
+
+            let travel_path_trans = path
+                .attr("stroke-dasharray", travel_path_len)
+                .attr("stroke-dashoffset", travel_path_len)
+                .transition(t)
+                .delay(TIMESCALE * (travel_path.route[0][0] - TIMESTART));
+
+            for (let i = 1; i < travel_path.route.length; i++) {
+                travel_path_trans = travel_path_trans.transition(t)
+                    .duration(TIMESCALE * (travel_path.route[i][0] - travel_path.route[i - 1][0]))
+                    .ease(d3.easeLinear)
+                    .attr("stroke-dashoffset", travel_length_at[i - 1] || 0);
+            }
+        }
+    });
+
+    /************************************************************************
+    *** ROUTE ANIMATION CLEANUP
+    *************************************************************************/
+
+    svg.selectAll('.temppath').remove();
 
     /************************************************************************
     *** HEATMAP ANIMATIONS
@@ -638,6 +692,24 @@ function draw_map() {
 
 $(window).resize(draw_map);
 $(document).ready(function () {
+    let travel_last = travel_full[0];
+    let travel_current = [travel_last];
+
+    for (let i = 0; i < travel_full.length; i++) {
+        let travel_next = travel_full[i];
+        if (travel_last[0] + 40 < travel_next[0]) {
+            travel.push({route: travel_current, jump: false});
+            travel.push({route: [travel_last, travel_next], jump: true});
+            travel_current = [travel_next];
+        } else {
+            travel_current.push(travel_next);
+        }
+        travel_last = travel_next;
+    }
+    if (travel_current.length > 1) {
+        travel.push({route: travel_current, jump: false});
+    }
+
     draw_map()
     $("#map").on("mousewheel", function(e) {
         e.preventDefault();
