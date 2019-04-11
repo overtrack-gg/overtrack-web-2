@@ -97,7 +97,23 @@ base_context = {
 }
 
 
+@app.route('/welcome')
+def welcome():
+    return render_template('welcome.html')
+
+
 @app.route('/')
+def root():
+    if require_authentication() is None:
+        return render_template(
+            'games/games.html',
+            games=ApexGameSummary.user_id_time_index.query(session.user_id, newest_first=True),
+            **base_context
+        )
+    else:
+        return render_template('welcome.html')
+
+
 @app.route('/games')
 @require_login
 def games_list():
