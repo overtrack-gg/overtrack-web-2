@@ -20,8 +20,12 @@
         <td>{{ s2ts(game.duration) }}</td>
         <td class="m-0 p-0 h-100 noheight squad">
             <div style="background-image: url('{{ image_url(game.champion) }}')" class="character-icon highlight"></div>
+            {% if game.squadmates[0] %}
             <div style="background-image: url('{{ image_url(game.squadmates[0]) }}')" class="character-icon"></div>
+            {% endif %}
+            {% if game.squadmates[1] %}
             <div style="background-image: url('{{ image_url(game.squadmates[1]) }}')" class="character-icon"></div>
+            {% endif %}
         </td>
         <td class="knockdowns">
             {{ game.knockdowns if game.knockdowns != None else "-" }}

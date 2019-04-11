@@ -2,6 +2,7 @@
 {% import 'game/map.html' as map with context %}
 
 {% macro player(player, index) -%}
+{% if player %}
 <div class="col-lg-4" style="{{ 'padding-right: 0.25rem; ' if index != 2 else '' }} {{ 'padding-left: 0.25rem; ' if index != 0 else '' }}">
     <div class="card bg-dark player-card" style="background-image: url('{{ image_url(player['champion'], True) }}')">
         <div class="card-header" style="background-color: {{ champion_colour(player['champion']) }}90; ">
@@ -43,6 +44,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 {%- endmacro %}
 
 
