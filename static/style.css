@@ -275,3 +275,6 @@ td.noheight {
 .sentry-error-embed #id_comments::placeholder {
     color: transparent;
 }
+.sentry-error-embed header p span {
+    display: none;
+}

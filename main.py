@@ -3,13 +3,13 @@ from datetime import datetime
 from typing import Optional
 
 import requests
-from flask import Flask, Response, render_template, request, url_for as flask_url_for
+from flask import Flask, Response, render_template, url_for as flask_url_for
 from flask_bootstrap import Bootstrap
 
-from api.authentication import require_authentication
-from blueprints.login import login, require_login
+from api.authentication import check_authentication, require_authentication
 from api.session import session
 from blueprints.discord_bot import discord_bot_blueprint
+from blueprints.login import login, require_login
 from blueprints.results import results_blueprint
 from models.apex_game_summary import ApexGameSummary
 from overtrack.util import s2ts
@@ -107,7 +107,7 @@ def welcome():
 
 @app.route('/')
 def root():
-    if require_authentication() is None:
+    if check_authentication() is None:
         return render_template(
             'games/games.html',
             games=ApexGameSummary.user_id_time_index.query(session.user_id, newest_first=True),
