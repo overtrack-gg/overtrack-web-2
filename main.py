@@ -180,7 +180,7 @@ def game(key: str):
         else:
             frames_metadata = None
 
-        if 'log' in game_object['Metadata']:
+        if 'log' in game_object['Metadata'] and 'start' in game_object['Metadata']['log']:
             log_url = urlparse(game_object['Metadata']['log'])
             print(log_url.fragment)
             log_params = dict(e.split('=') for e in log_url.fragment.split(':', 1)[1].split(';'))
