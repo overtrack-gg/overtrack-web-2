@@ -184,6 +184,13 @@ td.noheight {
   font-weight: bold;
 }
 
+.admin-data table td, .admin-data table th {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+pre {
+    color: white;
+}
 
 
 .text-blue {

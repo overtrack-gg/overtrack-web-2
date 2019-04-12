@@ -47,6 +47,34 @@
 {% endif %}
 {%- endmacro %}
 
+{% macro dict_to_card(d, name, width=6) -%}
+{% if d %}
+<div class="col-sm-{{ width }} card bg-dark">
+    <div class="card-header">
+        {% if '_href' in d %}
+        <a href="{{ d['_href'] }}"><h5>{{ name }}</h5></a>
+        {% else %}
+        <h5>{{ name }}</h5>
+        {% endif %}
+    </div>
+    <div class="card-body">
+        <table class="table table-borderless table-striped table-hover">
+            <tbody>
+            {% for e in d.items() %}
+            {% if e[0] != '_href' %}
+            <tr>
+                <th>{{ e[0] }}</th>
+                <td>{{ e[1] }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{%- endmacro %}
+
 
 {% extends "base.html" %}
 {% block title %}Game{% endblock %}
@@ -146,6 +174,31 @@
             {{ player(game['squad']['squadmates'][0], 1) }}
             {{ player(game['squad']['squadmates'][1], 2) }}
         </div>
+
+        {% if admin_data %}
+        <hr/>
+        <div class="admin-data">
+            <div class="row">
+                {{ dict_to_card(summary.asdict(), 'Game Summary') }}
+                {{ dict_to_card(admin_data['frames_metadata'], 'Frames Metadata') }}
+            </div>
+            <div class="row">
+                {{ dict_to_card(admin_data['game_metadata'], 'Game Object Metadata', 12) }}
+            </div>
+            <div class="row" style="left: 1vw; position: absolute; right: 1vw;">
+                <div class="col-sm-12 card bg-dark">
+                    <div class="card-header">
+                        <h5>Log</h5>
+                    </div>
+                    <div class="card-body">
+                        <pre>
+{{ '\n'.join(admin_data['log']) }}
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
     </div>
 </div>

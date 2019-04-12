@@ -1,7 +1,10 @@
+import json
 import logging
 from datetime import datetime
 from typing import Optional
+from urllib.parse import urlparse
 
+import boto3
 import requests
 from flask import Flask, Response, render_template, url_for as flask_url_for
 from flask_bootstrap import Bootstrap
@@ -16,6 +19,9 @@ from overtrack.util import s2ts
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
+
+logs = boto3.client('logs')
+s3 = boto3.client('s3')
 
 logger = logging.getLogger(__name__)
 
@@ -131,14 +137,13 @@ def games_list():
 def game(key: str):
     summary = ApexGameSummary.get(key)
     logger.info(f'Fetching {summary.url}')
-    r = requests.get(summary.url)
-    if r.status_code == 404:
-        return Response(
-            "This isn't the game you're looking for",
-            status=404
-        )
-    r.raise_for_status()
-    game_data = r.json()
+
+    url = urlparse(summary.url)
+    game_object = s3.get_object(
+        Bucket=url.netloc.split('.')[0],
+        Key=url.path[1:]
+    )
+    game_data = json.loads(game_object['Body'].read())
 
     # used for link previews
     og_title = f'{game_data["squad"]["player"]["name"]} placed #{summary.placed}'  # TODO: find another way of getting the name
@@ -155,6 +160,55 @@ def game(key: str):
     if summary.landed != 'Unknown':
         og_description += f'\nDropped {summary.landed}'
 
+    if check_authentication() is None and session.superuser:
+        if 'frames' in game_object['Metadata']:
+            frames_url = urlparse(game_object['Metadata']['frames'])
+            frames_object = s3.get_object(
+                Bucket=frames_url.netloc,
+                Key=frames_url.path[1:]
+            )
+            frames_metadata = frames_object['Metadata']
+            del frames_metadata['log']  # already have this
+            frames_metadata['_href'] = s3.generate_presigned_url(
+                'get_object',
+                Params={
+                    'Bucket': frames_url.netloc,
+                    'Key': frames_url.path[1:]
+                }
+            )
+
+        else:
+            frames_metadata = None
+
+        if 'log' in game_object['Metadata']:
+            log_url = urlparse(game_object['Metadata']['log'])
+            print(log_url.fragment)
+            log_params = dict(e.split('=') for e in log_url.fragment.split(':', 1)[1].split(';'))
+            print(log_params)
+
+            log_time = datetime.strptime(log_params['start'], "%Y-%m-%dT%H:%M:%SZ")
+            tz_offset = datetime.now() - datetime.utcnow()
+            log_data = logs.get_log_events(
+                logGroupName=log_params['group'],
+                logStreamName=log_params['stream'],
+                startTime=int((log_time + tz_offset).timestamp() * 1000)
+            )
+            log_lines = []
+            for i, e in enumerate(log_data['events']):
+                log_lines.append(e['message'].strip())
+                if i > 10 and 'END RequestId' in e['message']:
+                    break
+        else:
+            log_lines = []
+
+        admin_data = {
+            'game_metadata': game_object['Metadata'],
+            'frames_metadata': frames_metadata,
+            'log': log_lines
+        }
+    else:
+        admin_data = None
+
     return render_template(
         'game/game.html',
         summary=summary,
@@ -163,6 +217,8 @@ def game(key: str):
         og_title=og_title,
         theme_colour=theme_color,
         og_description=og_description,
+
+        admin_data=admin_data,
 
         **base_context
     )
