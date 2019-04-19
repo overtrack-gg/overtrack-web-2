@@ -285,3 +285,10 @@ pre {
 .sentry-error-embed header p span {
     display: none;
 }
+
+
+@media (max-width: 1000px){
+    .container {
+        max-width: none !important;
+    }
+}
