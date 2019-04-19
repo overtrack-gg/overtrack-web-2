@@ -236,6 +236,15 @@ def eeveea_games():
     )
 
 
+@app.route('/mendokusaii')
+def mendokusaii_games():
+    return render_template(
+        'games/games.html',
+        games=ApexGameSummary.user_id_time_index.query(-3, newest_first=True),
+        **base_context
+    )
+
+
 @app.route("/by_key/<string:key>")
 @require_authentication(superuser_required=True)
 def games_by_key(key: str):
