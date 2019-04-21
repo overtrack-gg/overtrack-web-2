@@ -114,9 +114,12 @@ def welcome():
 @app.route('/')
 def root():
     if check_authentication() is None:
+        games = list(ApexGameSummary.user_id_time_index.query(session.user_id, newest_first=True))
+        if not len(games):
+            return render_template('client.html', no_games_alert=True)
         return render_template(
             'games/games.html',
-            games=ApexGameSummary.user_id_time_index.query(session.user_id, newest_first=True),
+            games=games,
             **base_context
         )
     else:
@@ -126,9 +129,12 @@ def root():
 @app.route('/games')
 @require_login
 def games_list():
+    games = list(ApexGameSummary.user_id_time_index.query(session.user_id, newest_first=True))
+    if not len(games):
+        return render_template('client.html', no_games_alert=True)
     return render_template(
         'games/games.html',
-        games=ApexGameSummary.user_id_time_index.query(session.user_id, newest_first=True),
+        games=games,
         **base_context
     )
 

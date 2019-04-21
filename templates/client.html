@@ -5,6 +5,12 @@
     <div class="row justify-content-md-center">
         <div class="card card-main col-main">
             <div class="card-body">
+                {% if no_games_alert %}
+                    <div class="alert alert-primary" role="alert">
+                        It looks like you don't have any games yet.<br/>
+                        Download the OverTrack client to start tracking!
+                    </div>
+                {% endif %}
                 <h2 class="card-title">Download Client</h2>
                 <p>
                     Tracking Apex games requires the new OverTrack Client.
