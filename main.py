@@ -207,8 +207,11 @@ def game(key: str):
         else:
             log_lines = []
 
+        game_metadata = game_object['Metadata']
+        game_metadata['_href'] = summary.url
+
         admin_data = {
-            'game_metadata': game_object['Metadata'],
+            'game_metadata': game_metadata,
             'frames_metadata': frames_metadata,
             'log': log_lines
         }
