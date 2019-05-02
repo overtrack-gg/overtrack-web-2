@@ -12,7 +12,7 @@ from overtrack.apex import stats
 
 STAT_FUNCTIONS = {
     'Placement Score': stats.placement_score,
-    'Kill Score': stats.kill_score,
+    'Kills / 10min': stats.kills_10min,
     'Squad Kill Contribution': stats.squad_kills_contribution,
     'Average Kills': stats.average_kills,
 
