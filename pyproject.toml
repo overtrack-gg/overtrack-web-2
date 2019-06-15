@@ -21,8 +21,9 @@ pynamodb = "^3"
 
 numpy = "*"
 
-sentry-sdk = "^0"
+sentry-sdk = "^0.8"
 google-cloud-logging = "^1"
+pytest = "^4.4"
 
 [tool.poetry.dev-dependencies]
 

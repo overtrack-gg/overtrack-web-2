@@ -174,7 +174,8 @@ def game(key: str):
                 Key=frames_url.path[1:]
             )
             frames_metadata = frames_object['Metadata']
-            del frames_metadata['log']  # already have this
+            if 'log' in frames_metadata:
+                del frames_metadata['log']  # already have this
             frames_metadata['_href'] = s3.generate_presigned_url(
                 'get_object',
                 Params={

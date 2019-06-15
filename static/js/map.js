@@ -1,5 +1,5 @@
 const RES = "/static/"
-const IMAGE = "https://s3-us-west-2.amazonaws.com/apextrack-web-poc-assets/1/images/"
+const IMAGE = "https://d2igtsro72if25.cloudfront.net/1/images/map.jpg"
 
 var locations = route.locations;
 var landed_index = route.landed_location_index;
