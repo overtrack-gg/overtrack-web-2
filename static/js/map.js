@@ -1,5 +1,5 @@
 const RES = "/static/"
-const IMAGE = "https://d2igtsro72if25.cloudfront.net/1/images/map.jpg"
+const IMAGE = "https://d2igtsro72if25.cloudfront.net/1/images/"
 
 var locations = route.locations;
 var landed_index = route.landed_location_index;
