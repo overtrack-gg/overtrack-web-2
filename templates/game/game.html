@@ -22,7 +22,7 @@
                     </tr>
                     <tr>
                         <th class="name">Survival Time</th>
-                        <td class="value">{{ s2ts(player['stats']['survival_time'])}}</td>
+                        <td class="value">{{ s2ts(player['stats']['survival_time']) if player['stats']['survival_time'] else '' }}</td>
                     </tr>
                     <tr>
                         <th class="name">Players Revived</th>
