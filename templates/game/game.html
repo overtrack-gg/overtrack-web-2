@@ -86,6 +86,10 @@
 <link type="application/json+oembed" href="{{ url_for('static', filename='oembed.json') }}"/>
 {% endblock %}
 
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/games.css') }}">
+{% endblock %}
+
 {% block content %}
 <div class="container pt-3">
     <div class="container">

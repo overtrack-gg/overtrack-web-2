@@ -2,19 +2,77 @@
 
 {% extends "base.html" %}
 {% block title %}Games{% endblock %}
+{% block css %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/games.css') }}">
+{% endblock %}
 {% block content %}
-    <div class="container pt-3">
-        <div class="container table-responsive">
-            <table class="table table-borderless table-striped table-hover table-dark shadow games-list">
-                <thead class="">
-                    {{ game_summary.header() }}
-                </thead>
-                <tbody>
-                {% for game in games %}
-                    {{ game_summary.summary(game) }}
-                {% endfor %}
-                </tbody>
-            </table>
+<br/>
+    <section>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-4 games-list-panels">
+                    <div class="card bg-dark season-selector">
+                        <div class="card-body">
+                            <!-- <h5>Season:</h5> -->
+                            <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Season {{ season.index }}{{ " Ranked" if is_ranked else "" }}
+                                </button>
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                    {% for s in seasons %}
+                                        {% if s >= 2 %}
+                                            <a class="dropdown-item" href="?season={{ s }}&ranked=true">Season {{ s }} Ranked</a>
+                                        {% endif %}
+                                        <a class="dropdown-item" href="?season={{ s }}&ranked=false">Season {{ s }}</a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card bg-dark">
+                        <div class="card-header">
+                            <h5>Most recent match</h5>
+                        </div>
+                        <div class="card-body">
+                            Coming Soon!
+                        </div>
+                    </div>
+                    {% if is_ranked %}
+                    <div class="card bg-dark">
+                        <div class="card-header">
+                            <h5>Rank</h5>
+                        </div>
+                        <div class="card-body">
+                            Coming Soon!
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="card bg-dark">
+                        <div class="card-header">
+                            <h5>Stats</h5>
+                        </div>
+                        <div class="card-body">
+                            Coming Soon!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-8">
+                    <div class="table-responsive">
+                        <table class="table table-borderless table-striped table-hover table-dark shadow games-list narrow">
+                            <thead class="">
+                                {{ game_summary.header() }}
+                            </thead>
+                            <tbody>
+                            {% for game in games %}
+                                {{ game_summary.summary(game) }}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+    </section>
 {% endblock %}

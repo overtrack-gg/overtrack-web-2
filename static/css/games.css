@@ -1,0 +1,181 @@
+.games-list tr {
+  padding: .5rem !important;
+  white-space: nowrap;
+}
+.games-list td {
+  padding: .5rem !important;
+  overflow: hidden;
+}
+.games-list.narrow th {
+  font-size: 14px;
+}
+td.noheight {
+  padding: 0 !important;
+  margin: 0 !important;
+  line-height: 0;
+}
+
+/* Time */
+.games-list td.time {
+  max-width: 85px;
+  min-width: 85px;
+}
+
+/* Duration */
+.games-list .duration {
+  width: 100px;
+  max-width: 100px;
+  min-width: 100px;
+}
+.games-list.narrow .duration {
+  width: 60px;
+  max-width: 60px;
+  min-width: 60px;
+}
+
+/* Squad */
+.games-list th.squad {
+  padding-left: 35px;
+  width: 155px;
+  min-width: 155px;
+  max-width: 155px;
+}
+.games-list td.squad {
+  padding-left: 5px !important;
+}
+.games-list .character-icon {
+    height: 40px;
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+    margin-right: -31px;
+    margin-bottom: 0px;
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 70px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    background-origin: content-box;
+}
+.games-list .character-icon.highlight {
+  filter: drop-shadow(1px 0 1px #00d9ffad)
+          drop-shadow(-1px 0 1px #00d9ffad)              
+          drop-shadow(0 1px 1px #00d9ffad)              
+          drop-shadow(0 -1px 1px #00d9ffad);
+}
+
+/* Downs, Kills, Squad Kills */
+.games-list td.knockdowns, .games-list td.kills, .games-list td.squad-kills, .games-list td.rp-delta {
+  max-width: 35px;
+  min-width: 35px;
+  text-align: right;
+  padding-right: 20px !important;
+  padding-top: 6px !important;
+  font-size: 24px;
+  line-height: 1;
+  font-weight: bold;
+}
+.games-list.narrow th.knockdowns {
+  position: relative;
+  left: -20px;
+  max-width: 55px;
+}
+
+/* Placed */
+.games-list td.placed {
+  max-width: 55px;
+  min-width: 55px;
+  color: #EE3D20;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: bold;
+  padding-top: 3px !important;
+  text-align: right;
+}
+
+/* Dropped */
+.games-list .dropped {
+  padding-left: 60px !important;
+}
+.games-list.narrow .dropped {
+  min-width: 170px;
+  max-width: 170px;
+  overflow: hidden;
+  padding-left: 10px !important;
+}
+
+/* Squad Kills */
+.games-list.narrow th.squad-kills {
+  position: relative;
+  left: -40px;
+  width: 60px;
+  max-width: 60px;
+  min-width: 60px;
+}
+
+/* Rank Icon */
+.games-list .rank-icon {
+  height: 42px;
+  display: inline-block;
+  background-repeat: no-repeat;
+  background-size: contain;
+  width: 35px;
+  background-origin: content-box;
+  margin-left: 13px;
+}
+
+/* Rank Tier */
+.games-list .rank-tier {
+  position: relative;
+  text-align: center;
+  left: -8.5px;
+  top: -11px;
+  font-size: 12pt;
+  text-shadow:
+    1px  1px 0 #000,
+   -1px -1px 0 #000,  
+    1px -1px 0 #000,
+   -1px  1px 0 #000,
+    1px  1px 0 #000;
+}
+.games-list.narrow .rank-tier {
+  left: 2px;
+}
+
+/* RP Delta */
+.games-list.narrow td.rp-delta {
+  text-align: right;
+  padding-left: 15px !important;
+  width: 75px;
+  max-width: 75px;
+  min-width: 75px;
+}
+.games-list.narrow th.rp-delta {
+  padding-left: 25px;
+}
+
+/* Table row stuff */
+.games-list tr.clickable {
+  cursor: pointer;
+}
+.games-list tr.placed-1 {
+  background-color: #ffdf0040 !important;
+}
+.games-list tr:nth-of-type(odd).placed-1 {
+  background-color: #ffdf0050 !important;
+}
+.games-list tr.placed-1 > td.placed {
+  color: #ffdf00;
+}
+.games-list tr.placed-2 {
+  background-color: #ef20ff40 !important;
+}
+.games-list tr:nth-of-type(odd).placed-2 {
+  background-color: #ef20ff50 !important;
+}
+.games-list tr.placed-3 {
+  background-color: #4d95ff40 !important;
+}
+.games-list tr:nth-of-type(odd).placed-3 {
+  background-color: #4d95ff50 !important;
+}

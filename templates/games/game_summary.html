@@ -1,14 +1,18 @@
 {% macro header() -%}
     <tr>
-        <th>Time</th>
-        <th>Duration</th>
-        <th>Squad</th>
-        <th style="text-align: right;">Downs</th>
-        <th style="text-align: right;">Kills</th>
-        <th style="text-align: right;">Placed</th>
-        <th>Dropped</th>
-        <th style="text-align: right;">Squad Kills</th>
+        <th class="time">Time</th>
+        <th class="duration">Duration</th>
+        <th class="squad">Squad</th>
+        <th class="knockdowns" style="text-align: right;">Downs</th>
+        <th class="kills" style="text-align: right;">Kills</th>
+        <th class="placed" style="text-align: right;">Placed</th>
+        <th class="dropped">Dropped</th>
+        <th class="squad-kills" style="text-align: right;">Squad Kills</th>
         <!--<th>Favourite Weapons</th>-->
+        {% if is_ranked %}
+        <th class="rank">Rank</th>
+        <th class="rp-delta">RP </th>
+        {% endif %}
     </tr>
 {%- endmacro %}
 
@@ -16,9 +20,9 @@
     <tr data-href={{url_for('game', key=game.key)}}
         data-key="{{game.key}}"
         class="{{'clickable' if game.url and clickable else ''}} {{ 'win' if game.won else '' }} placed-{{game.placed}}">
-        <td>{{ strftime(game.timestamp) }}</td>
-        <td>{{ s2ts(game.duration) }}</td>
-        <td class="m-0 p-0 h-100 noheight squad">
+        <td class="time"><div class="datetime-format-time">{{ game.timestamp }}</div></td>
+        <td class="duration">{{ s2ts(game.duration) }}</td>
+        <td class="squad m-0 p-0 h-100 noheight">
             <div style="background-image: url('{{ image_url(game.champion) }}')" class="character-icon highlight"></div>
             {% if game.squadmates[0] %}
             <div style="background-image: url('{{ image_url(game.squadmates[0]) }}')" class="character-icon"></div>
@@ -36,11 +40,22 @@
         <td class="placed">
             #{{ game.placed }}
         </td>
-        <td>
+        <td class="dropped">
             {{ game.landed }}
         </td>
         <td class="squad-kills">
             {{ game.squad_kills if game.squad_kills != None else "-" }}
         </td>
+        {% if is_ranked %}
+        <td class="rank m-0 p-0 h-100 noheight">
+            <div style="background-image: url('{{ image_url(game.rank.rank) }}')" class="rank-icon"></div>
+            {% if game.rank.tier %}
+            <div class="rank-tier">{{ game.rank.tier }}</div>
+            {% endif %}
+        </td>
+        <td class="rp-delta">
+            {{ format_rp(game.rank.rp_change) }}
+        </td>
+        {% endif %}
     </tr>
 {%- endmacro %}

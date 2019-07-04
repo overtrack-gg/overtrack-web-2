@@ -61,3 +61,10 @@ def results_by_username(username: str):
     return render_results(user.user_id)
 
 
+@results_blueprint.route('/ashie')
+def ashie():
+    return ''''<html>
+    
+    
+</html>'''
+
