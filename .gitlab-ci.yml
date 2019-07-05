@@ -18,6 +18,7 @@ deploy:
     - python -m venv venv
     - source venv/bin/activate
     - poetry update
+
     - git clone git@gitlab.com:OverTrack/overtrack-v2.git
     - mv -t . ./overtrack-v2/models
     - mkdir -p overtrack/util
@@ -31,5 +32,10 @@ deploy:
     - ls
     - ls overtrack/
     - zappa update main
+
+    - pip install awscli
+    - aws s3 sync ./static/ s3://apextrack-web-poc-assets/2/ --delete --acl public-read
+    - aws configure set preview.cloudfront true
+    - aws cloudfront create-invalidation --distribution-id E2IHM5RNQHM95G --paths "/2/*"
   only:
     - master

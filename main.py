@@ -31,17 +31,12 @@ app.register_blueprint(results_blueprint, url_prefix='/results')
 
 
 def url_for(endpoint, **values):
-    if endpoint == 'static'\
-            and 'filename' in values \
-            and values['filename'] not in ['style.css', 'map.js'] \
-            and not values['filename'].endswith('.js'):
-        return 'https://d2igtsro72if25.cloudfront.net/1/' + values['filename']
+    if endpoint == 'static' and 'filename' in values:
+        return 'https://d2igtsro72if25.cloudfront.net/2/' + values['filename']
     else:
         return flask_url_for(endpoint, **values)
 
-
 app.jinja_env.globals['url_for'] = url_for
-
 
 @app.template_filter()
 def ifnone(v, o):
