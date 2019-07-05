@@ -115,7 +115,7 @@ td.noheight {
 
 /* Rank Icon */
 .games-list .rank-icon {
-  height: 42px;
+  height: 40px;
   display: inline-block;
   background-repeat: no-repeat;
   background-size: contain;
@@ -128,7 +128,7 @@ td.noheight {
 .games-list .rank-tier {
   position: relative;
   text-align: center;
-  left: -8.5px;
+  left: -7.5px;
   top: -11px;
   font-size: 12pt;
   text-shadow:
@@ -139,7 +139,7 @@ td.noheight {
     1px  1px 0 #000;
 }
 .games-list.narrow .rank-tier {
-  left: 2px;
+  left: 2.5px;
 }
 
 /* RP Delta */

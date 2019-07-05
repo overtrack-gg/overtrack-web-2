@@ -251,8 +251,8 @@ def game(key: str):
             log_params = dict(e.split('=') for e in log_url.fragment.split(':', 1)[1].split(';'))
             print(log_params)
 
-            log_time = datetime.strptime(log_params['start'], "%Y-%m-%dT%H:%M:%SZ")
-            tz_offset = datetime.now() - datetime.utcnow()
+            log_time = datetime.datetime.strptime(log_params['start'], "%Y-%m-%dT%H:%M:%SZ")
+            tz_offset = datetime.datetime.now() - datetime.datetime.utcnow()
             log_data = logs.get_log_events(
                 logGroupName=log_params['group'],
                 logStreamName=log_params['stream'],
