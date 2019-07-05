@@ -100,7 +100,7 @@ td.noheight {
 .games-list.narrow .dropped {
   min-width: 170px;
   max-width: 170px;
-  overflow: hidden;
+  overflow: visible;
   padding-left: 10px !important;
 }
 
@@ -178,4 +178,14 @@ td.noheight {
 }
 .games-list tr:nth-of-type(odd).placed-3 {
   background-color: #4d95ff50 !important;
+}
+
+.games-list tr td.date-divider {
+  display: none;
+  text-align: center;
+  font-size: 13pt;
+  font-weight: 600;
+  position: relative;
+  padding-top: 3px !important;
+  padding-bottom: 6px !important;
 }

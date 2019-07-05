@@ -7,10 +7,9 @@
     <title>{% block title %}Apex Tracker{% endblock %}</title>
     {% block meta %}{% endblock %}
     {{ bootstrap.load_css() }}
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css" integrity="sha256-8B1OaG0zT7uYA572S2xOxWACq9NXYPQ+U5kHPV1bJN4=" crossorigin="anonymous"> -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
-    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}"/>
     {% block css %}{% endblock %}
+    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}"/>
 </head>
 <body class="has-background-black-ter has-text-white text-light bg-dark">
 {{ navbar.navbar() }}
@@ -18,40 +17,6 @@
 {{ bootstrap.load_js() }}
 {% block scripts %}{% endblock %}
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-99105415-2"></script>
-<!-- <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script> -->
-<!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
-<script type="text/javascript">
-    let dates = document.getElementsByClassName('datetime-format-time');
-    for (let e of dates){
-        let d = new Date(e.innerText * 1000);
-        e.innerText = d.toLocaleString('en-us', {
-            hour: 'numeric',
-            minute: '2-digit'
-        });
-    }
-    let style = document.createElement('style');
-    let head = document.head || document.getElementsByTagName('head')[0];
-    head.appendChild(style);
-    style.type = 'text/css';
-    let css = '.datetime-format-time {\ndisplay: table-cell !important;\n}';
-    if (style.styleSheet){
-        style.styleSheet.cssText = css;
-    } else {
-        style.appendChild(document.createTextNode(css));
-    }
-    document.head.appendChild(style);
-
-    $(document).ready(function($) {
-        $("tr.clickable").click(function() {
-            window.document.location = $(this).data("href");
-        });
-        $("tr.clickable").mouseup(function() {
-            if (event.button === 1){
-                window.open($(this).data("href"));
-            }
-        });
-    });
-</script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}

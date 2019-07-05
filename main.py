@@ -30,7 +30,6 @@ app.register_blueprint(discord_bot_blueprint, url_prefix='/discord_bot')
 app.register_blueprint(results_blueprint, url_prefix='/results')
 
 
-
 def url_for(endpoint, **values):
     if endpoint == 'static'\
             and 'filename' in values \

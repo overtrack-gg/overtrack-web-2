@@ -66,6 +66,8 @@
                             </thead>
                             <tbody>
                             {% for game in games %}
+                                <tr><td class="date-divider" colspan="{{10}}" data-timestamp="{{game.timestamp}}"></td></div>
+                                <tr></tr>
                                 {{ game_summary.summary(game) }}
                             {% endfor %}
                             </tbody>
@@ -75,4 +77,66 @@
             </div>
         </div>
     </section>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+    let times = document.getElementsByClassName('datetime-format-time');
+    for (let e of times){
+        let t = new Date(e.innerText * 1000);
+        e.innerText = t.toLocaleString('default', {
+            hour: 'numeric',
+            minute: '2-digit'
+        });
+    }
+
+    let dates = document.getElementsByClassName('date-divider');
+    let dateOpts = {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        // year: 'numeric',
+    };
+    let lastText = new Date().toLocaleString('default', dateOpts);
+    for (let e of dates){
+        let d = new Date(+e.getAttribute('data-timestamp') * 1000);
+        let text = d.toLocaleString('default', dateOpts);
+        if (text != lastText){
+            lastText = text;
+            e.innerText = text;
+            e.classList.add('date-divider-visible');
+        }
+    }
+
+    let style = document.createElement('style');
+    let head = document.head || document.getElementsByTagName('head')[0];
+    head.appendChild(style);
+    style.type = 'text/css';
+    let css = `
+.datetime-format-time {
+    display: table-cell !important;
+}
+.date-divider-visible {
+    display: table-cell !important;
+}
+`;
+    if (style.styleSheet){
+        style.styleSheet.cssText = css;
+    } else {
+        style.appendChild(document.createTextNode(css));
+    }
+    document.head.appendChild(style);
+
+    $(document).ready(function($) {
+        $("tr.clickable").click(function() {
+            window.document.location = $(this).data("href");
+        });
+        $("tr.clickable").mouseup(function() {
+            if (event.button === 1){
+                window.open($(this).data("href"));
+            }
+        });
+    });
+</script>
 {% endblock %}
