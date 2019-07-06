@@ -157,7 +157,6 @@ def render_games_list(user_id: int) -> Response:
     try:
         season_id = int(request.args['season'])
         is_ranked = request.args['ranked'].lower() == 'true'
-        print(season_id, is_ranked)
     except:
         first_game: Optional[ApexGameSummary] = next(ApexGameSummary.user_id_time_index.query(user_id, newest_first=True, limit=1), None)
         if not first_game:
@@ -321,6 +320,11 @@ def eeveea_games():
 @app.route('/mendokusaii')
 def mendokusaii_games():
     return render_games_list(-3)
+
+
+@app.route('/heylauren')
+def heylauren_games():
+    return render_games_list(-420)
 
 
 @app.route("/by_key/<string:key>")
