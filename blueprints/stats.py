@@ -21,7 +21,7 @@ STAT_FUNCTIONS = {
 
 logger = logging.getLogger(__name__)
 
-results_blueprint = Blueprint('results', __name__)
+results_blueprint = Blueprint('stats', __name__)
 
 def render_results(user_id: int):
     games = list(ApexGameSummary.user_id_time_index.query(user_id))

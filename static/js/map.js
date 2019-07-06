@@ -81,156 +81,158 @@ function draw_map() {
     /************************************************************************
     *** OVERLAY SETUP
     *************************************************************************/
+    
+    if (!small){
+        overlay.append("rect")
+            .attr("x", -40)
+            .attr("y", 0)
+            .attr("width", 5 + 11 + 5 + 100 + 20 + 120 + 10 + 115 + 10 + 70 + 10 + 40)
+            .attr("height", 40)
+            .attr("fill", "Black")
+            .attr("transform", "skewX(-40)")
+            .attr("opacity", 0.75)
 
-    overlay.append("rect")
-        .attr("x", -40)
-        .attr("y", 0)
-        .attr("width", 5 + 11 + 5 + 100 + 20 + 120 + 10 + 115 + 10 + 70 + 10 + 40)
-        .attr("height", 40)
-        .attr("fill", "Black")
-        .attr("transform", "skewX(-40)")
-        .attr("opacity", 0.75)
+        /* KNOCKDOWN INFO */
 
-    /* KNOCKDOWN INFO */
+        overlay.append("image")
+            .attr("xlink:href", IMAGE + "knock.svg")
+            .attr("x", 5)
+            .attr("y", 6)
+            .attr("width", 11)
+            .attr("height", 11)
 
-    overlay.append("image")
-        .attr("xlink:href", IMAGE + "knock.svg")
-        .attr("x", 5)
-        .attr("y", 6)
-        .attr("width", 11)
-        .attr("height", 11)
+        overlay.append("text")
+            .attr("x", 5 + 11 + 5)
+            .attr("y", 6 + 10)
+            .attr("fill", "White")
+            .attr("pointer-events", "none")
+            .text("Knockdown")
 
-    overlay.append("text")
-        .attr("x", 5 + 11 + 5)
-        .attr("y", 6 + 10)
-        .attr("fill", "White")
-        .attr("pointer-events", "none")
-        .text("Knockdown")
+        /* ELIMINATION INFO */
 
-    /* ELIMINATION INFO */
+        overlay.append("image")
+            .attr("xlink:href", IMAGE + "elim.svg")
+            .attr("x", 5)
+            .attr("y", 6 + 11 + 6)
+            .attr("width", 11)
+            .attr("height", 11)
 
-    overlay.append("image")
-        .attr("xlink:href", IMAGE + "elim.svg")
-        .attr("x", 5)
-        .attr("y", 6 + 11 + 6)
-        .attr("width", 11)
-        .attr("height", 11)
+        overlay.append("text")
+            .attr("x", 5 + 11 + 5)
+            .attr("y", 6 + 11 + 6 + 10)
+            .attr("fill", "White")
+            .attr("pointer-events", "none")
+            .attr("user-select", "none")
+            .text("Elimination")
 
-    overlay.append("text")
-        .attr("x", 5 + 11 + 5)
-        .attr("y", 6 + 11 + 6 + 10)
-        .attr("fill", "White")
-        .attr("pointer-events", "none")
-        .attr("user-select", "none")
-        .text("Elimination")
+        /* TOGGLE ASSISTS */
 
-    /* TOGGLE ASSISTS */
+        overlay.append("rect")
+            .attr("x", 5 + 11 + 5 + 100 + 20)
+            .attr("y", 8)
+            .attr("width", 120)
+            .attr("height", 24)
+            .attr("fill", assist_visibility == "hidden" ? BTN : BTN_ACTIVE)
+            .attr("transform", "skewX(-40)")
+            .attr("cursor", "pointer")
+            .on("mouseover", function () {
+                d3.select(this).attr("fill", assist_visibility == "hidden" ? BTN_OVER : BTN_ACTIVE_OVER)
+            })
+            .on("mouseout", function () {
+                d3.select(this).attr("fill", assist_visibility == "hidden" ? BTN : BTN_ACTIVE)
+            })
+            .on("click", function () {
+                if (assist_visibility == "hidden") {
+                    assist_visibility = "visible";
+                    knocks_a.attr("visibility", "visible")
+                    elims_a.attr("visibility", "visible")
+                } else {
+                    assist_visibility = "hidden";
+                    knocks_a.attr("visibility", "hidden")
+                    elims_a.attr("visibility", "hidden")
+                }
+                d3.select(this).attr("fill", assist_visibility == "hidden" ? BTN_OVER : BTN_ACTIVE_OVER)
+            })
+            .on("dblclick", function() {
+                d3.event.stopPropagation()
+            })
 
-    overlay.append("rect")
-        .attr("x", 5 + 11 + 5 + 100 + 20)
-        .attr("y", 8)
-        .attr("width", 120)
-        .attr("height", 24)
-        .attr("fill", assist_visibility == "hidden" ? BTN : BTN_ACTIVE)
-        .attr("transform", "skewX(-40)")
-        .attr("cursor", "pointer")
-        .on("mouseover", function () {
-            d3.select(this).attr("fill", assist_visibility == "hidden" ? BTN_OVER : BTN_ACTIVE_OVER)
-        })
-        .on("mouseout", function () {
-            d3.select(this).attr("fill", assist_visibility == "hidden" ? BTN : BTN_ACTIVE)
-        })
-        .on("click", function () {
-            if (assist_visibility == "hidden") {
-                assist_visibility = "visible";
-                knocks_a.attr("visibility", "visible")
-                elims_a.attr("visibility", "visible")
-            } else {
-                assist_visibility = "hidden";
-                knocks_a.attr("visibility", "hidden")
-                elims_a.attr("visibility", "hidden")
-            }
-            d3.select(this).attr("fill", assist_visibility == "hidden" ? BTN_OVER : BTN_ACTIVE_OVER)
-        })
-        .on("dblclick", function() {
-            d3.event.stopPropagation()
-        })
+        overlay.append("text")
+            .attr("x", 5 + 11 + 5 + 100 + 15)
+            .attr("y", 26)
+            .attr("fill", "White")
+            .attr("pointer-events", "none")
+            .attr("user-select", "none")
+            .text("Toggle Assists")
 
-    overlay.append("text")
-        .attr("x", 5 + 11 + 5 + 100 + 15)
-        .attr("y", 26)
-        .attr("fill", "White")
-        .attr("pointer-events", "none")
-        .attr("user-select", "none")
-        .text("Toggle Assists")
+        /* TOGGLE HEATMAP */
 
-    /* TOGGLE HEATMAP */
+        overlay.append("rect")
+            .attr("x", 5 + 11 + 5 + 100 + 20 + 120 + 10)
+            .attr("y", 8)
+            .attr("width", 115)
+            .attr("height", 24)
+            .attr("fill", heat_visibility == "hidden" ? BTN : BTN_ACTIVE)
+            .attr("transform", "skewX(-40)")
+            .attr("cursor", "pointer")
+            .on("mouseover", function () {
+                d3.select(this).attr("fill", heat_visibility == "hidden" ? BTN_OVER : BTN_ACTIVE_OVER)
+            })
+            .on("mouseout", function () {
+                d3.select(this).attr("fill", heat_visibility == "hidden" ? BTN : BTN_ACTIVE)
+            })
+            .on("click", function () {
+                if (heat_visibility == "hidden") {
+                    heat_visibility = "visible";
+                    heatmap.attr("visibility", "visible")
+                    drop_path.attr("visibility", "hidden")
+                    d3.selectAll("travel-path").attr("visibility", "hidden");
+                } else {
+                    heat_visibility = "hidden";
+                    heatmap.attr("visibility", "hidden")
+                    drop_path.attr("visibility", "visible")
+                    d3.selectAll(".travel-path").attr("visibility", "visible");
+                }
+                d3.select(this).attr("fill", heat_visibility == "hidden" ? BTN_OVER : BTN_ACTIVE_OVER)
+            })
+            .on("dblclick", function() {
+                d3.event.stopPropagation()
+            })
 
-    overlay.append("rect")
-        .attr("x", 5 + 11 + 5 + 100 + 20 + 120 + 10)
-        .attr("y", 8)
-        .attr("width", 115)
-        .attr("height", 24)
-        .attr("fill", heat_visibility == "hidden" ? BTN : BTN_ACTIVE)
-        .attr("transform", "skewX(-40)")
-        .attr("cursor", "pointer")
-        .on("mouseover", function () {
-            d3.select(this).attr("fill", heat_visibility == "hidden" ? BTN_OVER : BTN_ACTIVE_OVER)
-        })
-        .on("mouseout", function () {
-            d3.select(this).attr("fill", heat_visibility == "hidden" ? BTN : BTN_ACTIVE)
-        })
-        .on("click", function () {
-            if (heat_visibility == "hidden") {
-                heat_visibility = "visible";
-                heatmap.attr("visibility", "visible")
-                drop_path.attr("visibility", "hidden")
-                d3.selectAll("travel-path").attr("visibility", "hidden");
-            } else {
-                heat_visibility = "hidden";
-                heatmap.attr("visibility", "hidden")
-                drop_path.attr("visibility", "visible")
-                d3.selectAll(".travel-path").attr("visibility", "visible");
-            }
-            d3.select(this).attr("fill", heat_visibility == "hidden" ? BTN_OVER : BTN_ACTIVE_OVER)
-        })
-        .on("dblclick", function() {
-            d3.event.stopPropagation()
-        })
+        overlay.append("text")
+            .attr("x", 5 + 11 + 5 + 100 + 20 + 120 + 5)
+            .attr("y", 26)
+            .attr("fill", "White")
+            .attr("pointer-events", "none")
+            .attr("user-select", "none")
+            .text("Activity Map")
 
-    overlay.append("text")
-        .attr("x", 5 + 11 + 5 + 100 + 20 + 120 + 5)
-        .attr("y", 26)
-        .attr("fill", "White")
-        .attr("pointer-events", "none")
-        .attr("user-select", "none")
-        .text("Activity Map")
+        /* REPLAY */
 
-    /* REPLAY */
+        overlay.append("rect")
+            .attr("x", 5 + 11 + 5 + 100 + 20 + 120 + 10 + 115 + 10)
+            .attr("y", 8)
+            .attr("width", 70)
+            .attr("height", 24)
+            .attr("fill", "#992e26")
+            .attr("transform", "skewX(-40)")
+            .attr("cursor", "pointer")
+            .on("mouseover", function () {
+                d3.select(this).attr("fill", "#b92e26")
+            })
+            .on("mouseout", function () {
+                d3.select(this).attr("fill", "#992e26")
+            })
+            .on("click", draw_map)
 
-    overlay.append("rect")
-        .attr("x", 5 + 11 + 5 + 100 + 20 + 120 + 10 + 115 + 10)
-        .attr("y", 8)
-        .attr("width", 70)
-        .attr("height", 24)
-        .attr("fill", "#992e26")
-        .attr("transform", "skewX(-40)")
-        .attr("cursor", "pointer")
-        .on("mouseover", function () {
-            d3.select(this).attr("fill", "#b92e26")
-        })
-        .on("mouseout", function () {
-            d3.select(this).attr("fill", "#992e26")
-        })
-        .on("click", draw_map)
+        overlay.append("text")
+            .attr("x", 5 + 11 + 5 + 100 + 20 + 120 + 10 + 115 + 5)
+            .attr("y", 26)
+            .attr("fill", "White")
+            .attr("pointer-events", "none")
+            .text("Replay")
 
-    overlay.append("text")
-        .attr("x", 5 + 11 + 5 + 100 + 20 + 120 + 10 + 115 + 5)
-        .attr("y", 26)
-        .attr("fill", "White")
-        .attr("pointer-events", "none")
-        .text("Replay")
-
+    }
     /************************************************************************
     *** ROUTE SETUP
     *************************************************************************/
@@ -531,6 +533,10 @@ function draw_map() {
         k *= 1.5;
     } else {
         k = (k - 5) / 1.5 + 5;
+    }
+
+    if (small){
+        zoom.on("zoom", function(){});
     }
 
     /************************************************************************

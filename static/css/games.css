@@ -16,7 +16,7 @@ td.noheight {
 }
 
 /* Time */
-.games-list td.time {
+.games-list.narrow td.time {
   max-width: 85px;
   min-width: 85px;
 }
@@ -43,7 +43,7 @@ td.noheight {
 .games-list td.squad {
   padding-left: 5px !important;
 }
-.games-list .character-icon {
+.character-icon {
     height: 40px;
     margin: 0;
     padding: 0;
@@ -57,7 +57,7 @@ td.noheight {
     padding-bottom: 2px;
     background-origin: content-box;
 }
-.games-list .character-icon.highlight {
+.character-icon.highlight {
   filter: drop-shadow(1px 0 1px #00d9ffad)
           drop-shadow(-1px 0 1px #00d9ffad)              
           drop-shadow(0 1px 1px #00d9ffad)              
@@ -66,14 +66,16 @@ td.noheight {
 
 /* Downs, Kills, Squad Kills */
 .games-list td.knockdowns, .games-list td.kills, .games-list td.squad-kills, .games-list td.rp-delta {
-  max-width: 35px;
-  min-width: 35px;
   text-align: right;
-  padding-right: 20px !important;
   padding-top: 6px !important;
   font-size: 24px;
   line-height: 1;
   font-weight: bold;
+}
+.games-list.narrow td.knockdowns, .games-list.narrow td.kills, .games-list.narrow td.squad-kills, .games-list.narrow td.rp-delta {
+  max-width: 35px;
+  min-width: 35px;
+  padding-right: 20px !important;
 }
 .games-list.narrow th.knockdowns {
   position: relative;
@@ -115,21 +117,21 @@ td.noheight {
 
 /* Rank Icon */
 .games-list .rank-icon {
-  height: 40px;
+  height: 39px;
   display: inline-block;
   background-repeat: no-repeat;
   background-size: contain;
-  width: 35px;
   background-origin: content-box;
   margin-left: 13px;
 }
 
 /* Rank Tier */
 .games-list .rank-tier {
+  width: 35px;
+  height: 10px;
   position: relative;
   text-align: center;
-  left: -7.5px;
-  top: -11px;
+  top: 30px;
   font-size: 12pt;
   text-shadow:
     1px  1px 0 #000,
@@ -137,9 +139,6 @@ td.noheight {
     1px -1px 0 #000,
    -1px  1px 0 #000,
     1px  1px 0 #000;
-}
-.games-list.narrow .rank-tier {
-  left: 2.5px;
 }
 
 /* RP Delta */

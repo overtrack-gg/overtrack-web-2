@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+import time
 from typing import Optional
 from urllib.parse import urlparse
 
@@ -13,7 +14,7 @@ from api.authentication import Authentication, check_authentication, require_aut
 from api.session import session
 from blueprints.discord_bot import discord_bot_blueprint
 from blueprints.login import login, require_login
-from blueprints.results import results_blueprint
+from blueprints.stats import results_blueprint
 from models.apex_game_summary import ApexGameSummary
 from overtrack.util import s2ts
 
@@ -27,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 app.register_blueprint(login)
 app.register_blueprint(discord_bot_blueprint, url_prefix='/discord_bot')
-app.register_blueprint(results_blueprint, url_prefix='/results')
+app.register_blueprint(results_blueprint, url_prefix='/stats')
 
 
 def url_for(endpoint, **values):
@@ -36,7 +37,12 @@ def url_for(endpoint, **values):
     else:
         return flask_url_for(endpoint, **values)
 
-app.jinja_env.globals['url_for'] = url_for
+
+if app.config['DEBUG']:
+    url_for = app.jinja_env.globals['url_for']
+else:
+    app.jinja_env.globals['url_for'] = url_for
+
 
 @app.template_filter()
 def ifnone(v, o):
@@ -147,6 +153,7 @@ def welcome():
 
 
 def render_games_list(user_id: int) -> Response:
+    t0 = time.perf_counter()
     try:
         season_id = int(request.args['season'])
         is_ranked = request.args['ranked'].lower() == 'true'
@@ -166,7 +173,22 @@ def render_games_list(user_id: int) -> Response:
     else:
         filter_condition = ApexGameSummary.rank.does_not_exist()
 
-    games = ApexGameSummary.user_id_time_index.query(user_id, range_key_condition, filter_condition, newest_first=True)
+    t1 = time.perf_counter()
+    games = list(ApexGameSummary.user_id_time_index.query(user_id, range_key_condition, filter_condition, newest_first=True))
+    t2 = time.perf_counter()
+
+    if len(games):
+        url = urlparse(games[0].url)
+        game_object = s3.get_object(
+            Bucket=url.netloc.split('.')[0],
+            Key=url.path[1:]
+        )
+        latest_game_data = json.loads(game_object['Body'].read())
+    else:
+        latest_game_data = None
+    t3 = time.perf_counter()
+
+    logger.info(f'Season selection: {(t1 - t0)*1000:.2f}ms, games query: {(t2 - t1)*1000:.2f}ms, latest game fetch: {(t3 - t2)*1000:.2f}ms')
 
     return render_template(
         'games/games.html',
@@ -174,6 +196,7 @@ def render_games_list(user_id: int) -> Response:
         season=season,
         seasons=[2, 1],
         is_ranked=is_ranked,
+        latest_game=latest_game_data,
         **base_context
     )
 
@@ -247,16 +270,16 @@ def game(key: str):
 
             log_time = datetime.datetime.strptime(log_params['start'], "%Y-%m-%dT%H:%M:%SZ")
             tz_offset = datetime.datetime.now() - datetime.datetime.utcnow()
-            log_data = logs.get_log_events(
-                logGroupName=log_params['group'],
-                logStreamName=log_params['stream'],
-                startTime=int((log_time + tz_offset).timestamp() * 1000)
-            )
+            # log_data = logs.get_log_events(
+            #     logGroupName=log_params['group'],
+            #     logStreamName=log_params['stream'],
+            #     startTime=int((log_time + tz_offset).timestamp() * 1000)
+            # )
             log_lines = []
-            for i, e in enumerate(log_data['events']):
-                log_lines.append(e['message'].strip())
-                if i > 10 and 'END RequestId' in e['message']:
-                    break
+            # for i, e in enumerate(log_data['events']):
+            #     log_lines.append(e['message'].strip())
+            #     if i > 10 and 'END RequestId' in e['message']:
+            #         break
         else:
             log_lines = []
 

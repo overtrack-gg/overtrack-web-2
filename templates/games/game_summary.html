@@ -6,7 +6,7 @@
         <th class="knockdowns" style="text-align: right;">Downs</th>
         <th class="kills" style="text-align: right;">Kills</th>
         <th class="placed" style="text-align: right;">Placed</th>
-        <th class="dropped">Dropped</th>
+        <th class="dropped">Landed</th>
         <th class="squad-kills" style="text-align: right;">Squad Kills</th>
         <!--<th>Favourite Weapons</th>-->
         {% if is_ranked %}
@@ -48,10 +48,11 @@
         </td>
         {% if is_ranked %}
         <td class="rank m-0 p-0 h-100 noheight">
-            <div style="background-image: url('{{ image_url(game.rank.rank) }}')" class="rank-icon"></div>
-            {% if game.rank.tier %}
-            <div class="rank-tier">{{ game.rank.tier }}</div>
-            {% endif %}
+            <div style="background-image: url('{{ image_url(game.rank.rank) }}')" class="rank-icon">
+                {% if game.rank.tier %}
+                <div class="rank-tier">{{ game.rank.tier }}</div>
+                {% endif %}
+            </div>
         </td>
         <td class="rp-delta">
             {{ format_rp(game.rank.rp_change) }}

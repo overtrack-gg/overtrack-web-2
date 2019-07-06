@@ -215,6 +215,35 @@
 <script defer src="{{ url_for('static', filename='js/d3.v5.min.js') }}"></script>
 <script defer src="{{ url_for('static', filename='js/map.js') }}"></script>
 
+<script type="text/javascript">
+    let times = document.getElementsByClassName('datetime-format-time');
+    for (let e of times){
+        let t = new Date(e.innerText * 1000);
+        e.innerText = t.toLocaleString('default', {
+            hour: 'numeric',
+            minute: '2-digit',
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+        });
+    }
+    let style = document.createElement('style');
+    let head = document.head || document.getElementsByTagName('head')[0];
+    head.appendChild(style);
+    style.type = 'text/css';
+    let css = `
+.datetime-format-time {
+    display: table-cell !important;
+}
+`;
+    if (style.styleSheet){
+        style.styleSheet.cssText = css;
+    } else {
+        style.appendChild(document.createTextNode(css));
+    }
+    document.head.appendChild(style);
+</script>
+
 <script src="https://browser.sentry-cdn.com/5.0.6/bundle.min.js" crossorigin="anonymous"></script>
 <script>
 class UserReport extends Error {

@@ -1,4 +1,5 @@
 {% import 'games/game_summary.html' as game_summary with context %}
+{% import 'game/game_small.html' as game_small with context %}
 
 {% extends "base.html" %}
 {% block title %}Games{% endblock %}
@@ -30,14 +31,16 @@
                         </div>
                     </div>
 
+                    {% if latest_game %}
                     <div class="card bg-dark">
                         <div class="card-header">
-                            <h5>Most recent match</h5>
+                            <a href="/game/{{ latest_game['key'] }}"><h5>Most recent match</h5></a>
                         </div>
                         <div class="card-body">
-                            Coming Soon!
+                            {{ game_small.game(latest_game) }}
                         </div>
                     </div>
+                    {% endif %}
                     {% if is_ranked %}
                     <div class="card bg-dark">
                         <div class="card-header">
@@ -81,6 +84,8 @@
 
 
 {% block scripts %}
+<script defer src="{{ url_for('static', filename='js/d3.v5.min.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/map.js') }}"></script>
 <script type="text/javascript">
     let times = document.getElementsByClassName('datetime-format-time');
     for (let e of times){

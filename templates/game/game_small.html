@@ -1,0 +1,66 @@
+{% import 'game/map.html' as map with context %}
+
+{% macro player_summary(player, alternate_kills=None, highlight=False) -%}
+{% if player %}
+<tr>
+    <td class="m-0 p-0 h-100 noheight">
+        <div style="background-image: url('{{ image_url(player['champion']) }}')" class="character-icon {{'highlight' if highlight else ''}}"></div>
+    </td>
+    <td class="player-name">
+        {{ player['name'] }}
+    </td>
+    <td class="player-kills">
+        {{ alternate_kills if not player['stats'] and alternate_kills != None else player['stats']['kills'] }}
+    </td>
+    <td class="player-damage">
+        {{ player['stats']['damage_dealt'] }}
+    </td>
+</tr>
+{% endif %}
+{%- endmacro %}
+
+{% macro game(game) -%}
+    <table class="table table-borderless player-summaries">
+        <thead>
+            <tr>
+                <th></th>
+                <th></th>
+                <th>Kills</th>
+                <th>Damage</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ player_summary(game['squad']['player'], alternate_kills=game['kills'], highlight=True) }}
+            {{ player_summary(game['squad']['squadmates'][0]) }}
+            {{ player_summary(game['squad']['squadmates'][1]) }}
+        </tbody>
+    </table>
+    {% if 'knockdowns' in game['weapons']['weapon_stats'][0] and game['weapons']['weapon_stats'][0]['knockdowns'] > 0 %}
+    <div class="table-responsive">
+        <table class="table table-borderless table-striped table-hover weapons-list">
+            <thead>
+                <tr>
+                    <th></th>
+                    {% for weapon in game['weapons']['weapon_stats'][:3] %}
+                    {% if weapon['knockdowns'] %}
+                    <th>{{ weapon['weapon'] }}</th>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>Downs</th>
+                    {% for weapon in game['weapons']['weapon_stats'][:3] %}
+                    {% if weapon['knockdowns'] %}
+                    <td>{{ weapon['knockdowns'] }}</td>
+                    {% endif %}
+                    {% endfor %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    
+    {{ map.map(game['route'], game['combat'], small=True) }}
+{%- endmacro %}
