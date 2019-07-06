@@ -3,7 +3,7 @@ const IMAGE = "https://d2igtsro72if25.cloudfront.net/1/images/"
 
 var locations = route.locations;
 var landed_index = route.landed_location_index;
-var [drop, travel_full] = [route.locations.slice(0, landed_index), route.locations.slice(landed_index - 1)];
+var [drop, travel_full] = [route.locations.slice(0, landed_index), route.locations.slice(landed_index ? landed_index - 1: 0)];
 var travel = [];
 // var combat = combat;
 var placed = 3;
