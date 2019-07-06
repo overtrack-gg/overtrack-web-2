@@ -34,7 +34,7 @@ deploy:
     - zappa update main
 
     - pip install awscli
-    - aws s3 sync ./static/ s3://apextrack-web-poc-assets/2/ --delete --acl public-read
+    - aws s3 sync ./static/ s3://apextrack-web-poc-assets/2/ --delete --acl public-read --cache-control max-age=86400
     - aws configure set preview.cloudfront true
     - aws cloudfront create-invalidation --distribution-id E2IHM5RNQHM95G --paths "/2/*"
   only:
