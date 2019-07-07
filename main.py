@@ -208,10 +208,11 @@ def render_games_list(user_id: int) -> Response:
         is_ranked and
         latest_game_data['rank']['rank'] is not None and
         latest_game_data['rank']['rank_tier'] is not None and
-        latest_game_data['rank']['rp'] is not None
+        latest_game_data['rank']['rp'] is not None and
+        latest_game_data['rank']['rp_change'] is not None
     )
     if is_rank_valid:
-        rp = latest_game_data['rank']['rp']
+        rp = latest_game_data['rank']['rp'] + latest_game_data['rank']['rp_change']
         rank_details = (
             latest_game_data['rank']['rank'],
             latest_game_data['rank']['rank_tier']

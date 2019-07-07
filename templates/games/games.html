@@ -48,9 +48,9 @@
                             <h5>Rank</h5>
                         </div>
                         <div class="card-body">
-                            {{ if rank_progress }}
+                            {% if rank_progress %}
                                 {{ rank.rank_image(rank_progress, rank_details) }}
-                            {{ endif }}
+                            {% endif %}
                         </div>
                     </div>
                     {% endif %}
