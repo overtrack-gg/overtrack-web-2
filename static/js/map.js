@@ -27,7 +27,7 @@ var assist_visibility = "hidden";
 var heat_visibility = "hidden";
 
 function draw_map() {
-    d3.selectAll("svg").remove();
+    d3.selectAll("#map svg").remove();
 
     const SIZE_X = $('#map').width();
     const SIZE_Y = $('#map').height();

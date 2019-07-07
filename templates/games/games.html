@@ -1,4 +1,5 @@
 {% import 'games/game_summary.html' as game_summary with context %}
+{% import 'games/rank.html' as rank with context %}
 {% import 'game/game_small.html' as game_small with context %}
 
 {% extends "base.html" %}
@@ -47,7 +48,7 @@
                             <h5>Rank</h5>
                         </div>
                         <div class="card-body">
-                            Coming Soon!
+                            {{ rank.rank_image(rank_progress, rank_details) }}
                         </div>
                     </div>
                     {% endif %}

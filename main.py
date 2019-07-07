@@ -2,7 +2,7 @@ import datetime
 import json
 import logging
 import time
-from typing import Optional
+from typing import Optional, Tuple
 from urllib.parse import urlparse
 
 import boto3
@@ -25,6 +25,15 @@ logs = boto3.client('logs')
 s3 = boto3.client('s3')
 
 logger = logging.getLogger(__name__)
+
+rank_rp = {
+    'bronze': (0, 120),
+    'silver': (120, 280),
+    'gold': (280, 480),
+    'platinum': (480, 720),
+    'diamond': (720, 1000),
+    'apex_predator': (1000, 10_000)
+}
 
 app.register_blueprint(login)
 app.register_blueprint(discord_bot_blueprint, url_prefix='/discord_bot')
@@ -132,6 +141,14 @@ def format_rp(v: Optional[int]):
         return f'{v:+}'
 
 
+def get_tier_window(rp: int, tier_entry: int, tier_step: int) -> Tuple[int, int, int]:
+    return (
+        ((rp - tier_entry) // tier_step) * tier_step + tier_entry,
+        rp,
+        ((rp - tier_entry) // tier_step + 1) * tier_step + tier_entry
+    )
+
+
 base_context = {
     'to_ordinal': to_ordinal,
     's2ts': duration,
@@ -187,6 +204,30 @@ def render_games_list(user_id: int) -> Response:
         latest_game_data = None
     t3 = time.perf_counter()
 
+    is_rank_valid = (
+        is_ranked and
+        latest_game_data['rank']['rank'] is not None and
+        latest_game_data['rank']['rank_tier'] is not None and
+        latest_game_data['rank']['rp'] is not None
+    )
+    if is_rank_valid:
+        rp = latest_game_data['rank']['rp']
+        rank_details = (
+            latest_game_data['rank']['rank'],
+            latest_game_data['rank']['rank_tier']
+        )
+        ranks = list(rank_rp.values())[:-1]
+        for floor, ceil in ranks:
+            if rp < ceil:
+                rank_progress = get_tier_window(rp, floor, (ceil - floor) // 4)
+                break
+        else:
+            rank_progress = (1000, rp, rp)
+            rank_details = "predator", ""
+    else:
+        rank_progress = None
+        rank_details = None
+
     logger.info(f'Season selection: {(t1 - t0)*1000:.2f}ms, games query: {(t2 - t1)*1000:.2f}ms, latest game fetch: {(t3 - t2)*1000:.2f}ms')
 
     return render_template(
@@ -195,6 +236,8 @@ def render_games_list(user_id: int) -> Response:
         season=season,
         seasons=[2, 1],
         is_ranked=is_ranked,
+        rank_progress=rank_progress,
+        rank_details=rank_details,
         latest_game=latest_game_data,
         **base_context
     )
