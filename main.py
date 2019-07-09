@@ -213,18 +213,23 @@ def render_games_list(user_id: int) -> Response:
     )
     if is_rank_valid:
         rp = latest_game_data['rank']['rp'] + latest_game_data['rank']['rp_change']
-        rank_details = (
-            latest_game_data['rank']['rank'],
-            latest_game_data['rank']['rank_tier']
-        )
-        ranks = list(rank_rp.values())[:-1]
-        for floor, ceil in ranks:
-            if rp < ceil:
-                rank_progress = get_tier_window(rp, floor, (ceil - floor) // 4)
+        derived_rank = None
+        derived_tier = None
+        for rank, (lower, upper) in rank_rp.items():
+            if lower <= rp < upper:
+                derived_rank = rank
+                rank_progress = get_tier_window(rp, lower, (upper - lower) // 4)
+                if rank != 'apex_predator':
+                    division = (upper - lower) // 4
+                    tier_ind = (rp - lower) // division
+                    derived_tier = ['IV', 'III', 'II', 'I'][tier_ind]
+                else:
+                    derived_rank = 'predator'
+                    derived_tier = ''
                 break
         else:
             rank_progress = (1000, rp, rp)
-            rank_details = "predator", ""
+        rank_details = derived_rank, derived_tier
     else:
         rank_progress = None
         rank_details = None
