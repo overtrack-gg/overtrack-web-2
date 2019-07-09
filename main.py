@@ -228,6 +228,10 @@ def render_games_list(user_id: int) -> Response:
 
     is_rank_valid = (
         is_ranked and
+        latest_game_data and
+        latest_game_data['rank'] and
+        latest_game_data['rank']['rank'] is not None and
+        latest_game_data['rank']['rank_tier'] is not None and
         latest_game_data['rank']['rp'] is not None and
         latest_game_data['rank']['rp_change'] is not None
     )
@@ -256,7 +260,7 @@ def render_games_list(user_id: int) -> Response:
 
     logger.info(f'Season selection: {(t1 - t0)*1000:.2f}ms, games query: {(t2 - t1)*1000:.2f}ms, latest game fetch: {(t3 - t2)*1000:.2f}ms')
 
-    if is_ranked:
+    if is_ranked and len(games):
         rp_data = [game.rank.rp for game in reversed(games) if game.rank and game.rank.rp]
         print([game.rank for game in reversed(games)])
         if games[0].rank and games[0].rank.rp_change is not None:
@@ -410,7 +414,7 @@ def heylauren_games():
 @app.route("/by_key/<string:key>")
 @require_authentication(superuser_required=True)
 def games_by_key(key: str):
-    render_games_list(int(key))
+    return render_games_list(int(key))
 
 
 from overtrack.util.logging_config import config_logger

@@ -48,7 +48,7 @@
                             {% if rank_summary %}
                                 {{ rank.rank_image(rank_summary) }}
                             {% endif %}
-                            {% if rp_data | length > 5 %}
+                            {% if rp_data and rp_data | length > 5 %}
                             <script type="text/javascript">
                                 const rpHistory = {{ rp_data | tojson | safe }};
                             </script>
