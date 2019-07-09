@@ -1,4 +1,4 @@
-{% macro rank_image(rank_progress, rank_details) -%}
+{% macro rank_image(rank) -%}
     <svg id="rank-svg" width="362" height="133" xmlns="http://www.w3.org/2000/svg" style="margin-top: -8px;">
         <style>
             @import url('https://fonts.googleapis.com/css?family=Russo+One&display=swap');
@@ -24,25 +24,25 @@
                      stroke="#aeaeae"
                      stroke-width="3" />
             <line x1="105" y1="0" x2="145" y2="40" stroke="#aeaeae" stroke-width="5" />
-            <polygon points="362,4 362,34 150,34 120,4" fill="#402d25" />
+            <polygon points="362,4 362,34 150,34 120,4" fill="{{ rank.color }}" />
             <text x="256"
                   y="20"
                   text-anchor="middle"
                   dominant-baseline="middle"
-                  class="rank-font-big">{{ rank_details[0].upper() }} {{ rank_details[1] }}</text>
+                  class="rank-font-big">{{ rank.rank.upper() }} {{ rank.tier }}</text>
             <polygon points="116,85 126,75 352,75 352,85" fill="#716f6e" />
             <polygon points="116,85 116,75 {{
-                        (rank_progress[1] - rank_progress[0]) / (rank_progress[2] - rank_progress[0]) * (352 - 116) + 126
+                        (rank.rp - rank.floor) / (rank.ceil - rank.floor) * (352 - 116) + 126
                         }},75 {{
-                        (rank_progress[1] - rank_progress[0]) / (rank_progress[2] - rank_progress[0]) * (352 - 116) + 116
+                        (rank.rp - rank.floor) / (rank.ceil - rank.floor) * (352 - 116) + 116
                         }},85"
                      clip-path="url(#bar-clip)"
                      fill="#ffffff" />
-            <text x="132" y="64" text-anchor="left" dominant-baseline="middle" class="rank-font">{{ rank_progress[1] }}
-                <tspan fill="#959595"> / {{ rank_progress[2] }}</tspan>
+            <text x="132" y="64" text-anchor="left" dominant-baseline="middle" class="rank-font">{{ rank.rp }}
+                <tspan fill="#959595"> / {{ rank.ceil }}</tspan>
             </text>
         </svg>
-        <image xlink:href="{{ url_for("static", filename="images/rank-" + rank_details[0] + ".png") }}"
+        <image xlink:href="{{ url_for("static", filename="images/rank-" + rank.uri + ".png") }}"
                width="30%"
                x="6"
                y="0" />
@@ -50,6 +50,6 @@
               y="102"
               text-anchor="middle"
               dominant-baseline="middle"
-              class="rank-font">{{ rank_details[1] }}</text>
+              class="rank-font">{{ rank.tier }}</text>
     </svg>
 {%- endmacro %}

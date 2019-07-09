@@ -45,8 +45,8 @@
                     {% if is_ranked %}
                     <div class="card bg-dark rank">
                         <div class="card-body">
-                            {% if rank_progress %}
-                                {{ rank.rank_image(rank_progress, rank_details) }}
+                            {% if rank_summary %}
+                                {{ rank.rank_image(rank_summary) }}
                             {% endif %}
                             {% if rp_data | length > 5 %}
                             <script type="text/javascript">

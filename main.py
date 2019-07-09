@@ -2,7 +2,7 @@ import datetime
 import json
 import logging
 import time
-from typing import Optional, Tuple
+from typing import Optional, Tuple, NamedTuple
 from urllib.parse import urlparse
 
 import boto3
@@ -86,6 +86,29 @@ class Season:
         return f'Season {self.index}'
 
 
+class RankSummary(NamedTuple):
+    rp: int
+    floor: int
+    ceil: int
+    rank: str
+    tier: str
+
+    @property
+    def uri(self) -> str:
+        return 'predator' if self.rank == 'apex predator' else self.rank
+
+    @property
+    def color(self) -> str:
+        return {
+            'bronze': '#402D25',
+            'silver': '#444448',
+            'gold': '#4d4030',
+            'platinum': '#24424a',
+            'diamond': '#3a4b9e',
+            'apex predator': '#8a1f1c'
+        }[self.rank]
+
+
 _PDT = datetime.timezone(datetime.timedelta(hours=-7))
 _season_1_start = datetime.datetime.strptime(
     # https://twitter.com/PlayApex/status/1107733497450356742
@@ -141,10 +164,9 @@ def format_rp(v: Optional[int]):
         return f'{v:+}'
 
 
-def get_tier_window(rp: int, tier_entry: int, tier_step: int) -> Tuple[int, int, int]:
+def get_tier_window(rp: int, tier_entry: int, tier_step: int) -> Tuple[int, int]:
     return (
         ((rp - tier_entry) // tier_step) * tier_step + tier_entry,
-        rp,
         ((rp - tier_entry) // tier_step + 1) * tier_step + tier_entry
     )
 
@@ -206,28 +228,31 @@ def render_games_list(user_id: int) -> Response:
 
     is_rank_valid = (
         is_ranked and
-        latest_game_data['rank']['rank'] is not None and
-        latest_game_data['rank']['rank_tier'] is not None and
         latest_game_data['rank']['rp'] is not None and
         latest_game_data['rank']['rp_change'] is not None
     )
     if is_rank_valid:
         rp = latest_game_data['rank']['rp'] + latest_game_data['rank']['rp_change']
-        rank_details = (
-            latest_game_data['rank']['rank'],
-            latest_game_data['rank']['rank_tier']
-        )
-        ranks = list(rank_rp.values())[:-1]
-        for floor, ceil in ranks:
-            if rp < ceil:
-                rank_progress = get_tier_window(rp, floor, (ceil - floor) // 4)
+        derived_rank = None
+        derived_tier = None
+        for rank, (lower, upper) in rank_rp.items():
+            if lower <= rp < upper:
+                derived_rank = rank
+                floor, ceil = get_tier_window(rp, lower, (upper - lower) // 4)
+                if rank != 'apex_predator':
+                    division = (upper - lower) // 4
+                    tier_ind = (rp - lower) // division
+                    derived_tier = ['IV', 'III', 'II', 'I'][tier_ind]
+                else:
+                    derived_rank = 'apex predator'
+                    derived_tier = ''
                 break
         else:
-            rank_progress = (1000, rp, rp)
-            rank_details = "predator", ""
+            floor = 1000
+            ceil = rp
+        rank_summary = RankSummary(rp, floor, ceil, derived_rank, derived_tier)
     else:
-        rank_progress = None
-        rank_details = None
+        rank_summary = None
 
     logger.info(f'Season selection: {(t1 - t0)*1000:.2f}ms, games query: {(t2 - t1)*1000:.2f}ms, latest game fetch: {(t3 - t2)*1000:.2f}ms')
 
@@ -247,8 +272,7 @@ def render_games_list(user_id: int) -> Response:
         seasons=[2, 1],
 
         is_ranked=is_ranked,
-        rank_progress=rank_progress,
-        rank_details=rank_details,
+        rank_summary=rank_summary,
         rp_data=rp_data,
 
         latest_game=latest_game_data,
