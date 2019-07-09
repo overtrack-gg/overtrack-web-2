@@ -21,6 +21,10 @@ body {
   padding: 6px;
   margin: 0px;
 }
+.card.rank .card-body {
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
 
 .player-profile-panel {
   background-color: #343A40;

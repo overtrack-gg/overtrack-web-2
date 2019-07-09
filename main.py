@@ -231,14 +231,26 @@ def render_games_list(user_id: int) -> Response:
 
     logger.info(f'Season selection: {(t1 - t0)*1000:.2f}ms, games query: {(t2 - t1)*1000:.2f}ms, latest game fetch: {(t3 - t2)*1000:.2f}ms')
 
+    if is_ranked:
+        rp_data = [game.rank.rp for game in reversed(games) if game.rank and game.rank.rp]
+        print([game.rank for game in reversed(games)])
+        if games[0].rank and games[0].rank.rp_change is not None:
+            rp_data.append(games[0].rank.rp + games[0].rank.rp_change)
+    else:
+        rp_data = None
+
     return render_template(
         'games/games.html',
         games=games,
+
         season=season,
         seasons=[2, 1],
+
         is_ranked=is_ranked,
         rank_progress=rank_progress,
         rank_details=rank_details,
+        rp_data=rp_data,
+
         latest_game=latest_game_data,
         **base_context
     )

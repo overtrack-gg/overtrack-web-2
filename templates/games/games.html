@@ -33,7 +33,7 @@
                     </div>
 
                     {% if latest_game %}
-                    <div class="card bg-dark">
+                    <div class="card bg-dark latest-game">
                         <div class="card-header">
                             <a href="/game/{{ latest_game['key'] }}"><h5>Most recent match</h5></a>
                         </div>
@@ -43,13 +43,18 @@
                     </div>
                     {% endif %}
                     {% if is_ranked %}
-                    <div class="card bg-dark">
-                        <div class="card-header">
-                            <h5>Rank</h5>
-                        </div>
+                    <div class="card bg-dark rank">
                         <div class="card-body">
                             {% if rank_progress %}
                                 {{ rank.rank_image(rank_progress, rank_details) }}
+                            {% endif %}
+                            {% if rp_data | length > 5 %}
+                            <script type="text/javascript">
+                                const rpHistory = {{ rp_data | tojson | safe }};
+                            </script>
+                                <svg id="graph-svg" width="362" height="133" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="0" y="0" width="362" height="133" fill="#402020a0" stroke="#aeaeae" stroke-width="3"/>
+                                </svg>
                             {% endif %}
                         </div>
                     </div>
@@ -88,6 +93,7 @@
 
 {% block scripts %}
 <script defer src="{{ url_for('static', filename='js/d3.v5.min.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/rank.js') }}"></script>
 <script defer src="{{ url_for('static', filename='js/map.js') }}"></script>
 <script type="text/javascript">
     let times = document.getElementsByClassName('datetime-format-time');
