@@ -1,3 +1,10 @@
+.games-list {
+  font-size: 18px;
+  line-height: 1.1;
+  border-radius: .25rem;
+  padding: .5rem !important;
+  margin-bottom: 0.5rem;
+}
 .games-list tr {
   padding: .5rem !important;
   white-space: nowrap;
@@ -13,6 +20,49 @@ td.noheight {
   padding: 0 !important;
   margin: 0 !important;
   line-height: 0;
+}
+.games-list-row {
+  padding-left: 1rem;
+  padding-right: 1rem; 
+}
+.games-list-panels {
+  padding: 0px;
+  padding-left: 5px;
+}
+
+/* we need a wider page for the table */
+.container {
+  max-width: 1350px;
+  overflow-y: hidden;
+}
+@media (min-width: 1210px) {
+  .col-lg-30pc {
+    -ms-flex: 0 0 30%;
+    flex: 0 0 30%;
+    max-width: 30%;
+  }
+  .col-lg-70pc {
+    -ms-flex: 0 0 70%;
+    flex: 0 0 70%;
+    max-width: 70%;
+  }
+  .col-lg-100pc {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  .games-list-games {
+    padding-left: 10px;
+    padding-right: 0px;
+  }
+}
+@media (max-width: 1210px) {
+  .card.stats {
+    display: none;
+  }
+  .games-list-games {
+    padding: 0px;
+    padding-left: 5px;
+  }
 }
 
 /* Time */

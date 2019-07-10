@@ -1,7 +1,74 @@
+/* Main */
 body {
   min-height: 100vh;
 }
+.card-header {
+    white-space:nowrap;
+}
+.card-body {
+    padding-top: 0;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    padding: 0.5rem;
+}
+.card-header {
+  white-space: nowrap;
+  padding-bottom: 0;
+  background-color: #992e2690;
+}
+.card {
+  border: 1px solid rgba(255,255,255,.125);
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+.bg-dark .card {
+  background-color: #282C2F !important;
+}
+.row {
+  padding-bottom: 0;
+}
+.text-blue {
+    color: #4d95ff;
+}
+.text-purple {
+    color: #ef20ff;
+}
+.text-gold {
+    color: #ffdf00;
+}
+.table-responsive {
+    /* display: table; */
+} 
 
+
+/* Navbar */
+.navbar {
+    background-color: #992e2691;
+}
+.navbar .divider-vertical {
+    height: 7px;
+    margin: 0 9px;
+    border-top: 1px solid #697075;
+}
+
+
+/* Games List */
+.season-selector .dropdown button {
+  width: 100%;
+}
+.datetime-format-time {
+  display: none;
+}
+
+
+/* Rank Panel */
+/* .card.rank .card-body {
+    padding-top: 0px;
+    padding-bottom: 0px;
+} */
+
+
+/* Game Small */
 .player-summaries td {
   padding: 6px;
   margin: 0px;
@@ -21,11 +88,80 @@ body {
   padding: 6px;
   margin: 0px;
 }
-.card.rank .card-body {
-    padding-top: 0px;
-    padding-bottom: 0px;
+
+
+/* Game Full */
+.weapons-list td.knockdowns {
+  text-align: right;
+  padding-right: 25px !important;
+  font-size: 20px;
+  line-height: 1;
+  font-weight: bold;
+}
+.combat-stats td.value {
+  text-align: right;
+  padding-right: 20px !important;
+  font-size: 20px;
+  line-height: 1;
+  font-weight: bold;
+}
+.weapons-col {
+  padding-right: 0.25rem;
+}
+.map-col {
+  padding-left: 0.25rem;
+}
+.player-card {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: top -76px left 0px;
+  background-clip: content-box;
+  z-index: 0;
+}
+.player-card::before {
+  opacity: 0.75;
+  background-color: #000;
+  border-radius: .25rem;
+  content: "";
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  position: absolute;
+  z-index: 1;
+}
+.player-card * {
+  z-index: 2;
+}
+.player-stats td.value {
+  font-weight: bold;
+}
+.admin-data table td, .admin-data table th {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+pre {
+    color: white;
+}
+.report-footer {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  height: 34px;
+  width: 260px;
+  background-color: #ff000060;
+  padding-left: 15px;
+  padding-top: 5px;
+  border-top-left-radius: 5px;
+}
+.report-footer a {
+  color: white;
+  font-weight: bold;
+  text-decoration: underline;
 }
 
+
+/* Unsorted */
 .player-profile-panel {
   background-color: #343A40;
   border-radius: 6px;
@@ -52,38 +188,8 @@ body {
     padding-top: 0 !important;
     padding-bottom: 5px !important;
 }
-.navbar {
-    background-color: #992e2691;
-}
-.navbar .divider-vertical {
-    height: 7px;
-    margin: 0 9px;
-    border-top: 1px solid #697075;
-}
 .bg-header a{
   color: rgb(248, 249, 250)
-}
-.card-body {
-    padding-top: 0;
-    -ms-flex: 1 1 auto;
-    flex: 1 1 auto;
-    padding: 0.5rem;
-}
-.card-header {
-  white-space: nowrap;
-  padding-bottom: 0;
-  background-color: #992e2690;
-}
-.card {
-  border: 1px solid rgba(255,255,255,.125);
-  padding: 0;
-  margin-bottom: 0.5rem;
-}
-.bg-dark .card {
-  background-color: #282C2F !important;
-}
-.row {
-  padding-bottom: 0;
 }
 .card-main {
     border-top: 0;
@@ -94,102 +200,10 @@ body {
     padding: 20px;
 }
 
-.season-selector .dropdown button {
-  width: 100%;
-}
-
-.games-list {
-    font-size: 18px;
-    line-height: 1.1;
-    border-radius: .25rem;
-    padding: .5rem !important;
-    margin-bottom: 0.5rem;
-}
-.games-list-row {
-  padding-left: 1rem;
-  padding-right: 1rem; 
-}
-.games-list-panels {
-  padding: 0px;
-}
 
 
-.datetime-format-time {
-  display: none;
-}
-
-.weapons-list td.knockdowns {
-  text-align: right;
-  padding-right: 25px !important;
-  font-size: 20px;
-  line-height: 1;
-  font-weight: bold;
-}
-
-.combat-stats td.value {
-  text-align: right;
-  padding-right: 20px !important;
-  font-size: 20px;
-  line-height: 1;
-  font-weight: bold;
-}
-
-.weapons-col {
-  padding-right: 0.25rem;
-}
-.map-col {
-  padding-left: 0.25rem;
-}
-
-.player-card {
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: top -76px left 0px;
-  background-clip: content-box;
-  z-index: 0;
-}
-.player-card::before {
-  opacity: 0.75;
-  background-color: #000;
-  border-radius: .25rem;
-  content: "";
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  position: absolute;
-  z-index: 1;
-}
-.player-card * {
-  z-index: 2;
-}
-.player-stats td.value {
-  font-weight: bold;
-}
-
-.admin-data table td, .admin-data table th {
-    padding-top: 0;
-    padding-bottom: 0;
-}
-pre {
-    color: white;
-}
 
 
-.text-blue {
-    color: #4d95ff;
-}
-.text-purple {
-    color: #ef20ff;
-}
-.text-gold {
-    color: #ffdf00;
-}
-
-
-.table-responsive {
-    display: table;
-}
 
 
 .btn-twitch {
@@ -231,9 +245,6 @@ pre {
     padding: 10px;
 }
 
-.card-header {
-    white-space:nowrap;
-}
 
 
 .card-body li {
@@ -241,23 +252,6 @@ pre {
 }
 
 
-.report-footer {
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    height: 34px;
-    width: 260px;
-    background-color: #ff000060;
-    padding-left: 15px;
-    padding-top: 5px;
-    border-top-left-radius: 5px;
-}
-
-.report-footer a {
-    color: white;
-    font-weight: bold;
-    text-decoration: underline;
-}
 
 .sentry-error-embed .form-content .form-field:nth-child(2) {
     display: none !important;
@@ -269,9 +263,3 @@ pre {
     display: none;
 }
 
-
-@media (max-width: 1000px){
-    .container {
-        max-width: none !important;
-    }
-}

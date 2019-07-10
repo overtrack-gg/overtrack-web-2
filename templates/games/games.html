@@ -12,7 +12,8 @@
     <section>
         <div class="container">
             <div class="row">
-                <div class="col-sm-4 games-list-panels">
+
+                <div class="col-lg-30pc col-sm-12 games-list-panels">
                     <div class="card bg-dark season-selector">
                         <div class="card-body">
                             <!-- <h5>Season:</h5> -->
@@ -45,21 +46,27 @@
                     {% if is_ranked %}
                     <div class="card bg-dark rank">
                         <div class="card-body">
-                            {% if rank_summary %}
-                                {{ rank.rank_image(rank_summary) }}
-                            {% endif %}
-                            {% if rp_data and rp_data | length > 5 %}
-                            <script type="text/javascript">
-                                const rpHistory = {{ rp_data | tojson | safe }};
-                            </script>
-                                <svg id="graph-svg" width="362" height="133" xmlns="http://www.w3.org/2000/svg">
-                                    <rect x="0" y="0" width="362" height="133" fill="#402020a0" stroke="#aeaeae" stroke-width="3"/>
-                                </svg>
-                            {% endif %}
+                            <div class="row">
+                                <div class="col-lg-100pc col-sm-6">
+                                    {% if rank_summary %}
+                                        {{ rank.rank_image(rank_summary) }}
+                                    {% endif %}
+                                </div>
+                                <div class="col-lg-100pc col-sm-6">
+                                    {% if rp_data and rp_data | length > 5 %}
+                                    <script type="text/javascript">
+                                        const rpHistory = {{ rp_data | tojson | safe }};
+                                    </script>
+                                        <svg id="graph-svg" viewBox="0 0 362 133" xmlns="http://www.w3.org/2000/svg">
+                                            <rect x="0" y="0" width="362" height="133" fill="#402020a0" stroke="#aeaeae" stroke-width="3"/>
+                                        </svg>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                     </div>
                     {% endif %}
-                    <div class="card bg-dark">
+                    <div class="card bg-dark stats">
                         <div class="card-header">
                             <h5>Stats</h5>
                         </div>
@@ -69,7 +76,7 @@
                     </div>
                 </div>
 
-                <div class="col-sm-8">
+                <div class="col-lg-70pc col-sm-12 games-list-games">
                     <div class="table-responsive">
                         <table class="table table-borderless table-striped table-hover table-dark shadow games-list narrow">
                             <thead class="">
