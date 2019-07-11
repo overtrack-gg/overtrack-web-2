@@ -215,7 +215,7 @@ def render_games_list(user_id: int) -> Response:
     games = list(ApexGameSummary.user_id_time_index.query(user_id, range_key_condition, filter_condition, newest_first=True))
     t2 = time.perf_counter()
 
-    if len(games):
+    if len(games) and games[0].url:
         url = urlparse(games[0].url)
         game_object = s3.get_object(
             Bucket=url.netloc.split('.')[0],
