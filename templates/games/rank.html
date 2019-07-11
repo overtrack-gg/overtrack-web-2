@@ -1,7 +1,7 @@
 {% macro rank_image(rank) -%}
-    <svg id="rank-svg" viewBox="0 0 362 133" xmlns="http://www.w3.org/2000/svg" style="margin-top: -8px;">
+    <svg id="rank-svg" viewBox="0 0 362 133" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin-top: -8px;">
         <style>
-            @import url('https://fonts.googleapis.com/css?family=Russo+One&display=swap');
+            @import url('https://fonts.googleapis.com/css?family=Russo+One&amp;display=swap');
 
             .rank-font-big {
                 font: 1.25em "Russo One", sans-serif;
@@ -42,7 +42,7 @@
                 <tspan fill="#959595"> / {{ rank.ceil }}</tspan>
             </text>
         </svg>
-        <image xlink:href="{{ url_for("static", filename="images/rank-" + rank.uri + ".png") }}"
+        <image xlink:href="{{ url_for("static", filename="images/rank-" + rank.uri + ".png", _external=True) }}"
                width="30%"
                x="6"
                y="0" />

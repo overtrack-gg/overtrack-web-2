@@ -5,7 +5,24 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Apex Tracker{% endblock %}</title>
-    {% block meta %}{% endblock %}
+    {% if meta %}
+    <meta content="{{ meta.title }}" property="og:title">
+    {% if meta.colour %}
+    <meta name="theme-color" content="{{ meta.colour }}">
+    {% endif %}
+    {% if meta.description %}
+    <meta content="{{ meta.description }}" property="og:description">
+    {% endif %}
+    {% if meta.image_url %}
+    <meta content='{{ meta.image_url }}' property='og:image'>
+    {% endif %}
+    {% if meta.summary_large_image %}
+    <meta name="twitter:card" content="summary_large_image">
+    {% endif %}
+    {% if meta.oembed %}
+    <link type="application/json+oembed" href="{{ meta.oembed }}"/>
+    {% endif %}
+    {% endif %}
     {{ bootstrap.load_css() }}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
     {% block css %}{% endblock %}

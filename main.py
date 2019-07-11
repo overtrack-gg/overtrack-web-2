@@ -1,16 +1,16 @@
 import datetime
 import json
 import logging
-import time
-from typing import Optional, Tuple, NamedTuple
+from typing import List, Optional, Tuple
 from urllib.parse import urlparse
 
 import boto3
+import time
 from dataclasses import dataclass
-from flask import Flask, Response, render_template, url_for as flask_url_for, request
+from flask import Flask, Response, render_template, request, url_for as flask_url_for
 from flask_bootstrap import Bootstrap
 
-from api.authentication import Authentication, check_authentication, require_authentication
+from api.authentication import check_authentication, require_authentication
 from api.session import session
 from blueprints.discord_bot import discord_bot_blueprint
 from blueprints.login import login, require_login
@@ -86,7 +86,8 @@ class Season:
         return f'Season {self.index}'
 
 
-class RankSummary(NamedTuple):
+@dataclass
+class RankSummary:
     rp: int
     floor: int
     ceil: int
@@ -107,6 +108,26 @@ class RankSummary(NamedTuple):
             'diamond': '#3a4b9e',
             'apex predator': '#8a1f1c'
         }[self.rank]
+
+
+@dataclass
+class Meta:
+    title: str
+    description: Optional[str] = None
+    image_url: Optional[str] = None
+    colour: Optional[str] = None
+    summary_large_image: bool = False
+    oembed: Optional[str] = None
+
+
+welcome_meta = Meta(
+    title='Apex Legends Automatic Match History',
+    description='''Automatically track your Apex Legends games with computer vision!
+Tracks your rank, placement, kills, downs, route, weapons, and stats.''',
+    image_url='https://d2igtsro72if25.cloudfront.net/2/apex_teaser.png',
+    summary_large_image=True,
+    oembed='https://d2igtsro72if25.cloudfront.net/2/oembed.json'
+)
 
 
 _PDT = datetime.timezone(datetime.timedelta(hours=-7))
@@ -183,29 +204,26 @@ base_context = {
 
 @app.route('/client')
 def client():
-    return render_template('client.html')
+    return render_template('client.html', meta=welcome_meta)
 
 
 @app.route('/welcome')
 def welcome():
-    return render_template('welcome.html')
+    return render_template('welcome.html', meta=welcome_meta)
 
 
-def render_games_list(user_id: int) -> Response:
+def get_games(user_id: int) -> Tuple[List[ApexGameSummary], bool, Season]:
     t0 = time.perf_counter()
     try:
         season_id = int(request.args['season'])
         is_ranked = request.args['ranked'].lower() == 'true'
     except:
-        first_game: Optional[ApexGameSummary] = next(ApexGameSummary.user_id_time_index.query(user_id, newest_first=True, limit=1), None)
-        if not first_game:
-            return render_template('client.html', no_games_alert=True)
+        first_game: ApexGameSummary = next(ApexGameSummary.user_id_time_index.query(user_id, newest_first=True, limit=1))
         season_id = first_game.season
         is_ranked = first_game.rank is not None
 
     season = SEASONS[season_id]
     range_key_condition = ApexGameSummary.timestamp.between(season.start, season.end)
-
     if is_ranked:
         filter_condition = ApexGameSummary.rank.exists()
     else:
@@ -214,7 +232,18 @@ def render_games_list(user_id: int) -> Response:
     t1 = time.perf_counter()
     games = list(ApexGameSummary.user_id_time_index.query(user_id, range_key_condition, filter_condition, newest_first=True))
     t2 = time.perf_counter()
+    logger.info(f'Season selection: {(t1 - t0) * 1000:.2f}ms, games query: {(t2 - t1) * 1000:.2f}ms')
 
+    return games, is_ranked, season
+
+
+def render_games_list(user_id: int, make_meta: bool = False, meta_title: Optional[str] = None) -> Response:
+    try:
+        games, is_ranked, season = get_games(user_id)
+    except StopIteration:
+        return render_template('client.html', no_games_alert=True, meta=welcome_meta)
+
+    t0 = time.time()
     if len(games) and games[0].url:
         url = urlparse(games[0].url)
         game_object = s3.get_object(
@@ -224,7 +253,8 @@ def render_games_list(user_id: int) -> Response:
         latest_game_data = json.loads(game_object['Body'].read())
     else:
         latest_game_data = None
-    t3 = time.perf_counter()
+    t1 = time.perf_counter()
+    logger.info(f'latest game fetch: {(t1 - t0) * 1000:.2f}ms')
 
     is_rank_valid = (
         is_ranked and
@@ -258,8 +288,6 @@ def render_games_list(user_id: int) -> Response:
     else:
         rank_summary = None
 
-    logger.info(f'Season selection: {(t1 - t0)*1000:.2f}ms, games query: {(t2 - t1)*1000:.2f}ms, latest game fetch: {(t3 - t2)*1000:.2f}ms')
-
     if is_ranked and len(games):
         rp_data = [game.rank.rp for game in reversed(games) if game.rank and game.rank.rp]
         print([game.rank for game in reversed(games)])
@@ -283,22 +311,23 @@ def render_games_list(user_id: int) -> Response:
         **base_context
     )
 
+
 @app.route('/')
-def root():
+def root() -> Response:
     if check_authentication() is None:
         return render_games_list(session.user_id)
     else:
-        return render_template('welcome.html')
+        return render_template('welcome.html', meta=welcome_meta)
 
 
 @app.route('/games')
 @require_login
-def games_list():
+def games_list() -> Response:
     return render_games_list(session.user_id)
 
 
 @app.route('/game/<path:key>')
-def game(key: str):
+def game(key: str) -> Response:
     summary = ApexGameSummary.get(key)
     logger.info(f'Fetching {summary.url}')
 
@@ -310,12 +339,6 @@ def game(key: str):
     game_data = json.loads(game_object['Body'].read())
 
     # used for link previews
-    og_title = f'{game_data["squad"]["player"]["name"]} placed #{summary.placed}'  # TODO: find another way of getting the name
-    theme_color = {
-        1: '#ffdf00',
-        2: '#ef20ff',
-        3: '#d95ff'
-    }.get(summary.placed, '#992e26')
     og_description = f'{summary.kills} Kills'
     if summary.knockdowns:
         og_description += f'\n{summary.knockdowns} Knockdowns'
@@ -323,6 +346,16 @@ def game(key: str):
         og_description += f'\n{summary.squad_kills} Squad Kills'
     if summary.landed != 'Unknown':
         og_description += f'\nDropped {summary.landed}'
+    meta = Meta(
+        title=f'{game_data["squad"]["player"]["name"]} placed #{summary.placed}',  # TODO: find another way of getting the name,
+        description=og_description,
+        colour={
+            1: '#ffdf00',
+            2: '#ef20ff',
+            3: '#d95ff'
+        }.get(summary.placed, '#992e26'),
+        image_url=image_url(game_data['squad']['player']['champion'])
+    )
 
     if check_authentication() is None and session.superuser:
         if 'frames' in game_object['Metadata']:
@@ -383,9 +416,7 @@ def game(key: str):
         game=game_data,
         is_ranked=summary.rank is not None,
 
-        og_title=og_title,
-        theme_colour=theme_color,
-        og_description=og_description,
+        meta=meta,
 
         admin_data=admin_data,
 
@@ -397,23 +428,23 @@ def game(key: str):
 
 
 @app.route('/eeveea_')
-def eeveea_games():
-    return render_games_list(347766573)
+def eeveea_games() -> Response:
+    return render_games_list(347766573, make_meta=True)
 
 
 @app.route('/mendokusaii')
-def mendokusaii_games():
-    return render_games_list(-3)
+def mendokusaii_games() -> Response:
+    return render_games_list(-3, make_meta=True)
 
 
 @app.route('/heylauren')
-def heylauren_games():
-    return render_games_list(-420)
+def heylauren_games() -> Response:
+    return render_games_list(-420, make_meta=True)
 
 
 @app.route("/by_key/<string:key>")
 @require_authentication(superuser_required=True)
-def games_by_key(key: str):
+def games_by_key(key: str) -> Response:
     return render_games_list(int(key))
 
 
