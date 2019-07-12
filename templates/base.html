@@ -4,6 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Apex Tracker{% endblock %}</title>
     {% if meta %}
     <meta content="{{ meta.title }}" property="og:title">
@@ -12,6 +13,7 @@
     {% endif %}
     {% if meta.description %}
     <meta content="{{ meta.description }}" property="og:description">
+    <meta name="description" content="{{ meta.description }}">
     {% endif %}
     {% if meta.image_url %}
     <meta content='{{ meta.image_url }}' property='og:image'>

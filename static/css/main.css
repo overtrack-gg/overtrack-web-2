@@ -37,8 +37,11 @@ body {
     color: #ffdf00;
 }
 .table-responsive {
-    /* display: table; */
+    display: table;
 } 
+.container {
+  max-width: 992px;
+}
 
 
 /* Navbar */
