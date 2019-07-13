@@ -28,6 +28,7 @@ td.noheight {
 .games-list-panels {
   padding: 0px;
   padding-left: 5px;
+  padding-right: 5px;
 }
 
 /* we need a wider page for the table */
@@ -62,8 +63,28 @@ td.noheight {
   .games-list-games {
     padding: 0px;
     padding-left: 5px;
+    padding-right: 5px;
   }
 }
+@media (max-width: 845px) {
+  .games-list .time, .games-list .duration, .games-list .squad {
+    display: none;
+  }
+  .games-list th.knockdowns {
+    left: 0px !important;
+  }
+}
+@media (max-width: 545px) {
+  .games-list .squad-kills {
+    display: none;
+  }
+}
+@media (max-width: 480px) {
+  .games-list .knockdowns, .games-list .kills {
+    display: none;
+  }
+}
+
 
 /* Time */
 .games-list.narrow td.time {

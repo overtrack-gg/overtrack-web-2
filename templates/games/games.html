@@ -101,7 +101,9 @@
 
 {% block scripts %}
 <script defer src="{{ url_for('static', filename='js/d3.v5.min.js') }}"></script>
+{% if rp_data and rp_data | length > 5 %}
 <script defer src="{{ url_for('static', filename='js/rank.js') }}"></script>
+{% endif %}
 <script defer src="{{ url_for('static', filename='js/map.js') }}"></script>
 <script type="text/javascript">
     let times = document.getElementsByClassName('datetime-format-time');
