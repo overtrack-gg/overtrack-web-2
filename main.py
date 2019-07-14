@@ -442,6 +442,16 @@ def heylauren_games() -> Response:
     return render_games_list(-420, make_meta=True)
 
 
+@app.route('/shroud')
+def shroud_games() -> Response:
+    return render_games_list(-400, make_meta=True)
+
+
+@app.route('/diegosaurs')
+def diegosaurs_games() -> Response:
+    return render_games_list(-401, make_meta=True)
+
+
 @app.route("/by_key/<string:key>")
 @require_authentication(superuser_required=True)
 def games_by_key(key: str) -> Response:
