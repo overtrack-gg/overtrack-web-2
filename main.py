@@ -290,15 +290,23 @@ def render_games_list(user_id: int, make_meta: bool = False, meta_title: Optiona
 
     if is_ranked and len(games):
         rp_data = [game.rank.rp for game in reversed(games) if game.rank and game.rank.rp]
-        print([game.rank for game in reversed(games)])
-        if games[0].rank and games[0].rank.rp_change is not None:
+        if games[0].rank and games[0].rank.rp is not None and games[0].rank.rp_change is not None:
             rp_data.append(games[0].rank.rp + games[0].rank.rp_change)
     else:
         rp_data = None
 
+    if make_meta and latest_game_data:
+        summary_meta = Meta(
+            title=(meta_title or latest_game_data['squad']['player']['name']) + "'s Games",
+            image_url=f'/badge/{user_id}.png'
+        )
+    else:
+        summary_meta = welcome_meta
+
     return render_template(
         'games/games.html',
         games=games,
+        meta=summary_meta,
 
         season=season,
         seasons=[2, 1],
