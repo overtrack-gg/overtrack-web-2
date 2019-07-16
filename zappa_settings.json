@@ -7,6 +7,10 @@
         "delete_s3_zip": false,
         "keep_warm": false
     },
+    "test": {
+        "extends": "base",
+        "apigateway_description": "ApexTrack Web Test"
+    },
     "main": {
         "extends": "base",
         "apigateway_description": "ApexTrack Web",

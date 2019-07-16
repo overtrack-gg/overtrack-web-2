@@ -31,6 +31,9 @@ deploy:
     - rm overtrack-v2 -Rf
     - ls
     - ls overtrack/
+
+    - zappa update test || { sleep 30; zappa tail test --since 1min --disable-keep-open; false; }
+
     - zappa update main
 
     - pip install awscli

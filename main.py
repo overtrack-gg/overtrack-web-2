@@ -462,7 +462,7 @@ def diegosaurs_games() -> Response:
 
 @app.route('/a_seagull')
 def a_seagull_games() -> Response:
-    return render_games_list(-401, make_meta=True, meta_title='a_seagull')
+    return render_games_list(-402, make_meta=True, meta_title='a_seagull')
 
 
 @app.route("/by_key/<string:key>")
