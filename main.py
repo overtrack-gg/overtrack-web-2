@@ -437,27 +437,32 @@ def game(key: str) -> Response:
 
 @app.route('/eeveea_')
 def eeveea_games() -> Response:
-    return render_games_list(347766573, make_meta=True)
+    return render_games_list(347766573, make_meta=True, meta_title='eeveea_')
 
 
 @app.route('/mendokusaii')
 def mendokusaii_games() -> Response:
-    return render_games_list(-3, make_meta=True)
+    return render_games_list(-3, make_meta=True, meta_title='mendokusaii')
 
 
 @app.route('/heylauren')
 def heylauren_games() -> Response:
-    return render_games_list(-420, make_meta=True)
+    return render_games_list(-420, make_meta=True, meta_title='heylauren')
 
 
 @app.route('/shroud')
 def shroud_games() -> Response:
-    return render_games_list(-400, make_meta=True)
+    return render_games_list(-400, make_meta=True, meta_title='shroud')
 
 
 @app.route('/diegosaurs')
 def diegosaurs_games() -> Response:
-    return render_games_list(-401, make_meta=True)
+    return render_games_list(-401, make_meta=True, meta_title='diegosaurs')
+
+
+@app.route('/a_seagull')
+def a_seagull_games() -> Response:
+    return render_games_list(-401, make_meta=True, meta_title='a_seagull')
 
 
 @app.route("/by_key/<string:key>")
