@@ -6,31 +6,30 @@ const margin = ({top: 20, right: 30, bottom: 30, left: 40})
 const fulldata = rpHistory.map((x, i) => ({ value: x, index: i + 1 }))
 const data = fulldata.slice(Math.max(0, fulldata.length - 50))
 
-const dmax = d3.max(data, d => d.value)
-const dmin = d3.min(data, d => d.value)
+const dmin = Math.min(1000, d3.min(data, d => d.value))
+const dmaxfloor = d3.max(data, d => d.value)
 
-function get_shift(x) {
-    if (x < 120) return 30
-    else if (x < 280) return 40
-    else if (x < 480) return 50
-    else if (x < 720) return 60
-    else if (x < 1000) return 70
-    else return 100
-}
-const dminshift = dmin - get_shift(dmin)
-const dmaxshift = dmax + get_shift(dmax)
-
-var rankBorders = [
+let rankBorders = [
       0,  30,  60,  90,
     120, 160, 200, 240,
     280, 330, 380, 430,
     480, 540, 600, 660,
     720, 790, 860, 930,
     1000
-].filter(x => x >= dmin && x <= dmaxshift)
+]
+
+let dmaxceil = 0
+for (let i = 0; i < rankBorders.length; i++) {
+    if (dmaxfloor < rankBorders[i]) {
+        dmaxceil = rankBorders[i]
+        break
+    }
+}
+
+let dmax = dmaxfloor >= 1000 ? dmaxfloor : dmaxceil
+rankBorders = rankBorders.filter(x => x >= dmin && x <= dmax)
 
 const minimal = rankBorders.length > 5
-
 if (minimal) {
     rankBorders = [
           0,
@@ -39,7 +38,22 @@ if (minimal) {
         480,
         720,
         1000
-    ].filter(x => x >= dmin && x <= dmaxshift)
+    ]
+
+    for (let i = 0; i < rankBorders.length; i++) {
+        if (dmaxfloor < rankBorders[i]) {
+            dmaxceil = rankBorders[i]
+            break
+        }
+    }
+
+    dmax = dmaxfloor >= 1000 ? dmaxfloor : dmaxceil
+    rankBorders = rankBorders.filter(x => x >= dmin && x <= dmax)
+}
+
+if (dmax >= 1015 && dmin < dmax) {
+    rankBorders.push(dmax)
+    console.log(rankBorders)
 }
 
 const rankNums = ({
@@ -93,7 +107,7 @@ const rankImages = ({
 const svg = d3.select("#graph-svg")
 
 const x = d3.scaleLinear()
-    .domain([data[0].index, data[data.length - 1].index]).nice()
+    .domain([data[0].index, data[data.length - 1].index])
     .range([margin.left, width - margin.right])
 
 const y = d3.scaleLinear()
@@ -114,7 +128,7 @@ const yAxis2 = g => g
     .attr("transform", `translate(${width - margin.right},0)`)
     .attr("color", "#ffffff")
     .call(d3.axisRight(y).tickValues(rankBorders).tickSizeInner(-width + margin.left + margin.right))
-    .call(g => g.selectAll(".tick").insert("image", "text")
+    .call(g => g.selectAll(".tick").filter(t => t <= 1000).insert("image", "text")
             .attr("x", 2.6)
             .attr("y", minimal ? -13 : -15)
             .attr("width", 25)
