@@ -260,8 +260,6 @@ def render_games_list(user_id: int, make_meta: bool = False, meta_title: Optiona
         is_ranked and
         latest_game_data and
         latest_game_data['rank'] and
-        latest_game_data['rank']['rank'] is not None and
-        latest_game_data['rank']['rank_tier'] is not None and
         latest_game_data['rank']['rp'] is not None and
         latest_game_data['rank']['rp_change'] is not None
     )
@@ -280,10 +278,9 @@ def render_games_list(user_id: int, make_meta: bool = False, meta_title: Optiona
                 else:
                     derived_rank = 'apex predator'
                     derived_tier = ''
+                    floor = 1000
+                    ceil = rp
                 break
-        else:
-            floor = 1000
-            ceil = rp
         rank_summary = RankSummary(rp, floor, ceil, derived_rank, derived_tier)
     else:
         rank_summary = None
