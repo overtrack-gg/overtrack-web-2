@@ -293,9 +293,18 @@ def render_games_list(user_id: int, make_meta: bool = False, meta_title: Optiona
         rp_data = None
 
     if make_meta and latest_game_data:
+        description = f'{len(games)} Season {season.index} games\n'
+        if rank_summary:
+            description += 'Rank: ' + rank_summary.rank.title()
+            if rank_summary.tier:
+                description += ' ' + rank_summary.tier
+            description += '\n'
+        description += f'Last game: {make_game_description(games[0], divider=" / ", include_knockdowns=False)}'
         summary_meta = Meta(
             title=(meta_title or latest_game_data['squad']['player']['name']) + "'s Games",
-            image_url=f'/badge/{user_id}.png'
+            description=description,
+            colour=rank_summary.color if rank_summary else '#992e26',
+            image_url=url_for('static', filename=f'images/{games[0].rank.rank}.png') if games[0].rank else None
         )
     else:
         summary_meta = welcome_meta
@@ -344,13 +353,7 @@ def game(key: str) -> Response:
     game_data = json.loads(game_object['Body'].read())
 
     # used for link previews
-    og_description = f'{summary.kills} Kills'
-    if summary.knockdowns:
-        og_description += f'\n{summary.knockdowns} Knockdowns'
-    if summary.squad_kills:
-        og_description += f'\n{summary.squad_kills} Squad Kills'
-    if summary.landed != 'Unknown':
-        og_description += f'\nDropped {summary.landed}'
+    og_description = make_game_description(summary, divider='\n')
     meta = Meta(
         title=f'{game_data["squad"]["player"]["name"]} placed #{summary.placed}',  # TODO: find another way of getting the name,
         description=og_description,
@@ -429,7 +432,17 @@ def game(key: str) -> Response:
     )
 
 
-# TODO: support a summary in link previews for games lists
+def make_game_description(summary: ApexGameSummary, divider: str = '\n', include_knockdowns: bool = False):
+    og_description = f'{summary.kills} Kills'
+    if include_knockdowns and summary.knockdowns:
+        og_description += f'{divider}{summary.knockdowns} Knockdowns'
+    if summary.squad_kills:
+        og_description += f'{divider}{summary.squad_kills} Squad Kills'
+    if summary.landed != 'Unknown':
+        og_description += f'{divider}Dropped {summary.landed}'
+    return og_description
+
+
 
 
 @app.route('/eeveea_')
@@ -439,7 +452,7 @@ def eeveea_games() -> Response:
 
 @app.route('/mendokusaii')
 def mendokusaii_games() -> Response:
-    return render_games_list(-3, make_meta=True, meta_title='mendokusaii')
+    return render_games_list(-3, make_meta=True, meta_title='Mendokusaii')
 
 
 @app.route('/heylauren')
@@ -449,12 +462,12 @@ def heylauren_games() -> Response:
 
 @app.route('/shroud')
 def shroud_games() -> Response:
-    return render_games_list(-400, make_meta=True, meta_title='shroud')
+    return render_games_list(-400, make_meta=True, meta_title='Shroud')
 
 
 @app.route('/diegosaurs')
 def diegosaurs_games() -> Response:
-    return render_games_list(-401, make_meta=True, meta_title='diegosaurs')
+    return render_games_list(-401, make_meta=True, meta_title='Diegosaurs')
 
 
 @app.route('/a_seagull')

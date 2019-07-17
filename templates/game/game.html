@@ -275,5 +275,6 @@ function report_issue(){
     let error = new UserReport('User Reported Issue');
     Sentry.captureException(error, {fingerprint: ["{{ game['key'] }}"]});
 }
+
 </script>
 {% endblock %}

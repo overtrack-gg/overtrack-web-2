@@ -194,6 +194,7 @@ td.noheight {
   background-size: contain;
   background-origin: content-box;
   margin-left: 13px;
+  width: 35px;
 }
 
 /* Rank Tier */
