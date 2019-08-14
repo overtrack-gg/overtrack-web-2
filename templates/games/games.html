@@ -20,14 +20,14 @@
                             <!-- <h5>Season:</h5> -->
                             <div class="dropdown">
                                 <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Season {{ season.index }}{{ " Ranked" if is_ranked else "" }}
+                                    {{ season.name }}{{ " Ranked" if is_ranked else "" }}
                                 </button>
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                     {% for s in seasons %}
-                                        {% if s >= 2 %}
-                                            <a class="dropdown-item" href="?season={{ s }}&ranked=true">Season {{ s }} Ranked</a>
+                                        {% if s.has_ranked %}
+                                            <a class="dropdown-item" href="?season={{ s.index }}&ranked=true">{{ s.name }} Ranked</a>
                                         {% endif %}
-                                        <a class="dropdown-item" href="?season={{ s }}&ranked=false">Season {{ s }}</a>
+                                        <a class="dropdown-item" href="?season={{ s.index }}&ranked={{ s.ranked }}">{{ s.name }}</a>
                                     {% endfor %}
                                 </div>
                             </div>

@@ -10,10 +10,14 @@
         {{ player['name'] }}
     </td>
     <td class="player-kills">
+        {% if player['stats']['kills'] != None %}
         {{ alternate_kills if not player['stats'] and alternate_kills != None else player['stats']['kills'] }}
+        {% endif %}
     </td>
     <td class="player-damage">
+        {% if player['stats']['damage_dealt'] != None %}
         {{ player['stats']['damage_dealt'] }}
+        {% endif %}
     </td>
 </tr>
 {% endif %}

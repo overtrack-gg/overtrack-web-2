@@ -15,7 +15,7 @@ from oauthlib.oauth2 import OAuth2Error
 
 from api.authentication import require_authentication, require_origin
 from api.session import session
-from blueprints.login import require_login
+from apextrack.blueprints.login import require_login
 from models.notifications import DiscordBotNotification
 
 HMAC_KEY = base64.b64decode(os.environ['HMAC_KEY'])

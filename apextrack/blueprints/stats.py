@@ -5,7 +5,7 @@ from flask import Blueprint, render_template
 
 from api.authentication import require_authentication
 from api.session import session
-from blueprints.login import require_login
+from apextrack.blueprints.login import require_login
 from models.apex_game_summary import ApexGameSummary
 from models.user import User
 from overtrack.apex import stats
