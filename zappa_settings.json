@@ -3,6 +3,7 @@
         "project_name": "apextrack_web",
         "aws_region": "us-west-2",
         "app_function": "main.app",
+        "exception_handler": "main.unhandled_exceptions",
         "s3_bucket": "overtrack-zappa",
         "delete_s3_zip": false,
         "keep_warm": false

@@ -21,10 +21,10 @@ pynamodb = "^3"
 
 numpy = "*"
 
-sentry-sdk = "^0.8"
 google-cloud-logging = "^1"
 pytest = "^4.4"
 datadog = "^0.29.3"
+sentry_sdk = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 

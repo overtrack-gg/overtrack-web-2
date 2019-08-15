@@ -7,6 +7,7 @@ from typing import List, Optional, Tuple
 from urllib.parse import urlparse
 
 import boto3
+import sentry_sdk
 import time
 from dataclasses import dataclass
 from flask import Flask, Response, render_template, request, url_for as flask_url_for, current_app
@@ -41,6 +42,28 @@ bootstrap = Bootstrap(app)
 app.register_blueprint(login)
 app.register_blueprint(discord_bot_blueprint, url_prefix='/discord_bot')
 app.register_blueprint(results_blueprint, url_prefix='/stats')
+
+
+if 'LOCAL' not in os.environ:
+    sentry_sdk.init(
+        os.environ.get('SENTRY_DSN', 'https://077ec8ffb4404ce384ab84a5e6bc17ae@sentry.io/1450230'),
+        with_locals=True,
+    )
+
+    orig_handle_exception = app.handle_exception
+    def handle_exception(e):
+        sentry_sdk.capture_exception(e)
+        return orig_handle_exception(e)
+    app.handle_exception = handle_exception
+
+
+def unhandled_exceptions(e, event, context):
+    sentry_sdk.capture_exception(e)
+    return True
+
+
+class NoGamesError(ValueError):
+    pass
 
 
 def url_for(endpoint, **values):
@@ -152,6 +175,9 @@ def get_games(user: User) -> Tuple[List[ApexGameSummary], bool, Season]:
         season_id = user.apex_last_season
         is_ranked = user.apex_last_game_ranked
 
+    if season_id is None:
+        raise NoGamesError()
+
     season = SEASONS[season_id]
     range_key_condition = ApexGameSummary.timestamp.between(season.start, season.end)
     filter_condition = ApexGameSummary.season == season_id
@@ -171,7 +197,7 @@ def get_games(user: User) -> Tuple[List[ApexGameSummary], bool, Season]:
 def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[str] = None) -> Response:
     try:
         games, is_ranked, season = get_games(user)
-    except StopIteration:
+    except NoGamesError:
         return render_template('client.html', no_games_alert=True, meta=welcome_meta)
 
     seasons = []
