@@ -175,6 +175,7 @@ def get_games(user: User) -> Tuple[List[ApexGameSummary], bool, Season]:
         season_id = user.apex_last_season
         is_ranked = user.apex_last_game_ranked
 
+    logger.info(f'Getting games for {user} => season_id={season_id}')
     if season_id is None:
         raise NoGamesError()
 
@@ -187,6 +188,7 @@ def get_games(user: User) -> Tuple[List[ApexGameSummary], bool, Season]:
         filter_condition &= ApexGameSummary.rank.does_not_exist()
 
     t0 = time.perf_counter()
+    logger.info(f'Getting games for {user}: {user.user_id}, {range_key_condition}, {filter_condition}')
     games = list(ApexGameSummary.user_id_time_index.query(user.user_id, range_key_condition, filter_condition, newest_first=True))
     t1 = time.perf_counter()
     logger.info(f'Games query: {(t1 - t0) * 1000:.2f}ms')
@@ -198,12 +200,15 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
     try:
         games, is_ranked, season = get_games(user)
     except NoGamesError:
+        logger.info(f'User {user} has no games')
         return render_template('client.html', no_games_alert=True, meta=welcome_meta)
 
     seasons = []
     for sid in user.apex_seasons:
         s = SEASONS[sid]
         seasons.append(s)
+
+    logger.info(f'User {user} has user.apex_seasons={user.apex_seasons} => {seasons}')
     seasons = sorted(seasons, key=lambda s: s.index, reverse=True)
     print(seasons)
 
