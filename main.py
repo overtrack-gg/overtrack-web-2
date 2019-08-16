@@ -203,9 +203,9 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
     seasons = []
     for sid in user.apex_seasons:
         s = SEASONS[sid]
-        if s is not season:
-            seasons.append(s)
+        seasons.append(s)
     seasons = sorted(seasons, key=lambda s: s.index, reverse=True)
+    print(seasons)
 
     t0 = time.time()
     if len(games) and games[0].url:

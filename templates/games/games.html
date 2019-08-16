@@ -24,10 +24,12 @@
                                 </button>
                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                     {% for s in seasons %}
-                                        {% if s.has_ranked %}
-                                            <a class="dropdown-item" href="?season={{ s.index }}&ranked=true">{{ s.name }} Ranked</a>
+                                        {% if s.has_ranked and (s.index != season.index or not is_ranked) %}
+                                        <a class="dropdown-item" href="?season={{ s.index }}&ranked=true">{{ s.name }} Ranked</a>
                                         {% endif %}
+                                        {% if s.index != season.index or is_ranked %}
                                         <a class="dropdown-item" href="?season={{ s.index }}&ranked={{ s.ranked }}">{{ s.name }}</a>
+                                        {% endif %}
                                     {% endfor %}
                                 </div>
                             </div>
