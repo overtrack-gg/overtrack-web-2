@@ -17,14 +17,17 @@ pyjwt = "*"
 requests_oauthlib = "*"
 shortuuid = "*"
 
-pynamodb = "^3"
+pynamodb = "^4"
 
 numpy = "*"
 
 google-cloud-logging = "^1"
 pytest = "^4.4"
-datadog = "^0.29.3"
-sentry_sdk = "^0.10.2"
+datadog = "^0.29"
+sentry_sdk = "^0.11"
+
+paypalrestsdk = "=2.0.0rc2"
+stripe = "^2.35"
 
 [tool.poetry.dev-dependencies]
 

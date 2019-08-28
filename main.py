@@ -17,6 +17,7 @@ from jinja2 import Undefined
 from apextrack.blueprints.discord_bot import discord_bot_blueprint
 from apextrack.blueprints.login import login, require_login
 from apextrack.blueprints.stats import results_blueprint
+from apextrack.blueprints.subscribe import subscribe_blueprint
 from apextrack.data import SEASONS, rank_rp, get_tier_window, RankSummary, Season
 from apextrack.util import duration, strftime
 from models.user import User
@@ -42,6 +43,7 @@ bootstrap = Bootstrap(app)
 app.register_blueprint(login)
 app.register_blueprint(discord_bot_blueprint, url_prefix='/discord_bot')
 app.register_blueprint(results_blueprint, url_prefix='/stats')
+app.register_blueprint(subscribe_blueprint, url_prefix='/subscribe')
 
 
 if 'LOCAL' not in os.environ:
