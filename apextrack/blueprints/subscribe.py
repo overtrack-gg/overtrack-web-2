@@ -2,7 +2,7 @@ import logging
 import os
 from typing import Optional, Tuple
 
-import paypalrestsdk.core as paypal
+from paypalcheckoutsdk.core import PayPalHttpClient, SandboxEnvironment, LiveEnvironment
 import stripe
 import time
 from flask import Blueprint, Response, render_template, request, url_for
@@ -31,16 +31,16 @@ if os.environ.get('PAYPAL_STRIPE_LIVE', 'false').lower() != 'true':
     PAYPAL_6_MONTHLY_PLAN = os.environ.get('PAYPAL_SIX_MONTHLY_PLAN', 'P-9VM324732B936170WLVSP2DI')
     PAYPAL_12_MONTHLY_PLAN = os.environ.get('PAYPAL_YEARLY_PLAN', 'P-4UC75129TL966731ALVTAJ3I')
 
-    paypal_env = paypal.environment.SandboxEnvironment(PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET)
+    paypal_env = SandboxEnvironment(PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET)
 else:
     PAYPAL_1_MONTHLY_PLAN = os.environ.get('PAYPAL_MONTHLY_PLAN', 'P-47G08335Y9035562LLVSQB6Y')
     PAYPAL_6_MONTHLY_PLAN = os.environ.get('PAYPAL_SIX_MONTHLY_PLAN', 'P-5AL222537P2933007LVSQCHA')
     PAYPAL_12_MONTHLY_PLAN = os.environ.get('PAYPAL_YEARLY_PLAN', 'P-4HK16427P0184862NLVSQCLQ')
 
-    paypal_env = paypal.environment.LiveEnvironment(PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET)
+    paypal_env = LiveEnvironment(PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET)
 
 
-paypal_client = paypal.paypal_http_client.PayPalHttpClient(environment=paypal_env)
+paypal_client = client = PayPalHttpClient(paypal_env)
 
 logger = logging.getLogger(__name__)
 
