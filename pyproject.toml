@@ -27,7 +27,7 @@ datadog = "^0.29"
 sentry_sdk = "^0.11"
 
 stripe = "^2.35"
-paypal-checkout-serversdk = "^1.0"
+#certifi = "^2019.6"
 
 [tool.poetry.dev-dependencies]
 

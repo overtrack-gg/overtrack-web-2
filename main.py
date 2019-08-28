@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from flask import Flask, Response, render_template, request, url_for as flask_url_for, current_app
 from flask_bootstrap import Bootstrap
 from jinja2 import Undefined
+from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
 
 from apextrack.blueprints.discord_bot import discord_bot_blueprint
 from apextrack.blueprints.login import login, require_login
@@ -49,7 +50,11 @@ app.register_blueprint(subscribe_blueprint, url_prefix='/subscribe')
 if 'LOCAL' not in os.environ:
     sentry_sdk.init(
         os.environ.get('SENTRY_DSN', 'https://077ec8ffb4404ce384ab84a5e6bc17ae@sentry.io/1450230'),
+        integrations=[
+            AwsLambdaIntegration()
+        ],
         with_locals=True,
+        debug=False
     )
 
     orig_handle_exception = app.handle_exception

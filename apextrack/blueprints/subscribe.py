@@ -1,14 +1,15 @@
 import logging
 import os
+from pprint import pprint
 from typing import Optional, Tuple
 
-from paypalcheckoutsdk.core import PayPalHttpClient, SandboxEnvironment, LiveEnvironment
 import stripe
 import time
 from flask import Blueprint, Response, render_template, request, url_for
 from werkzeug.utils import redirect
 
 from apextrack.blueprints.login import require_login
+from apextrack.paypal import PayPal
 from api.session import session
 from api.util import metrics
 from api.util.decorators import restrict_origin
@@ -31,16 +32,13 @@ if os.environ.get('PAYPAL_STRIPE_LIVE', 'false').lower() != 'true':
     PAYPAL_6_MONTHLY_PLAN = os.environ.get('PAYPAL_SIX_MONTHLY_PLAN', 'P-9VM324732B936170WLVSP2DI')
     PAYPAL_12_MONTHLY_PLAN = os.environ.get('PAYPAL_YEARLY_PLAN', 'P-4UC75129TL966731ALVTAJ3I')
 
-    paypal_env = SandboxEnvironment(PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET)
+    paypal_client = PayPal(PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET)
 else:
     PAYPAL_1_MONTHLY_PLAN = os.environ.get('PAYPAL_MONTHLY_PLAN', 'P-47G08335Y9035562LLVSQB6Y')
     PAYPAL_6_MONTHLY_PLAN = os.environ.get('PAYPAL_SIX_MONTHLY_PLAN', 'P-5AL222537P2933007LVSQCHA')
     PAYPAL_12_MONTHLY_PLAN = os.environ.get('PAYPAL_YEARLY_PLAN', 'P-4HK16427P0184862NLVSQCLQ')
 
-    paypal_env = LiveEnvironment(PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET)
-
-
-paypal_client = client = PayPalHttpClient(paypal_env)
+    paypal_client = PayPal(PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET, sandbox=False)
 
 logger = logging.getLogger(__name__)
 
@@ -121,7 +119,7 @@ def check_paypal_subscription() -> Tuple[bool, Optional[str], str]:
     sub_id = session.user.paypal_subscr_id
     logger.info(f'Checking PayPal subscription {sub_id}')
     try:
-        sub = paypal_client.execute(PayPalGetSubscriptionDetails(sub_id))
+        sub = paypal_client.get_subscription_details(sub_id)
     except:
         logger.exception(f'Failed to fetch PayPal subscription')
         return False, None, '''
@@ -130,26 +128,26 @@ def check_paypal_subscription() -> Tuple[bool, Optional[str], str]:
         </p>
         '''
 
-    logger.info(f'Got subscription status {sub.result.status}')
+    logger.info(f'Got subscription status {sub["status"]}')
 
-    logger.info(f'Checking PayPal plan details {sub.result.plan_id}')
+    logger.info(f'Checking PayPal plan details {sub["plan_id"]}')
     try:
-        plan = paypal_client.execute(PayPalGetPlanDetails(sub.result.plan_id))
+        plan = paypal_client.get_plan_details(sub['plan_id'])
     except:
         logger.exception('Failed to fetch PayPal plan details')
         plan_name = None
         plan_cost = None
         plan_period = None
     else:
-        plan_name = plan.result.description
-        plan_cost = '$' + plan.result.billing_cycles[0].pricing_scheme.fixed_price.value
-        plan_period = f'{plan.result.billing_cycles[0].frequency.interval_count} {plan.result.billing_cycles[0].frequency.interval_unit.lower()}'
-        if plan.result.billing_cycles[0].frequency.interval_count > 1:
+        plan_name = plan['description']
+        plan_cost = '$' + plan['billing_cycles'][0]['pricing_scheme']['fixed_price']['value']
+        plan_period = f'{plan["billing_cycles"][0]["frequency"]["interval_count"]} {plan["billing_cycles"][0]["frequency"]["interval_unit"].lower()}'
+        if plan['billing_cycles'][0]['frequency']['interval_count'] > 1:
             plan_period += 's'
 
     unsub_link = url_for('subscribe.paypal_cancel')
 
-    if sub.result.status == 'ACTIVE':
+    if sub['status'] == 'ACTIVE':
         if plan_name:
             return False, unsub_link, f'''
             <p>
@@ -165,7 +163,7 @@ def check_paypal_subscription() -> Tuple[bool, Optional[str], str]:
             </p>
             '''
 
-    elif sub.result.status == 'SUSPENDED':
+    elif sub['status'] == 'SUSPENDED':
         if plan_name:
             return False, unsub_link, f'''
             <p>
@@ -181,11 +179,11 @@ def check_paypal_subscription() -> Tuple[bool, Optional[str], str]:
             </p>
             '''
 
-    elif sub.result.status in ['CANCELLED', 'EXPIRED']:
+    elif sub['status'] in ['CANCELLED', 'EXPIRED']:
         return True, None, ''
 
-    elif sub.result.status in ['APPROVAL_PENDING', 'APPROVED']:
-        logger.error(f'Got PayPal subscription in state {sub.result.status}')
+    elif sub['status'] in ['APPROVAL_PENDING', 'APPROVED']:
+        logger.error(f'Got PayPal subscription in state {sub["status"]}')
         if plan_name:
             return False, unsub_link, f'''
             <p>
@@ -201,7 +199,7 @@ def check_paypal_subscription() -> Tuple[bool, Optional[str], str]:
             </p>
             '''
     else:
-        logger.error(f'Got PayPal subscription in state {sub.result.status}')
+        logger.error(f'Got PayPal subscription in state {sub["status"]}')
         return False, None, '<p>An unknown error occurred. Please be patient while this issue is investigated and resolved.</p>'
 
 
@@ -264,11 +262,11 @@ def paypal_approved():
     session.user.paypal_cancel_at_period_end = None
 
     try:
-        sub = paypal_client.execute(PayPalGetSubscriptionDetails(request.form['subscriptionID']))
+        sub = paypal_client.get_subscription_details(request.form['subscriptionID'])
 
-        session.user.paypal_payer_email = sub.result.subscriber.email_address
-        session.user.paypal_subscr_date = sub.result.create_time
-        session.user.paypal_cancel_at_period_end = not sub.result.auto_renewal
+        session.user.paypal_payer_email = sub['subscriber']['email_address']
+        session.user.paypal_subscr_date = sub['create_time']
+        session.user.paypal_cancel_at_period_end = not sub['auto_renewal']
     except:
         logger.exception('Failed to get PayPal subscription details')
 
@@ -290,8 +288,7 @@ def paypal_cancel():
     session.user.refresh()
     logger.info(f'Canceling PayPal subscription {session.user.paypal_subscr_id}')
 
-    cancel = paypal_client.execute(PayPalCancelSubscription(session.user.paypal_subscr_id))
-    logger.info(f'Subscription cancel request got status: {cancel.status_code}')
+    paypal_client.cancel_subscription(session.user.paypal_subscr_id)
 
     logger.info('Updating SubscriptionDetails record')
     try:
@@ -329,55 +326,24 @@ def stripe_cancel():
     return redirect(url_for('subscribe.subscribe'))
 
 
-class PayPalRequest:
-    def __init__(self):
-        self.verb = 'GET'
-        self.headers = {
-            'Content-Type': 'application/json'
-        }
-        self.body = None
-
-    def paypal_partner_attribution_id(self, paypal_partner_attribution_id):
-        self.headers['PayPal-Partner-Attribution-Id'] = str(paypal_partner_attribution_id)
-
-    def request_body(self, body):
-        self.body = body
-        return self
-
-
-class PayPalGetSubscriptionDetails(PayPalRequest):
-
-    def __init__(self, subscription_id: str):
-        super().__init__()
-        self.path = f'/v1/billing/subscriptions/{subscription_id}'
-
-
-class PayPalCancelSubscription(PayPalRequest):
-
-    def __init__(self, subscription_id: str):
-        super().__init__()
-        self.verb = 'POST'
-        self.path = f'/v1/billing/subscriptions/{subscription_id}/cancel'
-
-
-class PayPalGetPlanDetails(PayPalRequest):
-
-    def __init__(self, plan_id: str):
-        super().__init__()
-        self.path = f'/v1/billing/plans/{plan_id}'
-
-
 def main() -> None:
-    sub = stripe.Subscription.retrieve('sub_FhpDwppGX8ujIg')
-
-    print(sub)
-
-    # sub = paypal_client.execute(PayPalGetSubscriptionDetails('I-YH8754J6YBUP'))
-    # print(sub.result.status)
+    # sub = stripe.Subscription.retrieve('sub_FhpDwppGX8ujIg')
     #
-    # plan = paypal_client.execute(PayPalGetPlanDetails(sub.result.plan_id))
-    #
-    # print()
+    # print(sub)
+    logging.basicConfig(level=logging.DEBUG)
+    requests_log = logging.getLogger("requests.packages.urllib3")
+    requests_log.setLevel(logging.DEBUG)
+    requests_log.propagate = True
+    import http.client as http_client
+    http_client.HTTPConnection.debuglevel = 1
+
+    paypal_client = PayPal(PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET)
+
+    sub = paypal_client.get_subscription_details('I-1TJKASGV92Y9')
+    pprint(sub)
+
+    plan = paypal_client.get_plan_details(sub['plan_id'])
+    pprint(plan)
 
     # try:
     #     sub = paypal_client.execute(PayPalGetSubscriptionDetails('I-B9DAGLLASSXX'))
