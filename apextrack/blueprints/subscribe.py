@@ -108,6 +108,10 @@ def subscribe():
 
     return render_template(
         'subscribe/subscribe.html',
+
+        subscription_active=session.user.subscription_active,
+        has_discord_role=session.user.discord_id is not None,
+
         show_sub_buttons=show_sub_buttons,
         unsub_button=unsub_button,
         status_text=status_text,
@@ -153,13 +157,15 @@ def check_paypal_subscription() -> Tuple[bool, Optional[str], str]:
             <p>
                 You are currently subscribed to <code>{plan_name}</code> through PayPal, 
                 which will bill you <code>{plan_cost}</code> 
-                every <code>{plan_period}</code>.
+                every <code>{plan_period}</code>. <br>
+                Your internal PayPal subscription ID is <code>{sub_id}</code>.
             </p>
             '''
         else:
             return False, unsub_link, f'''
             <p>
-                You are currently subscribed through PayPal
+                You are currently subscribed through PayPal. <br>
+                Your internal PayPal subscription ID is <code>{sub_id}</code>.
             </p>
             '''
 
@@ -168,14 +174,16 @@ def check_paypal_subscription() -> Tuple[bool, Optional[str], str]:
             return False, unsub_link, f'''
             <p>
                 Your subscription <code>{plan_name}</code> through PayPal is currently suspended. 
-                You can either resolve this through your PayPal, or cancel the subscription and create a new one. 
+                You can either resolve this through your PayPal, or cancel the subscription and create a new one. <br>
+                Your internal PayPal subscription ID is <code>{sub_id}</code>.
             </p>
             '''
         else:
             return False, unsub_link, f'''
             <p>
                 Your subscription through PayPal is currently suspended. 
-                You can either resolve this through your PayPal, or cancel the subscription and create a new one. 
+                You can either resolve this through your PayPal, or cancel the subscription and create a new one. <br>
+                Your internal PayPal subscription ID is <code>{sub_id}</code>.
             </p>
             '''
 
@@ -189,13 +197,15 @@ def check_paypal_subscription() -> Tuple[bool, Optional[str], str]:
             <p>
                 Your subscription <code>{plan_name}</code> through PayPal is pending activation, and once activated
                 will bill you <code>{plan_cost}</code> 
-                every <code>{plan_period}</code>.
+                every <code>{plan_period}</code>. <br>
+                Your internal PayPal subscription ID is <code>{sub_id}</code>.
             </p>
             '''
         else:
             return False, unsub_link, f'''
             <p>
-                Your subscription through PayPal is pending activation.
+                Your subscription through PayPal is pending activation. <br>
+                Your internal PayPal subscription ID is <code>{sub_id}</code>.
             </p>
             '''
     else:

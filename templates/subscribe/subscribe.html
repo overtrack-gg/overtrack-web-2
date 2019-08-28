@@ -29,11 +29,24 @@
                     different denomination, you can use the <a href="https://www.paypal.com/myaccount/transfer/homepage/pay" style="color: gray;">send money</a> feature in PayPal
                     and use <code>simon@uint8.me</code> as the recipient.
                 </p>
+
+
+                <hr>
+                {% if subscription_active %}
+                <p>
+                    Thanks for supporting the development of OverTrack <b style="color: red;">♥</b><br>
+                    {% if not has_discord_role %}
+                    Remember to join the <a href="https://discord.gg/JywstAB">Discord</a> and (once joined), link your discord and OverTrack account to
+                    pick up the subscriber role <a href="https://api2.overtrack.gg/discord/authorize?next={{ url_for('subscribe.subscribe', _external=True) }}">here</a>.
+                    {% endif %}
+                </p>
+                {% else %}
                 <p>
                     Thank you for your consideration and support <b style="color: red;">♥</b>
                 </p>
+                {% endif %}
+                <br/>
 
-                <hr>
                 {{ status_text | safe }}
 
                 {% if show_sub_buttons %}
