@@ -74,10 +74,14 @@ def subscribe():
     kwargs = {}
 
     session.user.refresh()
+    print(session.user)
+    print(session.user.subscription_active)
+    print(session.user.subscription_type)
+    print(session.user.stripe_subscription_id)
     if session.user.subscription_active:
         if session.user.subscription_type == 'v2.paypal':
             show_sub_buttons, unsub_button, status_text = check_paypal_subscription()
-        elif session.user.subscription_type == 'v2.stripe':
+        elif session.user.subscription_type in ['stripe', 'v2.stripe']:
             show_sub_buttons, unsub_button, status_text = check_stripe_subscription()
         else:
             show_sub_buttons = False
@@ -174,7 +178,7 @@ def check_paypal_subscription() -> Tuple[bool, Optional[str], str]:
             return False, unsub_link, f'''
             <p>
                 Your subscription <code>{plan_name}</code> through PayPal is currently suspended. 
-                You can either resolve this through your PayPal, or cancel the subscription and create a new one. <br>
+                You can either resolve this in PayPal, or cancel the subscription and create a new one. <br>
                 Your internal PayPal subscription ID is <code>{sub_id}</code>.
             </p>
             '''
@@ -182,7 +186,7 @@ def check_paypal_subscription() -> Tuple[bool, Optional[str], str]:
             return False, unsub_link, f'''
             <p>
                 Your subscription through PayPal is currently suspended. 
-                You can either resolve this through your PayPal, or cancel the subscription and create a new one. <br>
+                You can either resolve this in PayPal, or cancel the subscription and create a new one. <br>
                 Your internal PayPal subscription ID is <code>{sub_id}</code>.
             </p>
             '''
@@ -218,10 +222,13 @@ def check_stripe_subscription() -> Tuple[bool, Optional[str], str]:
     sub = stripe.Subscription.retrieve(session.user.stripe_subscription_id)
     logger.info(f'Got subscription with status: {sub.status}')
 
-    plan_name = f'OverTrack.gg {sub.plan.nickname}'
+    print(sub)
+
+    plan_name = f'OverTrack.gg {sub.plan.nickname or sub.plan.id}'
 
     unsub_link = url_for('subscribe.stripe_cancel')
     if sub.status == 'active':
+        logger.info(f'Subscription cancel_at_period_end={sub.cancel_at_period_end}')
         if sub.cancel_at_period_end:
             return True, None, f'''
             <p>
@@ -263,6 +270,8 @@ def paypal_approved():
     ).save()
 
     logger.info('Updating User model')
+    # TODO: use set actions
+    session.user.refresh()
     session.user.subscription_active = True
     session.user.subscription_type = 'v2.paypal'
     session.user.paypal_subscr_id = request.form['subscriptionID']
@@ -282,10 +291,25 @@ def paypal_approved():
 
     session.user.save()
 
+    logger.info(f'Checking PayPal plan details')
+    try:
+        plan = paypal_client.get_plan_details(request.form['subscriptionID'])
+    except:
+        logger.exception('Failed to fetch PayPal plan details')
+        plan_name = 'UNKNOWN'
+    else:
+        plan_name = plan['description']
+
     metrics.record('subscription.paypal.approved')
     metrics.event(
         'PayPal Subscription Created',
-        f'User: {session.user_id} / {session.username} '
+        f'User: {session.user_id} / {session.username}\n'
+        f'Subscription ID: {session.user.paypal_subscr_id}\n'
+        f'Payer Email: {session.user.paypal_payer_email}\n'
+        f'Plan: {plan_name}',
+        tags={
+            'type': 'user-subscription'
+        }
     )
 
     return Response(status=204)
@@ -308,6 +332,16 @@ def paypal_cancel():
         sub.save()
     except:
         logger.exception('Failed to update SubscriptionDetails for canceled subscription')
+
+    metrics.record('subscription.paypal.canceled_internally')
+    metrics.event(
+        'PayPal Subscription Canceled',
+        f'User: {session.user_id} / {session.username}\n'
+        f'Subscription ID: {session.user.paypal_subscr_id}\n',
+        tags={
+            'type': 'user-subscription'
+        }
+    )
 
     return redirect(url_for('subscribe.subscribe'))
 
@@ -332,6 +366,16 @@ def stripe_cancel():
         sub.save()
     except:
         logger.exception('Failed to update SubscriptionDetails for canceled subscription')
+
+    metrics.record('subscription.stripe.canceled_internally')
+    metrics.event(
+        'Stripe Subscription Canceled',
+        f'User: {session.user_id} / {session.username}\n'
+        f'Subscription ID: {session.user.stripe_subscription_id}\n',
+        tags={
+            'type': 'user-subscription'
+        }
+    )
 
     return redirect(url_for('subscribe.subscribe'))
 
