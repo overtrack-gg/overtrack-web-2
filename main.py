@@ -28,8 +28,8 @@ if 'LOCAL' in os.environ:
     from apextrack.local import session
     from apextrack.local import ApexGameSummary
 else:
-    from api.authentication import check_authentication, require_authentication
-    from api.session import session
+    from apextrack.authentication import check_authentication, require_authentication
+    from apextrack.session import session
     from models.apex_game_summary import ApexGameSummary
 
 
@@ -48,14 +48,15 @@ app.register_blueprint(subscribe_blueprint, url_prefix='/subscribe')
 
 
 if 'LOCAL' not in os.environ:
-    sentry_sdk.init(
-        os.environ.get('SENTRY_DSN', 'https://077ec8ffb4404ce384ab84a5e6bc17ae@sentry.io/1450230'),
-        integrations=[
-            AwsLambdaIntegration()
-        ],
-        with_locals=True,
-        debug=False
-    )
+    if not app.config['DEBUG']:
+        sentry_sdk.init(
+            os.environ.get('SENTRY_DSN', 'https://077ec8ffb4404ce384ab84a5e6bc17ae@sentry.io/1450230'),
+            integrations=[
+                AwsLambdaIntegration()
+            ],
+            with_locals=True,
+            debug=False
+        )
 
     orig_handle_exception = app.handle_exception
     def handle_exception(e):
@@ -182,9 +183,9 @@ def get_games(user: User) -> Tuple[List[ApexGameSummary], bool, Season]:
         season_id = user.apex_last_season
         is_ranked = user.apex_last_game_ranked
 
-    logger.info(f'Getting games for {user} => season_id={season_id}')
+    logger.info(f'Getting games for {user.username} => season_id={season_id}')
     if season_id is None:
-        raise NoGamesError()
+        season_id = 2
 
     season = SEASONS[season_id]
     range_key_condition = ApexGameSummary.timestamp.between(season.start, season.end)
@@ -195,7 +196,7 @@ def get_games(user: User) -> Tuple[List[ApexGameSummary], bool, Season]:
         filter_condition &= ApexGameSummary.rank.does_not_exist()
 
     t0 = time.perf_counter()
-    logger.info(f'Getting games for {user}: {user.user_id}, {range_key_condition}, {filter_condition}')
+    logger.info(f'Getting games for {user.username}: {user.user_id}, {range_key_condition}, {filter_condition}')
     games = list(ApexGameSummary.user_id_time_index.query(user.user_id, range_key_condition, filter_condition, newest_first=True))
     t1 = time.perf_counter()
     logger.info(f'Games query: {(t1 - t0) * 1000:.2f}ms')
@@ -207,7 +208,7 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
     try:
         games, is_ranked, season = get_games(user)
     except NoGamesError:
-        logger.info(f'User {user} has no games')
+        logger.info(f'User {user.username} has no games')
         return render_template('client.html', no_games_alert=True, meta=welcome_meta)
 
     seasons = []
@@ -215,7 +216,7 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
         s = SEASONS[sid]
         seasons.append(s)
 
-    logger.info(f'User {user} has user.apex_seasons={user.apex_seasons} => {seasons}')
+    logger.info(f'User {user.username} has user.apex_seasons={user.apex_seasons} => {seasons}')
     seasons = sorted(seasons, key=lambda s: s.index, reverse=True)
     print(seasons)
 
@@ -370,21 +371,12 @@ def game(key: str) -> Response:
 
             log_time = datetime.datetime.strptime(log_params['start'], "%Y-%m-%dT%H:%M:%SZ")
             tz_offset = datetime.datetime.now() - datetime.datetime.utcnow()
-            # log_data = logs.get_log_events(
-            #     logGroupName=log_params['group'],
-            #     logStreamName=log_params['stream'],
-            #     startTime=int((log_time + tz_offset).timestamp() * 1000)
-            # )
             log_data = logs.get_log_events(
                 logGroupName=log_params['group'],
                 logStreamName=log_params['stream'],
                 startTime=int((log_time + tz_offset).timestamp() * 1000)
             )
             log_lines = []
-            # for i, e in enumerate(log_data['events']):
-            #     log_lines.append(e['message'].strip())
-            #     if i > 10 and 'END RequestId' in e['message']:
-            #         break
             for i, e in enumerate(log_data['events']):
                 log_lines.append(e['message'].strip())
                 if i > 10 and 'END RequestId' in e['message']:
@@ -516,5 +508,8 @@ def games_by_key(key: str) -> Response:
     return render_games_list(int(key))
 
 
-from overtrack.util.logging_config import config_logger
-config_logger(__name__, logging.INFO, False)
+try:
+    from overtrack.util.logging_config import config_logger
+    config_logger(__name__, logging.INFO, False)
+except ImportError:
+    logging.basicConfig(level=logging.INFO)

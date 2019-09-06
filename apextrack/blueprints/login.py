@@ -1,9 +1,8 @@
-from flask import url_for, render_template, Blueprint
+from flask import Blueprint, render_template, request, url_for
 from functools import wraps
 from werkzeug.utils import redirect
 
-from api.authentication import check_authentication
-from api.blueprints.client import request
+from apextrack.authentication import check_authentication
 
 login = Blueprint('login', __name__)
 

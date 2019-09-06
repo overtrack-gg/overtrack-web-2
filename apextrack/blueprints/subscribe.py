@@ -10,9 +10,9 @@ from werkzeug.utils import redirect
 
 from apextrack.blueprints.login import require_login
 from apextrack.paypal import PayPal
-from api.session import session
-from api.util import metrics
-from api.util.decorators import restrict_origin
+from apextrack.session import session
+from apextrack.util import metrics
+from apextrack.util.decorators import restrict_origin
 from models.subscription_details import SubscriptionDetails
 
 STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY', 'pk_test_F567NgBmv1HXb8GWPtOoUQRz')

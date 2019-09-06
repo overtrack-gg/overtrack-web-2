@@ -13,8 +13,8 @@ from flask import Blueprint, Response, redirect, render_template, request, url_f
 from jwt import InvalidTokenError
 from oauthlib.oauth2 import OAuth2Error
 
-from api.authentication import require_authentication, require_origin
-from api.session import session
+from apextrack.authentication import require_authentication, require_origin
+from apextrack.session import session
 from apextrack.blueprints.login import require_login
 from models.notifications import DiscordBotNotification
 
