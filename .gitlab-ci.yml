@@ -22,6 +22,10 @@ deploy:
     - git clone git@gitlab.com:OverTrack/overtrack-models.git
     - mv -t . ./overtrack-models/models
 
+    # optional dependency for metrics
+    - git clone git@gitlab.com:OverTrack/overtrack_2_api.git
+    - mv -t . ./overtrack_2_api/api
+
     - zappa update test || { sleep 30; zappa tail test --since 1min --disable-keep-open; false; }
 
     - zappa update main
