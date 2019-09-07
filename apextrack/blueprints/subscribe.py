@@ -280,25 +280,26 @@ def paypal_approved():
     session.user.paypal_subscr_date = None
     session.user.paypal_cancel_at_period_end = None
 
+    plan_name = 'UNKNOWN'
     try:
         sub = paypal_client.get_subscription_details(request.form['subscriptionID'])
 
         session.user.paypal_payer_email = sub['subscriber']['email_address']
         session.user.paypal_subscr_date = sub['create_time']
         session.user.paypal_cancel_at_period_end = not sub['auto_renewal']
+
+        logger.info(f'Checking PayPal plan details')
+        try:
+            plan = paypal_client.get_plan_details(sub['plan_id'])
+        except:
+            logger.exception('Failed to fetch PayPal plan details')
+        else:
+            plan_name = plan['description']
+
     except:
         logger.exception('Failed to get PayPal subscription details')
 
     session.user.save()
-
-    logger.info(f'Checking PayPal plan details')
-    try:
-        plan = paypal_client.get_plan_details(request.form['subscriptionID'])
-    except:
-        logger.exception('Failed to fetch PayPal plan details')
-        plan_name = 'UNKNOWN'
-    else:
-        plan_name = plan['description']
 
     metrics.record('subscription.paypal.approved')
     metrics.event(
