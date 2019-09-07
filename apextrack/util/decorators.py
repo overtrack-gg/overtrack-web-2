@@ -1,10 +1,14 @@
 import json
+import logging
 from datetime import datetime, timedelta
 from functools import wraps
 from typing import List, Optional
 from urllib import parse
 
 from flask import make_response, Response, request
+
+logger = logging.getLogger(__name__)
+
 
 ORIGIN_WHITELIST = [
     '05vtsqqgd3.execute-api.us-west-2.amazonaws.com',
@@ -44,13 +48,26 @@ def restrict_origin(_endpoint=None, *, whitelist: Optional[List[str]] = None, al
     def wrap(endpoint):
         @wraps(endpoint)
         def check_origin(*args, **kwargs):
+            hostname = None
             if 'origin' in request.headers:
+                logger.info(f'Got origin: ' + request.headers['origin'])
                 hostname = parse.urlsplit(request.headers['origin']).hostname
+            elif 'referer' in request.headers:
+                logger.info(f'Got referer: ' + request.headers['referer'])
+                hostname = parse.urlsplit(request.headers['referer']).hostname
+            else:
+                logger.info('Did not get origin or referer')
+
+            if hostname:
+                logger.info(f'Checking {hostname} against {whitelist or ORIGIN_WHITELIST}')
                 if hostname in (whitelist or ORIGIN_WHITELIST):
+                    logger.info('origin allowed - matches whitelist')
                     return endpoint(*args, **kwargs)
                 elif allow_localhost and hostname in ['localhost', 'dev.localhost', '127.0.0.1']:
+                    logger.info('origin allowed - matches localhost')
                     return endpoint(*args, **kwargs)
 
+            logger.info('origin rejected')
             return Response(
                 json.dumps({
                     'message': 'origin disallowed'

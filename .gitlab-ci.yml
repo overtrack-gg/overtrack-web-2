@@ -17,7 +17,7 @@ deploy:
   script:
     - python -m venv venv
     - source venv/bin/activate
-    - poetry update
+    - poetry install --no-dev
 
     - git clone git@gitlab.com:OverTrack/overtrack-models.git
     - mv -t . ./overtrack-models/models
