@@ -1,6 +1,7 @@
 **/logs/
 
 .idea/
+venv/
 **/__pycache__/
 
 build_client/build
