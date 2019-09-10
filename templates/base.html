@@ -27,7 +27,7 @@
         <link type="application/json+oembed" href="{{ meta.oembed }}"/>
         {% endif %}
     {% endif %}
-    {{ bootstrap.load_css() }}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/lib/bootstrap.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
     {% block css %}{% endblock %}
     <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}"/>
@@ -35,7 +35,10 @@
 <body class="has-background-black-ter has-text-white text-light bg-dark">
 {{ navbar.navbar() }}
 {% block content %}{% endblock %}
-{{ bootstrap.load_js() }}
+<script       src="{{ url_for('static', filename='js/lib/jquery.min.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/lib/popper.min.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/lib/bootstrap.min.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/lib/intercooler-1.2.1.min.js') }}"></script>
 {% block scripts %}{% endblock %}
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-99105415-2"></script>
 <script>

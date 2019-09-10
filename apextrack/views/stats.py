@@ -4,11 +4,10 @@ from typing import List, Tuple
 import numpy as np
 from flask import Blueprint, render_template
 
-from apextrack.authentication import require_authentication
-from apextrack.blueprints.login import require_login
-from apextrack.session import session
-from models.apex_game_summary import ApexGameSummary
-from models.user import User
+from apextrack.lib.authentication import require_login, require_authentication
+from apextrack.lib.session import session
+from overtrack_models.apex_game_summary import ApexGameSummary
+from overtrack_models.user import User
 
 
 def _get_points(placed: int) -> int:
@@ -30,8 +29,8 @@ scoring = np.array([_get_points(i) for i in range(1, 21)])
 
 
 def placement_score(games: List[ApexGameSummary]) -> Tuple[int, float]:
-    placed = [g.placed for g in games]
-    scores = scoring[np.array(placed) - 1]
+    placed = np.clip(np.array([g.placed for g in games]), 1, 20)
+    scores = scoring[placed - 1]
     return round(float(np.mean(scores)), 1), 1.
 
 

@@ -3,7 +3,7 @@ from typing import Tuple
 
 from dataclasses import dataclass
 
-rank_rp = {
+RANK_RP = {
     'bronze': (0, 120),
     'silver': (120, 280),
     'gold': (280, 480),

@@ -6,7 +6,7 @@ from flask import g
 from sentry_sdk.serializer import add_global_repr_processor
 from werkzeug.local import LocalProxy
 
-from models.user import User
+from overtrack_models.user import User
 
 _user_cache = {}
 

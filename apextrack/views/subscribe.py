@@ -8,12 +8,12 @@ import time
 from flask import Blueprint, Response, render_template, request, url_for
 from werkzeug.utils import redirect
 
-from apextrack.blueprints.login import require_login
-from apextrack.paypal import PayPal
-from apextrack.session import session
-from apextrack.util import metrics
-from apextrack.util.decorators import restrict_origin
-from models.subscription_details import SubscriptionDetails
+from apextrack.lib import metrics
+from apextrack.lib.authentication import require_login
+from apextrack.lib.decorators import restrict_origin
+from apextrack.lib.paypal import PayPal
+from apextrack.lib.session import session
+from overtrack_models.subscription_details import SubscriptionDetails
 
 STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY', 'pk_test_F567NgBmv1HXb8GWPtOoUQRz')
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', 'sk_test_boLthxW5ni28yjidrmDHmNH3')
@@ -260,6 +260,15 @@ def check_stripe_subscription() -> Tuple[bool, Optional[str], str]:
 def paypal_approved():
     logger.info(f'Paypal subscription approved: {request.form}')
 
+    try:
+        sub = paypal_client.get_subscription_details(request.form['subscriptionID'])
+    except:
+        logger.exception('Failed to get PayPal subscription details')
+        return Response(
+            status=400,
+            response='Subscription not found'
+        )
+
     logger.info('Creating SubscriptionDetails record')
     SubscriptionDetails(
         user_id=session.user_id,
@@ -282,8 +291,6 @@ def paypal_approved():
 
     plan_name = 'UNKNOWN'
     try:
-        sub = paypal_client.get_subscription_details(request.form['subscriptionID'])
-
         session.user.paypal_payer_email = sub['subscriber']['email_address']
         session.user.paypal_subscr_date = sub['create_time']
         session.user.paypal_cancel_at_period_end = not sub['auto_renewal']

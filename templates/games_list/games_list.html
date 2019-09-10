@@ -1,5 +1,5 @@
-{% import 'games/game_summary.html' as game_summary with context %}
-{% import 'games/rank.html' as rank with context %}
+{% import 'games_list/game_summary.html' as game_summary with context %}
+{% import 'games_list/rank.html' as rank with context %}
 {% import 'game/game_small.html' as game_small with context %}
 
 {% extends "base.html" %}
@@ -102,7 +102,7 @@
 
 
 {% block scripts %}
-<script defer src="{{ url_for('static', filename='js/d3.v5.min.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/lib/d3.v5.min.js') }}"></script>
 {% if rp_data and rp_data | length > 5 %}
 <script defer src="{{ url_for('static', filename='js/rank.js') }}"></script>
 {% endif %}

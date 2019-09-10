@@ -13,10 +13,10 @@ from flask import Blueprint, Response, redirect, render_template, request, url_f
 from jwt import InvalidTokenError
 from oauthlib.oauth2 import OAuth2Error
 
-from apextrack.authentication import require_authentication, require_origin
-from apextrack.session import session
-from apextrack.blueprints.login import require_login
-from models.notifications import DiscordBotNotification
+from apextrack.lib.authentication import require_authentication, require_login
+from apextrack.lib.decorators import restrict_origin
+from apextrack.lib.session import session
+from overtrack_models.notifications import DiscordBotNotification
 
 HMAC_KEY = base64.b64decode(os.environ['HMAC_KEY'])
 
@@ -71,7 +71,7 @@ def root():
 
 @discord_bot_blueprint.route('/authorize_bot')
 @require_authentication
-@require_origin(or_refererer=True)
+@restrict_origin()
 def authorize_bot():
     # Generate a bot oauth request as per https://discordapp.com/developers/docs/topics/oauth2#advanced-bot-authorization
     # Specifically we want redirect_uri to redirect back to us and want to specify permissions
@@ -153,7 +153,7 @@ def bot_authorized():
 
 @discord_bot_blueprint.route('/add_to_channel')
 @require_authentication
-@require_origin(or_refererer=True)
+@restrict_origin()
 def add_to_channel():
     if request.args.get('channel_type') == 'existing':
         payload_type = 'payload_existing'
@@ -261,7 +261,7 @@ def add_to_channel():
 
 @discord_bot_blueprint.route('/delete_channel')
 @require_authentication
-@require_origin(or_refererer=True)
+@restrict_origin()
 def delete_channel():
     logger.info(f'Decoding JWT payload')
     try:

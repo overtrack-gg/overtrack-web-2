@@ -1,4 +1,4 @@
-{% import 'games/game_summary.html' as game_summary with context %}
+{% import 'games_list/game_summary.html' as game_summary with context %}
 {% import 'game/map.html' as map with context %}
 
 {% macro player(player, index) -%}
@@ -212,7 +212,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script defer src="{{ url_for('static', filename='js/d3.v5.min.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/lib/d3.v5.min.js') }}"></script>
 <script defer src="{{ url_for('static', filename='js/map.js') }}"></script>
 
 <script type="text/javascript">

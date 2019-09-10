@@ -1,11 +1,14 @@
 [tool.poetry]
-name = "apextrack-web-poc"
+name = "apextrack-web"
 version = "0.1.0"
 description = ""
 authors = ["Simon Pinfold <simon@uint8.me>"]
 
 [tool.poetry.dependencies]
 python = "^3.6"
+
+overtrack-models = { git = "git@gitlab.com:OverTrack/overtrack-models.git", branch = "master" }
+
 dataclasses = "*"
 
 typedload = "*"

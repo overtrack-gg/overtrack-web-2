@@ -19,9 +19,6 @@ deploy:
     - source venv/bin/activate
     - poetry install --no-dev
 
-    - git clone git@gitlab.com:OverTrack/overtrack-models.git
-    - mv -t . ./overtrack-models/models
-
     # optional dependency for metrics
     - git clone git@gitlab.com:OverTrack/overtrack_2_api.git
     - mv -t . ./overtrack_2_api/api

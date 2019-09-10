@@ -5,7 +5,7 @@ from functools import wraps
 from typing import List, Optional
 from urllib import parse
 
-from flask import make_response, Response, request
+from flask import Response, make_response, request
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +51,7 @@ def restrict_origin(_endpoint=None, *, whitelist: Optional[List[str]] = None, al
             hostname = None
             if 'origin' in request.headers:
                 logger.info(f'Got origin: ' + request.headers['origin'])
+
                 hostname = parse.urlsplit(request.headers['origin']).hostname
             elif 'referer' in request.headers:
                 logger.info(f'Got referer: ' + request.headers['referer'])

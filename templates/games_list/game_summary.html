@@ -17,7 +17,7 @@
 {%- endmacro %}
 
 {% macro summary(game, clickable=True) -%}
-    <tr data-href={{url_for('game', key=game.key)}}
+    <tr data-href={{url_for('game.game', key=game.key)}}
         data-key="{{game.key}}"
         class="{{'clickable' if game.url and clickable else ''}} {{ 'win' if game.won else '' }} placed-{{game.placed}}">
         <td class="time"><div class="datetime-format-time">{{ game.timestamp }}</div></td>
