@@ -72,7 +72,7 @@ SEASONS = {
     0: Season(0, 0, _season_1_start.timestamp()),
     1: Season(1, _season_1_start.timestamp(), _season_2_start.timestamp()),
     2: Season(2, _season_2_start.timestamp(), 1569956446, has_ranked=True),
-    3: Season(3, 1569956446, float('inf'), has_ranked=True),
+    3: Season(3, 1569956446, 1569956446 + 4 * 30 * 24 * 60 * 60, has_ranked=True),
 
     1002: Season(1002, 1565697600, _season_2_start.timestamp() + 9072000_00, season_name='Season 2 Solos'),
 }
