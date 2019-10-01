@@ -34,11 +34,11 @@ function draw_map() {
     const SIZE = Math.max(SIZE_X, SIZE_Y);
 
     function rescale_x(n) {
-        return (n * SIZE) / 1350;
+        return (n * SIZE) / 1503;
     };
 
     function rescale_y(n) {
-        return (n * SIZE) / 1350;
+        return (n * SIZE) / 1493;
     };
 
     function get_initial_zoom() {
