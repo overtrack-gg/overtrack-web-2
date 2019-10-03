@@ -12,6 +12,18 @@
 <br/>
     <section>
         <div class="container">
+            {% if show_sub_request %}
+            <div class="alert alert-primary sub-request" role="alert">
+                <h2>Support OverTrack's Development</h2>
+                <p>
+                    Hi! I'm glad you're enjoying using OverTrack. <br/>
+                    This has been a project I have poured my heart and soul into, and have been working fulltime on for some time. <br/>
+                    I need the support of people like you to keep OverTrack alive. If you would like to help support the development of OverTrack, please consider subscribing.
+                </p>
+                <a href="/subscribe" class="btn btn-primary sub-link">Subscribe ♥</a>
+            </div>
+            {% endif %}
+
             <div class="row">
 
                 <div class="col-lg-30pc col-sm-12 games-list-panels">

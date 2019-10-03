@@ -10,7 +10,7 @@ from flask import Blueprint, Response, request, Request, render_template, url_fo
 
 from apextrack.data import WELCOME_META
 from apextrack.data.apex import Season, SEASONS, RANK_RP, get_tier_window, RankSummary
-from apextrack.lib.authentication import require_login
+from apextrack.lib.authentication import require_login, check_authentication
 from apextrack.lib.opengraph import Meta
 from apextrack.lib.session import session
 from apextrack.views.game import make_game_description
@@ -42,8 +42,7 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
         seasons.append(s)
 
     logger.info(f'User {user.username} has user.apex_seasons={user.apex_seasons} => {seasons}')
-    seasons = sorted(seasons, key=lambda s: s.index, reverse=True)
-    print(seasons)
+    seasons = sorted(seasons, key=lambda s: s.start, reverse=True)
 
     t0 = time.time()
     if len(games) and games[0].url:
@@ -111,6 +110,11 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
     else:
         summary_meta = WELCOME_META
 
+    if check_authentication() is None:
+        show_sub_request = not session.user.subscription_active
+    else:
+        show_sub_request = False
+
     return render_template(
         'games_list/games_list.html',
         games=games,
@@ -123,7 +127,9 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
         rank_summary=rank_summary,
         rp_data=rp_data,
 
-        latest_game=latest_game_data
+        latest_game=latest_game_data,
+
+        show_sub_request=show_sub_request,
     )
 
 
