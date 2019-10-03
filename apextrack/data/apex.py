@@ -4,12 +4,12 @@ from typing import Tuple
 from dataclasses import dataclass
 
 RANK_RP = {
-    'bronze': (0, 120),
-    'silver': (120, 280),
-    'gold': (280, 480),
-    'platinum': (480, 720),
-    'diamond': (720, 1000),
-    'apex_predator': (1000, 10_000)
+    'bronze': (0, 1200),
+    'silver': (1200, 2800),
+    'gold': (2800, 4800),
+    'platinum': (4800, 7200),
+    'diamond': (7200, 10_000),
+    'apex_predator': (10_000, 99_999)
 }
 
 

@@ -33,11 +33,11 @@ const minimal = rankBorders.length > 5
 if (minimal) {
     rankBorders = [
           0,
-        120,
-        280,
-        480,
-        720,
-        1000
+        1200,
+        2800,
+        4800,
+        7200,
+        10000
     ]
 
     for (let i = 0; i < rankBorders.length; i++) {
@@ -47,61 +47,61 @@ if (minimal) {
         }
     }
 
-    dmax = dmaxfloor >= 1000 ? dmaxfloor : dmaxceil
+    dmax = dmaxfloor >= 10000 ? dmaxfloor : dmaxceil
     rankBorders = rankBorders.filter(x => x >= dmin && x <= dmax)
 }
 
-if (dmax >= 1015 && dmin < dmax) {
+if (dmax >= 10150 && dmin < dmax) {
     rankBorders.push(dmax)
     console.log(rankBorders)
 }
 
 const rankNums = ({
       "0": "IV",
-     "30": "III",
-     "60": "II",
-     "90": "I",
-    "120": "IV",
-    "160": "III",
-    "200": "II",
-    "240": "I",
-    "280": "IV",
-    "330": "III",
-    "380": "II",
-    "430": "I",
-    "480": "IV",
-    "540": "III",
-    "600": "II",
-    "660": "I",
-    "720": "IV",
-    "790": "III",
-    "860": "II",
-    "930": "I",
-    "1000": "",
+     "300": "III",
+     "600": "II",
+     "900": "I",
+    "1200": "IV",
+    "1600": "III",
+    "2000": "II",
+    "2400": "I",
+    "2800": "IV",
+    "3300": "III",
+    "3800": "II",
+    "4300": "I",
+    "4800": "IV",
+    "5400": "III",
+    "6000": "II",
+    "6600": "I",
+    "7200": "IV",
+    "7900": "III",
+    "8600": "II",
+    "9300": "I",
+    "10000": "",
 })
 
 const rankImages = ({
-      "0": "bronze",
-     "30": "bronze",
-     "60": "bronze",
-     "90": "bronze",
-    "120": "silver",
-    "160": "silver",
-    "200": "silver",
-    "240": "silver",
-    "280": "gold",
-    "330": "gold",
-    "380": "gold",
-    "430": "gold",
-    "480": "platinum",
-    "540": "platinum",
-    "600": "platinum",
-    "660": "platinum",
-    "720": "diamond",
-    "790": "diamond",
-    "860": "diamond",
-    "930": "diamond",
-    "1000": "predator",
+      "00": "bronze",
+     "300": "bronze",
+     "600": "bronze",
+     "900": "bronze",
+    "1200": "silver",
+    "1600": "silver",
+    "2000": "silver",
+    "2400": "silver",
+    "2800": "gold",
+    "3300": "gold",
+    "3800": "gold",
+    "4300": "gold",
+    "4800": "platinum",
+    "5400": "platinum",
+    "6000": "platinum",
+    "6600": "platinum",
+    "7200": "diamond",
+    "7900": "diamond",
+    "8600": "diamond",
+    "9300": "diamond",
+    "10000": "predator",
 })
 
 const svg = d3.select("#graph-svg")
