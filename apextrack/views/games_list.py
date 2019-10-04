@@ -30,6 +30,7 @@ def games_list() -> Response:
 
 
 def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[str] = None) -> Response:
+    user.refresh()
     games, is_ranked, season = get_games(user)
 
     if not len(games):
