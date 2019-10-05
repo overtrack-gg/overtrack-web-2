@@ -85,7 +85,9 @@
     var stripe_plan_session_ids = {{ stripe_plan_session_ids | tojson | safe }};
     function redirectToCheckout(){
         let planIndex = document.getElementById('sel1').selectedIndex;
-        ga('send', 'event', 'subscribe', 'subscribe', 'stripe', planIndex);
+        try {
+            ga('send', 'event', 'subscribe', 'subscribe', 'stripe', planIndex);
+        } catch(err) {}
         stripe.redirectToCheckout({
           sessionId: stripe_plan_session_ids[planIndex]
         }).then(function (result) {
@@ -109,7 +111,9 @@
         },
         createSubscription: function(data, actions) {
             let planIndex = document.getElementById('sel1').selectedIndex;
-            ga('send', 'event', 'subscribe', 'subscribe', 'paypal', planIndex);
+            try {
+                ga('send', 'event', 'subscribe', 'subscribe', 'paypal', planIndex);
+            } catch(err) {}
             return actions.subscription.create({
                 plan_id: paypal_plan_ids[planIndex],
                 auto_renewal: true
