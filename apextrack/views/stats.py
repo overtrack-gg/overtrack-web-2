@@ -95,7 +95,7 @@ results_blueprint = Blueprint('stats', __name__)
 
 
 def get_games(user: User):
-    return list(ApexGameSummary.user_id_time_index.query(user))
+    return list(ApexGameSummary.user_id_time_index.query(user.user_id))
 
 
 def render_results(user: User):
