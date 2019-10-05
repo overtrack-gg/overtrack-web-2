@@ -20,9 +20,13 @@ logs = boto3.client('logs')
 game_blueprint = Blueprint('game', __name__)
 
 
+def get_summary(key):
+    return ApexGameSummary.get(key)
+
+
 @game_blueprint.route('/game/<path:key>')
 def game(key: str):
-    summary = ApexGameSummary.get(key)
+    summary = get_summary(key)
     logger.info(f'Fetching {summary.url}')
 
     url = urlparse(summary.url)

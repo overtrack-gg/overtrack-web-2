@@ -15,6 +15,8 @@ from apextrack.lib.paypal import PayPal
 from apextrack.lib.session import session
 from overtrack_models.subscription_details import SubscriptionDetails
 
+# default keys here are test/sandbox keys
+
 STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY', 'pk_test_F567NgBmv1HXb8GWPtOoUQRz')
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', 'sk_test_boLthxW5ni28yjidrmDHmNH3')
 stripe.api_version = os.environ.get('STRIPE_API_VERSION', '2019-08-14')

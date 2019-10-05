@@ -144,7 +144,7 @@ def get_games(user: User) -> Tuple[List[ApexGameSummary], bool, Season]:
 
     logger.info(f'Getting games for {user.username} => season_id={season_id}')
     if season_id is None:
-        season_id = 2
+        season_id = 3
 
     season = SEASONS[season_id]
     range_key_condition = ApexGameSummary.timestamp.between(season.start, season.end)

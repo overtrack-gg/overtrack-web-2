@@ -7,7 +7,7 @@ authors = ["Simon Pinfold <simon@uint8.me>"]
 [tool.poetry.dependencies]
 python = "^3.6"
 
-overtrack-models = { git = "git@gitlab.com:OverTrack/overtrack-models.git", branch = "master" }
+overtrack-models = { git = "https://gitlab.com/OverTrack/overtrack-models.git", branch = "master" }
 
 dataclasses = "*"
 

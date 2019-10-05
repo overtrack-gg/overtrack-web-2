@@ -2,7 +2,7 @@
     "base": {
         "project_name": "apextrack_web",
         "aws_region": "us-west-2",
-        "app_function": "apextrack.app",
+        "app_function": "apextrack.flask_app.app",
         "exception_handler": "main.unhandled_exceptions",
         "s3_bucket": "overtrack-zappa",
         "delete_s3_zip": false,

@@ -93,8 +93,13 @@ logger = logging.getLogger(__name__)
 
 results_blueprint = Blueprint('stats', __name__)
 
-def render_results(user_id: int):
-    games = list(ApexGameSummary.user_id_time_index.query(user_id))
+
+def get_games(user: User):
+    return list(ApexGameSummary.user_id_time_index.query(user))
+
+
+def render_results(user: User):
+    games = get_games(user)
 
     if not len(games):
         return render_template('client.html', no_games_alert=True)
@@ -121,11 +126,11 @@ def render_results(user_id: int):
 @results_blueprint.route('/')
 @require_login
 def results():
-    return render_results(session.user_id)
+    return render_results(session.user)
 
 
 @results_blueprint.route('/by_username/<username>')
 @require_authentication(superuser_required=True)
 def results_by_username(username: str):
     user = User.username_index.get(username)
-    return render_results(user.user_id)
+    return render_results(user)
