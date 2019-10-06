@@ -83,7 +83,16 @@ def mock_get_games(user) -> Tuple[List[ApexGameSummary], bool, Season]:
     return games, is_ranked, season
 
 apextrack.views.games_list.get_games = mock_get_games
-apextrack.views.stats.get_games = mock_get_games
+
+def mock_get_games_stats(user):
+    games = []
+    r = requests.get(f'https://api2.overtrack.gg/apex/games/{GAMES_SOURCE}')
+    r.raise_for_status()
+    for g in r.json()['games']:
+        games.append(ApexGameSummary(**g))
+    return games
+
+apextrack.views.stats.get_games = mock_get_games_stats
 
 def mock_get_summary(key):
     r = requests.get(f'https://api2.overtrack.gg/apex/game_summary/{key}')
