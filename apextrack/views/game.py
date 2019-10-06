@@ -5,6 +5,7 @@ from typing import Any, Dict
 from urllib.parse import urlparse
 
 import boto3
+import requests
 from flask import Blueprint, Request, render_template, request
 
 from apextrack.lib.authentication import check_authentication
@@ -15,8 +16,18 @@ from overtrack_models.apex_game_summary import ApexGameSummary
 
 request: Request = request
 logger = logging.getLogger(__name__)
-s3 = boto3.client('s3')
-logs = boto3.client('logs')
+try:
+    s3 = boto3.client('s3')
+    """ :type s3: boto3_type_annotations.s3.Client """
+except:
+    logger.exception('Failed to create AWS S3 client - running without admin logs')
+    s3 = None
+try:
+    logs = boto3.client('logs')
+    """ :type s3: boto3_type_annotations.s3.Client """
+except:
+    logger.exception('Failed to create AWS logs client - running without admin logs')
+    logs = None
 game_blueprint = Blueprint('game', __name__)
 
 
@@ -29,12 +40,18 @@ def game(key: str):
     summary = get_summary(key)
     logger.info(f'Fetching {summary.url}')
 
-    url = urlparse(summary.url)
-    game_object = s3.get_object(
-        Bucket=url.netloc.split('.')[0],
-        Key=url.path[1:]
-    )
-    game_data = json.loads(game_object['Body'].read())
+    try:
+        url = urlparse(summary.url)
+        game_object = s3.get_object(
+            Bucket=url.netloc.split('.')[0],
+            Key=url.path[1:]
+        )
+        game_data = json.loads(game_object['Body'].read())
+    except:
+        logger.exception('Failed to fetch game data from S3 - trying HTTP')
+        r = requests.get(summary.url)
+        r.raise_for_status()
+        game_data = r.json()
 
     # used for link previews
     og_description = make_game_description(summary, divider='\n')
@@ -49,7 +66,7 @@ def game(key: str):
         image_url=image_url(game_data['squad']['player']['champion'])
     )
 
-    if check_authentication() is None and session.superuser:
+    if logs and check_authentication() is None and session.superuser:
         try:
             admin_data = get_admin_data(summary, game_object)
         except:

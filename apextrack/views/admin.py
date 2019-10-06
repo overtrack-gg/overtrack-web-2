@@ -1,10 +1,7 @@
 import logging
-from collections import defaultdict
-from pprint import pprint
 
 from flask import Blueprint, url_for
 
-from overtrack_models.apex_game_summary import ApexGameSummary
 from overtrack_models.user import User
 
 logger = logging.getLogger(__name__)

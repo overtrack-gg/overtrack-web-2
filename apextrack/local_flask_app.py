@@ -49,7 +49,6 @@ class MockSession(NamedTuple):
     user: MockUser = MockUser()
 
 def mock_check_authentication(*_, **__):
-    print('mock_check_authentication')
     g.session = MockSession(
         user_id=-1,
         key='MOCK-USER'

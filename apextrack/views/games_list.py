@@ -3,6 +3,7 @@ import logging
 from urllib.parse import urlparse
 
 import boto3
+import requests
 import time
 from typing import Tuple, List, Optional
 
@@ -19,7 +20,12 @@ from overtrack_models.user import User
 
 request: Request = request
 logger = logging.getLogger(__name__)
-s3 = boto3.client('s3')
+try:
+    s3 = boto3.client('s3')
+    """ :type s3: boto3_type_annotations.s3.Client """
+except:
+    logger.exception('Failed to create AWS S3 client - running without admin logs')
+    s3 = None
 games_list_blueprint = Blueprint('games_list', __name__)
 
 
@@ -47,12 +53,18 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
 
     t0 = time.time()
     if len(games) and games[0].url:
-        url = urlparse(games[0].url)
-        game_object = s3.get_object(
-            Bucket=url.netloc.split('.')[0],
-            Key=url.path[1:]
-        )
-        latest_game_data = json.loads(game_object['Body'].read())
+        try:
+            url = urlparse(games[0].url)
+            game_object = s3.get_object(
+                Bucket=url.netloc.split('.')[0],
+                Key=url.path[1:]
+            )
+            latest_game_data = json.loads(game_object['Body'].read())
+        except:
+            logger.exception('Failed to fetch game data from S3 - trying HTTP')
+            r = requests.get(games[0].url)
+            r.raise_for_status()
+            latest_game_data = r.json()
     else:
         latest_game_data = None
     t1 = time.perf_counter()
