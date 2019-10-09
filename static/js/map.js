@@ -6,6 +6,28 @@ var landed_index = route.landed_location_index;
 var [drop, travel_full] = [route.locations.slice(0, landed_index), route.locations.slice(landed_index ? landed_index - 1: 0)];
 var travel = [];
 // var combat = combat;
+
+var rings = []
+previous = null;
+for (let r of route.rings || []){
+    if (r){
+        previous = {
+            index: r.index,
+            center: r.center,
+            radius: r.radius,
+            start_time: r.start_time,
+            end_time: r.end_time,
+            previous: previous
+        }
+        if (rings.length){
+            rings[rings.length - 1].next = previous;
+        }
+        rings.push(previous);
+    } else {
+        previous = null;
+    }
+}
+
 var placed = 3;
 
 const TIMESCALE = 10;
@@ -480,6 +502,25 @@ function draw_map() {
             .attr("fill", function (d, i) { return "url(#knocks_image_" + i + ")" })
 
     /************************************************************************
+    *** RINGS
+    *************************************************************************/
+    if (rings){
+        var circles = svg
+            .selectAll("circles")
+                .data(rings)
+                .enter()
+                .filter(function(r) { return !!r; })
+                .append("circle")
+                .attr("cx", function (r) { return rescale_x(r.center[0]) })
+                .attr("cy", function (r) { return rescale_y(r.center[1]) })
+                .attr("r", function (r) { return rescale_x(r.radius) })
+                .attr("fill", "none")
+                .attr("opacity", 0)
+                .attr("stroke-width", LINE_SIZE)
+
+    }
+
+    /************************************************************************
     *** TOOLTIPS
     *************************************************************************/
 
@@ -509,6 +550,7 @@ function draw_map() {
             }
             svg.attr("transform", d3.event.transform);
             drop_path.attr("stroke-width", LINE_SIZE / ok);
+            circles.attr("stroke-width", LINE_SIZE / ok);
             d3.selectAll(".travel-path").attr("stroke-width", LINE_SIZE / ok);
             knocks_a.attr("r", ELIM_SCALE / k);
             elims_a.attr("r", ELIM_SCALE / k);
@@ -694,6 +736,38 @@ function draw_map() {
         .duration(500)
         .attr("r", ELIM_SCALE / k)
         .attr("opacity", 1);
+
+    /************************************************************************
+    *** RINGS ANIMATION
+    *************************************************************************/
+    if (rings){
+        circles
+            .transition(t)
+            .delay(function (r) { return TIMESCALE * r.start_time})
+            .attr("stroke", "gray")
+            .attr("opacity", 1)
+            .transition(t)
+            .delay(function (r) {
+                if (r.next) {
+                    return TIMESCALE * (r.end_time - r.start_time)
+                } else {
+                    return Math.inf;
+                }
+            })
+            .attr("stroke", "orangered")
+            .attr("opacity", 0.8)
+            .transition(t)
+            .delay(function (r) {
+                if (r.next && r.next.next) {
+                    return TIMESCALE * ((r.next.end_time - r.end_time) - 5)
+                } else {
+                    return Math.inf;
+                }
+            })
+            .attr("opacity", 0.5)
+
+    }
+
 }
 
 $(window).resize(draw_map);
