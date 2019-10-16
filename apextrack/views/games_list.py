@@ -45,8 +45,9 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
 
     seasons = []
     for sid in user.apex_seasons:
-        s = SEASONS[sid]
-        seasons.append(s)
+        if sid in SEASONS:
+            s = SEASONS[sid]
+            seasons.append(s)
 
     logger.info(f'User {user.username} has user.apex_seasons={user.apex_seasons} => {seasons}')
     seasons = sorted(seasons, key=lambda s: s.start, reverse=True)
@@ -154,9 +155,12 @@ def get_games(user: User) -> Tuple[List[ApexGameSummary], bool, Season]:
         season_id = user.apex_last_season
         is_ranked = user.apex_last_game_ranked
 
-    logger.info(f'Getting games for {user.username} => season_id={season_id}')
     if season_id is None:
         season_id = 3
+    elif season_id == 1003:
+        # shadowfall
+        season_id = 3
+    logger.info(f'Getting games for {user.username} => season_id={season_id}')
 
     season = SEASONS[season_id]
     range_key_condition = ApexGameSummary.timestamp.between(season.start, season.end)
