@@ -1,5 +1,6 @@
 from typing import Dict
 
+import requests
 import time
 from requests.auth import HTTPBasicAuth
 from stripe.http_client import requests
@@ -42,7 +43,10 @@ class PayPal:
             'Authorization': 'Bearer ' + self.token
         })
         r.raise_for_status()
-        return r.json()
+        if r.status_code == 200:
+            return r.json()
+        else:
+            return {}
 
     def get_subscription_details(self, subscription_id: str) -> Dict:
         return self._make_request(f'/v1/billing/subscriptions/{subscription_id}')
