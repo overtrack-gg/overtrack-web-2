@@ -157,9 +157,6 @@ def get_games(user: User) -> Tuple[List[ApexGameSummary], bool, Season]:
 
     if season_id is None:
         season_id = 3
-    elif season_id == 1003:
-        # shadowfall
-        season_id = 3
     logger.info(f'Getting games for {user.username} => season_id={season_id}')
 
     season = SEASONS[season_id]
