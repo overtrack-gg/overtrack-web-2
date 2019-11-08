@@ -49,7 +49,7 @@ def directory():
 
         matches[match].add_game(g)
 
-    m_sorted = list(sorted(matches.values(), key=lambda m: m.time))
+    m_sorted = list(sorted(matches.values(), key=lambda m: m.time, reverse=True))
 
     html = "<table><thead><tr><th width=200px>time</th><th>champion</th>" \
            "<th>num teams</th><th>game link</th></tr></thead><tbody>"

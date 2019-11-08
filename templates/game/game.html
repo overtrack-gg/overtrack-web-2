@@ -141,7 +141,7 @@
                                         <td class="games-group-divider" colspan="8"></td>
                                     </tr>
                                     {% for other_game in other_game_set %}
-                                    {{ game_summary.summary(other_game, clickable=True, show_time=False, show_player=other_game.player_name) }}
+                                    {{ game_summary.summary(other_game, clickable=True, show_time=False, show_player=True) }}
                                     {% endfor %}
                                     {% endfor %}
                                     </tbody>
