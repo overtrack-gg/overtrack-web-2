@@ -6,6 +6,7 @@ import sentry_sdk
 from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
 from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
+from werkzeug.utils import redirect
 
 from apextrack.data import CDN_URL, WELCOME_META
 from apextrack.lib.authentication import check_authentication
@@ -139,6 +140,11 @@ def client():
 @app.route('/welcome')
 def welcome():
     return render_template('welcome.html', meta=WELCOME_META)
+
+
+@app.route('/discord')
+def discord_redirect():
+    return redirect('https://discord.gg/JywstAB')
 
 
 # hack for streamer URLs
