@@ -78,6 +78,8 @@ SEASONS = {
 
     3: Season(3, 1569956446, 1569956446 + 4 * 30 * 24 * 60 * 60, has_ranked=True),
     1003: Season(1003, 1569956446, 1569956446 + 4 * 30 * 24 * 60 * 60, season_name='Season 3 Duos'),
+
+    2000: Season(2000, 1569956446, 1569956446 + 4 * 30 * 24 * 60 * 60, season_name='Scrims'),
 }
 
 
