@@ -105,6 +105,9 @@ app.register_blueprint(game_blueprint)
 from apextrack.views.stats import results_blueprint
 app.register_blueprint(results_blueprint, url_prefix='/stats')
 
+from apextrack.views.scrims import scrims_blueprint
+app.register_blueprint(scrims_blueprint, url_prefix='/scrims')
+
 try:
     from apextrack.views.discord_bot import discord_bot_blueprint
 except:
