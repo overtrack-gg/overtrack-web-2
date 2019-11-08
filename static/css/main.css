@@ -42,6 +42,10 @@ body {
 .container {
   max-width: 992px;
 }
+.table-tight td, .table-tight th {
+  padding: 6px;
+  margin: 0px;
+}
 
 
 /* Navbar */
@@ -93,10 +97,6 @@ body {
 .player-summaries .player-kills, .player-summaries .player-damage {
   text-align: right;
   padding-right: 20px;
-}
-.weapons-list td, .weapons-list th {
-  padding: 6px;
-  margin: 0px;
 }
 
 
@@ -168,6 +168,17 @@ pre {
   color: white;
   font-weight: bold;
   text-decoration: underline;
+}
+.other-players-col .other-players-list th, .other-players-col .other-players-list td {
+    padding-top: 8px !important;
+    padding-bottom: 0px !important;
+}
+.other-players-col .other-players-list td.squad {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+}
+.other-players-list .games-group-divider {
+    height: 12px;
 }
 
 

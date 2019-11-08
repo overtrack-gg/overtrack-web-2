@@ -72,11 +72,11 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
     logger.info(f'latest game fetch: {(t1 - t0) * 1000:.2f}ms')
 
     is_rank_valid = (
-            is_ranked and
-            latest_game_data and
-            latest_game_data['rank'] and
-            latest_game_data['rank']['rp'] is not None and
-            latest_game_data['rank']['rp_change'] is not None
+        is_ranked and
+        latest_game_data and
+        latest_game_data['rank'] and
+        latest_game_data['rank']['rp'] is not None and
+        latest_game_data['rank']['rp_change'] is not None
     )
     if is_rank_valid:
         rp = latest_game_data['rank']['rp'] + latest_game_data['rank']['rp_change']

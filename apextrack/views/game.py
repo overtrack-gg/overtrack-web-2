@@ -1,11 +1,12 @@
 import datetime
 import json
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, List
 from urllib.parse import urlparse
 
 import boto3
 import requests
+from dataclasses import dataclass
 from flask import Blueprint, Request, render_template, request
 
 from apextrack.lib.authentication import check_authentication
@@ -33,6 +34,13 @@ game_blueprint = Blueprint('game', __name__)
 
 def get_summary(key):
     return ApexGameSummary.get(key)
+
+
+@dataclass
+class ScrimDetails:
+    champion_name: str
+    scrims_name: str
+    other_games: List[List[ApexGameSummary]]
 
 
 @game_blueprint.route('/game/<path:key>')
@@ -66,6 +74,33 @@ def game(key: str):
         image_url=image_url(game_data['squad']['player']['champion'])
     )
 
+    scrim_details = None
+    if summary.scrims and summary.match_id and game_data.get('match_ids'):
+        champion_name = game_data.get('champion', {}).get('ocr_name') or summary.match_id.split('/')[1]
+        matching_games = []
+        for match_id in game_data['match_ids']:
+            logger.info(f'Checking for matching scrims with match_id={match_id}')
+            for other_game in ApexGameSummary.match_id_index.query(
+                match_id,
+                (ApexGameSummary.scrims == summary.scrims)# & (ApexGameSummary.key != summary.key)
+            ):
+                for gamesets in matching_games:
+                    if any(g.placed == other_game.placed for g in gamesets):
+                        gamesets.append(other_game)
+                        break
+                else:
+                    matching_games.append([other_game])
+
+        # TODO: dedupe
+        # for g in matching_games:
+        #     g.player_name = ' / '.join(filter(None, [g.player_name] + list(g.squadmate_names or ())))
+        scrim_details = ScrimDetails(
+            champion_name,
+            'Mendo Scrims (Beta)',
+            sorted(matching_games, key=lambda gs: gs[0].placed),
+        )
+    logger.info(f'Scrim details: {scrim_details}')
+
     if logs and check_authentication() is None and session.superuser:
         try:
             admin_data = get_admin_data(summary, game_object)
@@ -80,6 +115,8 @@ def game(key: str):
         summary=summary,
         game=game_data,
         is_ranked=summary.rank is not None,
+
+        scrim_details=scrim_details,
 
         meta=meta,
 
@@ -125,16 +162,16 @@ def get_admin_data(summary: ApexGameSummary, game_object: Dict[str, Any]) -> Dic
 
         log_time = datetime.datetime.strptime(log_params['start'], "%Y-%m-%dT%H:%M:%SZ")
         tz_offset = datetime.datetime.now() - datetime.datetime.utcnow()
-        log_data = logs.get_log_events(
-            logGroupName=log_params['group'],
-            logStreamName=log_params['stream'],
-            startTime=int((log_time + tz_offset).timestamp() * 1000)
-        )
         log_lines = []
-        for i, e in enumerate(log_data['events']):
-            log_lines.append(e['message'].strip())
-            if i > 10 and 'END RequestId' in e['message']:
-                break
+        # log_data = logs.get_log_events(
+        #     logGroupName=log_params['group'],
+        #     logStreamName=log_params['stream'],
+        #     startTime=int((log_time + tz_offset).timestamp() * 1000)
+        # )
+        # for i, e in enumerate(log_data['events']):
+        #     log_lines.append(e['message'].strip())
+        #     if i > 10 and 'END RequestId' in e['message']:
+        #         break
     else:
         log_lines = []
 

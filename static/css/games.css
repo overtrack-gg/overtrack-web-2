@@ -138,7 +138,7 @@ td.noheight {
 /* Downs, Kills, Squad Kills */
 .games-list td.knockdowns, .games-list td.kills, .games-list td.squad-kills, .games-list td.rp-delta {
   text-align: right;
-  padding-top: 6px !important;
+  padding-top: 6px;
   font-size: 24px;
   line-height: 1;
   font-weight: bold;

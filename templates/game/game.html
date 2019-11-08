@@ -103,6 +103,57 @@
                 </tbody>
             </table>
         </div>
+
+        {% if scrim_details %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card bg-dark">
+                    <div class="card-header" style="background-color: #58859F; ">
+                        <h5>Scrim Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-3">
+                                <table class="table table-borderless table-tight">
+                                    <tbody>
+                                    <tr>
+                                        <th>Scrim Type</th>
+                                        <td>{{ scrim_details.scrims_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Champion</th>
+                                        <td>{{ scrim_details.champion_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Teams</th>
+                                        <td>{{ scrim_details.other_games | length }}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>                           </div>
+                            <div class="col-sm-9 other-players-col">
+                                <table class="table table-borderless table-dark games-list other-players-list">
+                                    <thead>
+                                    {{ game_summary.header(show_time=False, show_player=True) }}
+                                    </thead>
+                                    <tbody>
+                                    {% for other_game_set in scrim_details.other_games %}
+                                    <tr>
+                                        <td class="games-group-divider" colspan="8"></td>
+                                    </tr>
+                                    {% for other_game in other_game_set %}
+                                    {{ game_summary.summary(other_game, clickable=True, show_time=False, show_player=other_game.player_name) }}
+                                    {% endfor %}
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <div class="row weapons-map-row">
             <div class="col-sm-5 weapons-col">
                 <div class="card bg-dark">
@@ -111,7 +162,7 @@
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-borderless table-striped table-hover weapons-list">
+                            <table class="table table-borderless table-striped table-hover table-tight weapons-list">
                                 <thead>
                                     <tr>
                                         <th></th>
@@ -245,7 +296,7 @@
 </script>
 
 <script src="https://browser.sentry-cdn.com/5.0.6/bundle.min.js" crossorigin="anonymous"></script>
-<script>
+<script type="text/javascript">
 class UserReport extends Error {
   constructor(message) {
     super(message);
@@ -276,5 +327,16 @@ function report_issue(){
     Sentry.captureException(error, {fingerprint: ["{{ game['key'] }}"]});
 }
 
+// make table rows clickable
+$(document).ready(function($) {
+    $("tr.clickable").click(function() {
+        window.document.location = $(this).data("href");
+    });
+    $("tr.clickable").mouseup(function() {
+        if (event.button === 1){
+            window.open($(this).data("href"));
+        }
+    });
+});
 </script>
 {% endblock %}
