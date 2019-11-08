@@ -164,15 +164,15 @@ def get_admin_data(summary: ApexGameSummary, game_object: Dict[str, Any]) -> Dic
         log_time = datetime.datetime.strptime(log_params['start'], "%Y-%m-%dT%H:%M:%SZ")
         tz_offset = datetime.datetime.now() - datetime.datetime.utcnow()
         log_lines = []
-        # log_data = logs.get_log_events(
-        #     logGroupName=log_params['group'],
-        #     logStreamName=log_params['stream'],
-        #     startTime=int((log_time + tz_offset).timestamp() * 1000)
-        # )
-        # for i, e in enumerate(log_data['events']):
-        #     log_lines.append(e['message'].strip())
-        #     if i > 10 and 'END RequestId' in e['message']:
-        #         break
+        log_data = logs.get_log_events(
+            logGroupName=log_params['group'],
+            logStreamName=log_params['stream'],
+            startTime=int((log_time + tz_offset).timestamp() * 1000)
+        )
+        for i, e in enumerate(log_data['events']):
+            log_lines.append(e['message'].strip())
+            if i > 10 and 'END RequestId' in e['message']:
+                break
     else:
         log_lines = []
 
