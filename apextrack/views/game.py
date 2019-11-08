@@ -84,12 +84,13 @@ def game(key: str):
                 match_id,
                 (ApexGameSummary.scrims == summary.scrims)# & (ApexGameSummary.key != summary.key)
             ):
-                for gamesets in matching_games:
-                    if any(g.placed == other_game.placed for g in gamesets):
-                        gamesets.append(other_game)
-                        break
-                else:
-                    matching_games.append([other_game])
+                if not any(any(other_game.key == g.key for g in gs) for gs in matching_games):
+                    for gamesets in matching_games:
+                        if any(g.placed == other_game.placed for g in gamesets):
+                            gamesets.append(other_game)
+                            break
+                    else:
+                        matching_games.append([other_game])
 
         # TODO: dedupe
         # for g in matching_games:
