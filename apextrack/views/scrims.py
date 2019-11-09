@@ -6,7 +6,6 @@ from typing import DefaultDict, List
 from flask import Blueprint, url_for
 
 from overtrack_models.apex_game_summary import ApexGameSummary
-from overtrack_models.user import User
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +24,10 @@ class Match:
 
     def add_game(self, g: ApexGameSummary) -> None:
         self.games[g.placed].append(g)
+
+    @property
+    def top_game(self) -> ApexGameSummary:
+        return self.games[min(self.games)][0]
 
     def __eq__(self, other) -> bool:
         if isinstance(other, Match):
@@ -51,18 +54,48 @@ def directory():
 
     m_sorted = list(sorted(matches.values(), key=lambda m: m.time, reverse=True))
 
-    html = "<table><thead><tr><th width=200px>time</th><th>champion</th>" \
-           "<th>num teams</th><th>game link</th></tr></thead><tbody>"
+    html = "<table><thead><tr><th>match link</th><th width=200px>time</th>" \
+           "<th>champion</th><th>num teams</th><th>game link</th></tr></thead><tbody>"
 
     for m in m_sorted:
-        g = list(m.games.values())[0][0]
+        g = m.top_game
         key = g.key
-        html += "<tr><td>{}</td><td>{}</td><td>{}</td><td>{}</td></tr>".format(
+        html += '<tr><td><a href="{}">match link</a></td><td>{}</td><td>{}</td>' \
+                '<td>{}</td><td>{}</td></tr>'.format(
+            url_for('.match_info', time=m.raw_time, champion=m.champion),
             g.time.strftime("%c"),
             m.champion,
             len(m.games),
             f'<a href="/game/{key}">{key}</a>'
         )
+
+    html += "</tbody></table>"
+
+    return html
+
+
+@scrims_blueprint.route('/match/<time>/<champion>')
+def match_info(time: str, champion: str):
+    target = Match(f'{time}/{champion}')
+
+    for g in ApexGameSummary.scrims_match_id_index.query('mendo_duos_beta'):
+        match = Match(g.match_id)
+
+        if match == target:
+            target.add_game(g)
+
+    html = f"For {time}/{champion}" \
+           "<table><thead><tr><th>placement</th><th>player</th>" \
+           "<th>game link</th></tr></thead><tbody>"
+
+    for placement, games in sorted(target.games.items()):
+        for g in games:
+            key = g.key
+            html += '<tr><td>{}</td><td>{}</td><td>{}</td></tr>'.format(
+                placement,
+                g.player_name,
+                f'<a href="/game/{key}">{key}</a>'
+            )
 
     html += "</tbody></table>"
 
