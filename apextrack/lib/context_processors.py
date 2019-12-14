@@ -35,7 +35,7 @@ def format_rp(v: Optional[int]):
     elif v is None:
         return '?'
     elif v == 0:
-        return '0'
+        return '+0'
     else:
         return f'{v:+}'
 

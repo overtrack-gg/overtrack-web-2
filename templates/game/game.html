@@ -12,6 +12,15 @@
             {% if player['stats'] %}
             <table class="table table-borderless table-striped table-hover player-stats">
                 <tbody>
+                    {% if player['stats']['rp'] %}
+                    <tr style="color: maroon;">
+                        <th class="name">Rank Points</th>
+                        <td class="value">{{ player['stats']['rp'] }} {{ format_rp(player['stats']['rp_change']) }}</td>
+                    </tr>
+                    <tr style="padding: 2px;">
+                        <td colspan="2"></td>
+                    </tr>
+                    {% endif %}
                     <tr>
                         <th class="name">Kills</th>
                         <td class="value">{{ player['stats']['kills'] | ifnone('?') }}</td>
@@ -21,17 +30,29 @@
                         <td class="value">{{ player['stats']['damage_dealt'] | ifnone('?') }}</td>
                     </tr>
                     <tr>
-                        <th class="name">Survival Time</th>
-                        <td class="value">{{ s2ts(player['stats']['survival_time']) if player['stats']['survival_time'] else '' }}</td>
+                        <th class="name">Damage Taken</th>
+                        <td class="value">{{ player['stats']['damage_taken'] | ifnone('?') }}</td>
                     </tr>
+                    {% if player['stats'].get('shots_hit') %}
+                    <tr>
+                        <th class="name">Shots Hit</th>
+                        <td class="value">{{ player['stats']['shots_hit'] }} ({{ (player['stats']['shots_hit'] / player['stats']['shots_fired'] * 100) | int }}%)</td>
+                    </tr>
+                    {% endif %}
                     <tr>
                         <th class="name">Players Revived</th>
                         <td class="value">{{ player['stats']['players_revived'] | ifnone('?') }}</td>
                     </tr>
+                    {% if player['stats']['survival_time'] %}
                     <tr>
-                        <th class="name">Players Respawned</th>
-                        <td class="value">{{ player['stats']['players_respawned'] | ifnone('?') }}</td>
+                        <th class="name">Survival Time</th>
+                        <td class="value">{{ s2ts(player['stats']['survival_time']) if player['stats']['survival_time'] else '' }}</td>
                     </tr>
+                    {% endif %}
+<!--                    <tr>-->
+<!--                        <th class="name">Players Respawned</th>-->
+<!--                        <td class="value">{{ player['stats']['players_respawned'] | ifnone('?') }}</td>-->
+<!--                    </tr>-->
                 </tbody>
             </table>
             {% endif %}
@@ -64,7 +85,13 @@
             {% if e[0] != '_href' %}
             <tr>
                 <th>{{ e[0] }}</th>
-                <td>{{ e[1] }}</td>
+                <td>
+                {% if e[1] is not string and e[1][1] is string and e[1][1].startswith('http') %}
+                <a href="{{ e[1][1] }}">{{ e[1][0] }}</a>
+                {% else %}
+                {{ e[1] }}
+                {% endif %}
+                </td>
             </tr>
             {% endif %}
             {% endfor %}
@@ -234,11 +261,8 @@
         <hr/>
         <div class="admin-data">
             <div class="row">
-                {{ dict_to_card(summary.asdict(), 'Game Summary') }}
-                {{ dict_to_card(admin_data['frames_metadata'], 'Frames') }}
-            </div>
-            <div class="row">
-                {{ dict_to_card(admin_data['game_metadata'], 'Game Object', 12) }}
+                {{ dict_to_card(admin_data['summary'], 'Game Summary') }}
+                {{ dict_to_card(admin_data['game_metadata'], 'Metadata') }}
             </div>
             <div class="row" style="left: 1vw; position: absolute; right: 1vw;">
                 <div class="col-sm-12 card bg-dark">

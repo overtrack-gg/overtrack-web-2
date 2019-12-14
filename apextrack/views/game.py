@@ -137,26 +137,6 @@ def make_game_description(summary: ApexGameSummary, divider: str = '\n', include
 
 
 def get_admin_data(summary: ApexGameSummary, game_object: Dict[str, Any]) -> Dict[str, Any]:
-    if 'frames' in game_object['Metadata']:
-        frames_url = urlparse(game_object['Metadata']['frames'])
-        frames_object = s3.get_object(
-            Bucket=frames_url.netloc,
-            Key=frames_url.path[1:]
-        )
-        frames_metadata = frames_object['Metadata']
-        if 'log' in frames_metadata:
-            del frames_metadata['log']  # already have this
-        frames_metadata['_href'] = s3.generate_presigned_url(
-            'get_object',
-            Params={
-                'Bucket': frames_url.netloc,
-                'Key': frames_url.path[1:]
-            }
-        )
-
-    else:
-        frames_metadata = None
-
     if 'log' in game_object['Metadata'] and 'start' in game_object['Metadata']['log']:
         log_url = urlparse(game_object['Metadata']['log'])
         log_params = dict(e.split('=') for e in log_url.fragment.split(':', 1)[1].split(';'))
@@ -177,11 +157,43 @@ def get_admin_data(summary: ApexGameSummary, game_object: Dict[str, Any]) -> Dic
         log_lines = []
 
     game_metadata = game_object['Metadata']
-    game_metadata['_href'] = summary.url
+    summary_dict = summary.asdict()
+
+    summary_dict['url'] = (summary_dict['url'], summary_dict['url'])
+
+    if 'frames' in game_object['Metadata']:
+        frames_url = urlparse(game_object['Metadata']['frames'])
+        game_metadata['frames'] = (
+            game_metadata['frames'],
+            s3.generate_presigned_url(
+                'get_object',
+                Params={
+                    'Bucket': frames_url.netloc,
+                    'Key': frames_url.path[1:]
+                }
+            )
+        )
+
+        metadata_url = urlparse(game_object['Metadata']['metadata'])
+        game_metadata['metadata'] = (
+            game_metadata['metadata'],
+            s3.generate_presigned_url(
+                'get_object',
+                Params={
+                    'Bucket': metadata_url.netloc,
+                    'Key': metadata_url.path[1:]
+                }
+            )
+        )
+
+        game_metadata['log'] = (
+            urlparse(game_metadata['log']).fragment,
+            game_metadata['log']
+        )
 
     return {
         'game_metadata': game_metadata,
-        'frames_metadata': frames_metadata,
+        'summary': summary_dict,
         'log': log_lines
     }
 
