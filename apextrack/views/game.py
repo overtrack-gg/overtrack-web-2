@@ -174,17 +174,18 @@ def get_admin_data(summary: ApexGameSummary, game_object: Dict[str, Any]) -> Dic
             )
         )
 
-        metadata_url = urlparse(game_object['Metadata']['metadata'])
-        game_metadata['metadata'] = (
-            game_metadata['metadata'],
-            s3.generate_presigned_url(
-                'get_object',
-                Params={
-                    'Bucket': metadata_url.netloc,
-                    'Key': metadata_url.path[1:]
-                }
+        if 'metadata' in game_object['Metadata']:
+            metadata_url = urlparse(game_object['Metadata']['metadata'])
+            game_metadata['metadata'] = (
+                game_metadata['metadata'],
+                s3.generate_presigned_url(
+                    'get_object',
+                    Params={
+                        'Bucket': metadata_url.netloc,
+                        'Key': metadata_url.path[1:]
+                    }
+                )
             )
-        )
 
         game_metadata['log'] = (
             urlparse(game_metadata['log']).fragment,
