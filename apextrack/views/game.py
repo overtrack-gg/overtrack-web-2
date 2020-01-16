@@ -45,7 +45,10 @@ class ScrimDetails:
 
 @game_blueprint.route('/game/<path:key>')
 def game(key: str):
-    summary = get_summary(key)
+    try:
+        summary = get_summary(key)
+    except ApexGameSummary.DoesNotExist:
+        return 'Game does not exist', 404
     logger.info(f'Fetching {summary.url}')
 
     try:
