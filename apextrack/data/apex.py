@@ -67,7 +67,12 @@ _season_2_start = datetime.datetime.strptime(
     'Jul 2 2019 10:00AM',
     '%b %d %Y %I:%M%p'
 ).replace(tzinfo=_PDT)
+_season_4_start = datetime.datetime.strptime(
+    'Feb 4 2020 10:00AM',
+    '%b %d %Y %I:%M%p'
+).replace(tzinfo=_PDT)
 
+print(_season_4_start.timestamp() + (3 * 31 * 24 * 60 * 60))
 SEASONS = {
     0: Season(0, 0, _season_1_start.timestamp()),
 
@@ -76,8 +81,10 @@ SEASONS = {
     2: Season(2, _season_2_start.timestamp(), 1569956446, has_ranked=True),
     1002: Season(1002, 1565697600, _season_2_start.timestamp() + 9072000_00, season_name='Season 2 Solos'),
 
-    3: Season(3, 1569956446, 1569956446 + 4 * 30 * 24 * 60 * 60, has_ranked=True),
-    1003: Season(1003, 1569956446, 1569956446 + 4 * 30 * 24 * 60 * 60, season_name='Season 3 Duos'),
+    3: Season(3, 1569956446, _season_4_start.timestamp(), has_ranked=True),
+    1003: Season(1003, 1569956446, _season_4_start.timestamp(), season_name='Season 3 Duos'),
+
+    4: Season(3, _season_4_start.timestamp(), _season_4_start.timestamp() + (3 * 31 * 24 * 60 * 60), has_ranked=True),
 
     2000: Season(2000, 1569956446, 1569956446 + 4 * 30 * 24 * 60 * 60, season_name='Scrims'),
 }
