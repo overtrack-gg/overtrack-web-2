@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Games{% endblock %}
+{% block content %}
+<script type="text/javascript">
+    function bnet_login(){
+        document.getElementById('bnet_login').click();
+    }
+    function bnet_relogin(){
+        var img = document.createElement("img");
+        img.src='https://us.battle.net/login/en-gb/logout?ref=https://us.battle.net/account/management/&app=bam&cr=true';
+        img.onerror=bnet_login;
+        document.getElementsByTagName('body')[0].appendChild(img);
+    }
+</script>
+<div class="container pt-3">
+    <div class="container">
+        <div class="row justify-content-md-center">
+            <div class="card col-md-4 bg-dark">
+                <div class="card-header" style="background-color: #392E5C;">
+                    <h5>Twitch</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Log in with Twitch if you are a new user and have a Twitch.tv account, or used a Twitch account to authenticate your client.
+                    </p>
+                    <a href="{{ login_twitch }}" class="btn btn-primary btn-lg btn-block btn-dark btn-twitch">
+                        <span><img src="{{ url_for('static', filename='images/Glitch_White_RGB.png') }}"></span>
+                        Log in with Twitch
+                    </a>
+                </div>
+            </div>
+            <div class="card offset-md-1 col-md-4 bg-dark">
+                <div class="card-header" style="background-color: #002650;">
+                    <h5>Battle.net</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        Log in with Battle.net if you have an Battle.net login on overtrack.gg, or used a Battle.net account to authenticate your client.
+                    </p>
+                    <a href="{{ login_bnet }}" id="bnet_login" class="btn btn-primary btn-lg btn-block btn-dark btn-bnet">
+                        Log in with Battle.net
+                    </a>
+                    <br>
+                    <p class="card-text text-light">
+                        If you are having trouble being logged into the wrong Battle.net account, <a href="#" onclick="bnet_relogin()">click here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

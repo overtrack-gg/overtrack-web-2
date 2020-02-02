@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "apextrack-web"
-version = "0.1.0"
+name = "overtrack-web-2"
+version = "0.2.0"
 description = ""
 authors = ["Simon Pinfold <simon@uint8.me>"]
 
@@ -12,7 +12,7 @@ overtrack-models = { git = "https://gitlab.com/OverTrack/overtrack-models.git", 
 dataclasses = "*"
 
 typedload = "*"
-zappa = "^0.48"
+zappa = { git = "https://github.com/overtrack-gg/Zappa.git", branch = "master" }
 
 flask = "^1"
 bootstrap-flask = "*"
@@ -22,15 +22,11 @@ shortuuid = "*"
 
 pynamodb = "^4"
 
-numpy = "*"
-
-google-cloud-logging = "^1"
 pytest = "^4.4"
 datadog = "^0.29"
 sentry_sdk = "^0.11"
 
 stripe = "^2.35"
-#certifi = "^2019.6"
 
 [tool.poetry.dev-dependencies]
 
@@ -38,6 +34,8 @@ stripe = "^2.35"
 #pytest-ordering = "*"
 #pytest-sugar = "*"
 #pytest-cov = "*"
+libsass = "^0.19"
+boussole = "^1.5"
 
 [build-system]
 requires = ["poetry>=0.12"]

@@ -23,13 +23,20 @@ deploy:
     - git clone git@gitlab.com:OverTrack/overtrack_2_api.git
     - mv -t . ./overtrack_2_api/api
 
-    - zappa update test || { sleep 30; zappa tail test --since 1min --disable-keep-open; false; }
+    # - zappa update test || { sleep 30; zappa tail test --since 1min --disable-keep-open; false; }
+
+    - pushd overtrack_web
 
     - zappa update main
 
+    # install with dev deps this time
+    - poetry install
+    - boussole compile
+
     - pip install awscli
-    - aws s3 sync ./static/ s3://apextrack-web-poc-assets/2/ --delete --acl public-read --cache-control max-age=86400
+    - aws s3 sync ./static/ s3://overtrack-web-2-assets/static --delete --acl public-read --cache-control max-age=86400
     - aws configure set preview.cloudfront true
-    - aws cloudfront create-invalidation --distribution-id E2IHM5RNQHM95G --paths "/2/*"
+    - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/static/*"
+
   only:
-    - master
+    - "overwatch-merge"

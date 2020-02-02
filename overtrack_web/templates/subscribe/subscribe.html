@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}Subscribe{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-md-center">
+        <div class="card card-main col-main">
+            <div class="card-body">
+                <h1>Support the Development</h1>
+                <br/>
+
+                <p>
+                    I have worked full time developing OverTrack for over two years now, with the goal to provide the best tracking tool possible.
+                </p>
+                <p>
+                    I chose to release the Apex Legends tracking completely for free, but I am relying on your support for this project.
+                    For now, subscriptions offer no special features but are simply a way to support me in the continued development of OverTrack.
+                </p>
+                <p>
+                    I view what I do here as similar to how a streamer provides content to their community and supports themselves off subscriptions and donations.
+                    The difference is that I provide software instead of video entertainment.
+                </p>
+                <br/>
+
+                <p>
+                    You can support me through the subscription options below, by chipping in a small monthly contribution, or choosing a longer subscription
+                    period to minimise payment processing fees (reflected in the pricing). <br/>
+                    Alternatively if you you would like to support the project, but are uncomfortable with a recurring payment or would like to contribute a
+                    different denomination, you can <a href='https://ko-fi.com/D1D014XMT' style="color: gray;">support me on Ko-fi</a> or use the
+                    <a href="https://www.paypal.com/myaccount/transfer/homepage/pay" style="color: gray;">send money</a> feature in PayPal to
+                    <code>simon@uint8.me</code>
+                </p>
+
+                <hr>
+                {% if subscription_active %}
+                <p>
+                    Thanks for supporting the development of OverTrack <b style="color: red;">♥</b><br>
+                    {% if not has_discord_role %}
+                    Remember to join the <a href="https://discord.gg/JywstAB">Discord</a> and (once joined), link your discord and OverTrack account to
+                    pick up the subscriber role <a href="https://api2.overtrack.gg/discord/authorize?next={{ url_for('subscribe.subscribe', _external=True) }}">here</a>.
+                    {% endif %}
+                </p>
+                {% else %}
+                <p>
+                    Thank you for your consideration and support <b style="color: red;">♥</b>
+                </p>
+                {% endif %}
+                <br/>
+
+                {{ status_text | safe }}
+
+                {% if show_sub_buttons %}
+                <select class="form-control" id="sel1" style="float: left; width: 200px; margin-right: 20px; height: 44px;">
+                    <option>$4.99 / month</option>
+                    <option>$28.00 / 6 months</option>
+                    <option>$50.00 / year</option>
+                </select>
+                <button
+                        class="btn btn-lg btn-success"
+                        style="display: flow-root; float: left; margin-right: 20px; width: 300px; height: 45px; padding-top: 6px;"
+                        onclick="redirectToCheckout()"
+                >
+                    Credit Card (Stripe)
+                </button>
+                <div id="paypal-button-container" style="float: left; width: 300px; height: 45px; overflow-y: hidden;"></div>
+                {% endif %}
+                {% if unsub_button %}
+                <form action="{{ unsub_button }}" method="post">
+                    <button type="submit" class="btn btn-danger">Cancel Subscription</button>
+                </form>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if show_sub_buttons %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    var stripe = Stripe('{{ STRIPE_PUBLIC_KEY }}');
+
+    var stripe_plan_session_ids = {{ stripe_plan_session_ids | tojson | safe }};
+    function redirectToCheckout(){
+        let planIndex = document.getElementById('sel1').selectedIndex;
+        try {
+            ga('send', 'event', 'subscribe', 'subscribe', 'stripe', planIndex);
+        } catch(err) {}
+        stripe.redirectToCheckout({
+          sessionId: stripe_plan_session_ids[planIndex]
+        }).then(function (result) {
+            console.log(result);
+          // If `redirectToCheckout` fails due to a browser or network
+          // error, display the localized error message to your customer
+          // using `result.error.message`.
+        });
+    }
+</script>
+
+<script src="https://www.paypal.com/sdk/js?client-id={{ PAYPAL_CLIENT_ID }}&vault=true"></script>
+<script>
+    var paypal_plan_ids = {{ paypal_plan_ids | tojson | safe }};
+    paypal.Buttons({
+        style: {
+            layout:  'horizontal',
+            color:   'blue',
+            shape:   'rect',
+            label:   'paypal'
+        },
+        createSubscription: function(data, actions) {
+            let planIndex = document.getElementById('sel1').selectedIndex;
+            try {
+                ga('send', 'event', 'subscribe', 'subscribe', 'paypal', planIndex);
+            } catch(err) {}
+            return actions.subscription.create({
+                plan_id: paypal_plan_ids[planIndex],
+                auto_renewal: true
+            });
+        },
+
+        onApprove: function(data, actions) {
+            console.log(data);
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for('subscribe.paypal_approved') }}",
+                data: data,
+                success: function(){
+                    location.reload();
+                }
+            });
+        }
+    }).render('#paypal-button-container');
+</script>
+{% endif %}
+
+{% endblock %}

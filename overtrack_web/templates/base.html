@@ -1,0 +1,50 @@
+{% import 'navbar.html' as navbar with context %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>{% block title %}Apex Tracker{% endblock %}</title>
+    {% if meta %}
+        <meta content="{{ meta.title }}" property="og:title">
+        {% if meta.colour %}
+            <meta name="theme-color" content="{{ meta.colour }}">
+        {% endif %}
+        {% if meta.description %}
+            <meta content="{{ meta.description }}" property="og:description">
+            <meta name="description" content="{{ meta.description }}">
+        {% endif %}
+        {% if meta.image_url %}
+            <meta content='{{ meta.image_url }}' property='og:image'>
+        {% endif %}
+        {% if meta.summary_large_image %}
+            <meta name="twitter:card" content="summary_large_image">
+        {% else %}
+            <meta name="twitter:card" content="summary">
+        {% endif %}
+        {% if meta.oembed %}
+        <link type="application/json+oembed" href="{{ meta.oembed }}"/>
+        {% endif %}
+    {% endif %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+    {% block css %}{% endblock %}
+    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}"/>
+</head>
+<body class="has-background-black-ter has-text-white text-light bg-dark">
+{{ navbar.navbar() }}
+{% block content %}{% endblock %}
+<script       src="{{ url_for('static', filename='js/lib/jquery.min.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/lib/popper.min.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/lib/bootstrap.min.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/lib/intercooler-1.2.1.min.js') }}"></script>
+{% block scripts %}{% endblock %}
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-99105415-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-99105415-2');
+</script>
+</body>
+</html>
