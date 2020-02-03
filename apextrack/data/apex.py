@@ -58,6 +58,7 @@ class RankSummary:
 
 
 _PDT = datetime.timezone(datetime.timedelta(hours=-7))
+_PST = datetime.timezone(datetime.timedelta(hours=-8))
 _season_1_start = datetime.datetime.strptime(
     # https://twitter.com/PlayApex/status/1107733497450356742
     'Mar 19 2019 10:00AM',
@@ -70,9 +71,8 @@ _season_2_start = datetime.datetime.strptime(
 _season_4_start = datetime.datetime.strptime(
     'Feb 4 2020 10:00AM',
     '%b %d %Y %I:%M%p'
-).replace(tzinfo=_PDT)
+).replace(tzinfo=_PST)
 
-print(_season_4_start.timestamp() + (3 * 31 * 24 * 60 * 60))
 SEASONS = {
     0: Season(0, 0, _season_1_start.timestamp()),
 

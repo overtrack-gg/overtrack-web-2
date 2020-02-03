@@ -3,8 +3,9 @@
         "project_name": "apextrack_web",
         "aws_region": "us-west-2",
         "app_function": "apextrack.flask_app.app",
-        "exception_handler": "main.unhandled_exceptions",
+        "exception_handler": "apextrack.flask_app.unhandled_exceptions",
         "s3_bucket": "overtrack-zappa",
+        "runtime": "python3.6",
         "delete_s3_zip": false,
         "keep_warm": false
     },
