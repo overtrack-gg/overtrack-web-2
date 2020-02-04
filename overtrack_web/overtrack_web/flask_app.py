@@ -9,7 +9,7 @@ from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
 from werkzeug.utils import redirect
 
 from overtrack_web.data import CDN_URL, WELCOME_META
-from overtrack_web.lib.authentication import check_authentication
+from overtrack_web.lib.authentication import check_authentication, require_login
 
 from overtrack_web.lib import dataclasses_asdict_namedtuple_patch
 
@@ -122,6 +122,9 @@ app.register_blueprint(login_blueprint)
 
 from overtrack_web.views.apex.games_list import games_list_blueprint
 app.register_blueprint(games_list_blueprint, url_prefix='/apex/games')
+@app.route('/apex')
+def apex_games_redirect():
+    return redirect(url_for('apex_games_list.games_list'), code=308)
 
 from overtrack_web.views.apex.game import game_blueprint
 # old url: /game/...
@@ -150,12 +153,10 @@ else:
 
 
 # render the root page differently depending on logged in status
-from overtrack_web.views.apex.games_list import games_list
-
 @app.route('/')
 def root():
     if check_authentication() is None:
-        return games_list()
+        return redirect(url_for('apex_games_list.games_list'), code=307)
     else:
         return welcome()
 

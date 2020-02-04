@@ -3,7 +3,6 @@ const IMAGE = "https://cdn.overtrack.gg/static/images/"
 var landed_index = route.landed_location_index;
 var [drop, travel_full] = [route.locations.slice(0, landed_index), route.locations.slice(landed_index ? landed_index - 1: 0)];
 var travel = [];
-// var combat = combat;
 
 var rings = []
 previous = null;

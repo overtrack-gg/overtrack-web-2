@@ -71,9 +71,8 @@ def game(key: str):
         r.raise_for_status()
         game_data = r.json()
 
-    t0 = time.perf_counter()
+    game_data = compat_game_data(game_data)
     game = typedload.load(game_data, ApexGame)
-    print(time.perf_counter() - t0)
 
     dataclasses.asdict(game)
 
@@ -214,3 +213,18 @@ def get_admin_data(summary: ApexGameSummary, game_object: Dict[str, Any]) -> Dic
         'log': log_lines
     }
 
+
+def compat_game_data(game_data: Dict[str, Any]) -> Dict[str, Any]:
+    game_data = dict(game_data)
+
+    if 'match_started' not in game_data:
+        game_data['match_started'] = game_data['timestamp']
+
+    if 'match_id' not in game_data:
+        game_data['match_id'] = None
+        game_data['match_ids'] = []
+
+    if 'rings' not in game_data['route']:
+        game_data['route']['rings'] = []
+
+    return game_data

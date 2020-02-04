@@ -21,7 +21,7 @@ from overtrack_web.data.apex import RANK_RP, RankSummary, SEASONS, Season, get_t
 from overtrack_web.lib.authentication import check_authentication, require_login
 from overtrack_web.lib.opengraph import Meta
 from overtrack_web.lib.session import session
-from overtrack_web.views.apex.game import make_game_description
+from overtrack_web.views.apex.game import make_game_description, compat_game_data
 
 PAGINATION_SIZE = 30
 
@@ -75,6 +75,7 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
             r = requests.get(games[0].url)
             r.raise_for_status()
             latest_game_data = r.json()
+        latest_game_data = compat_game_data(latest_game_data)
         latest_game = typedload.load(latest_game_data, ApexGame)
     else:
         latest_game = None
