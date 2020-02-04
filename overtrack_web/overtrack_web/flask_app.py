@@ -83,7 +83,7 @@ def test():
 <body style="background-color: #%6x">
 <p>{{ url_for('test') }}</p>
 <p>{{ url_for('test', _external=True) }}</p>
-<p>{{ url_for('game.game', key='A') }}</p>
+<p>{{ url_for('game.apex_game', key='A') }}</p>
 <p>{{ request.host }}</p>
 <pre>%s</pre>
 </body>
@@ -172,7 +172,7 @@ def discord_redirect():
 # hack for streamer URLs
 # TODO: replace when we have share links
 from overtrack_web.views.apex.games_list import render_games_list
-from overtrack_models.user import User
+from overtrack_models.orm.user import User
 
 @app.route('/eeveea_')
 def eeveea_games():

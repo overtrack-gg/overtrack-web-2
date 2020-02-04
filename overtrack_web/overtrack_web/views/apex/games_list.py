@@ -5,18 +5,21 @@ from urllib.parse import urlparse
 import boto3
 import requests
 import time
-from typing import Tuple, List, Optional
+from flask import Blueprint, Request, Response, render_template, request, url_for, render_template_string
+from itertools import islice
+from werkzeug.datastructures import MultiDict
 
-from flask import Blueprint, Response, request, Request, render_template, url_for
-
+from overtrack_models.dataclasses import typedload
+from overtrack_models.dataclasses.apex.apex_game import ApexGame
+from overtrack_models.orm.apex_game_summary import ApexGameSummary
+from overtrack_models.orm.common import ResultIteratorExt
+from overtrack_models.orm.user import User
 from overtrack_web.data import WELCOME_META
-from overtrack_web.data.apex import Season, SEASONS, RANK_RP, get_tier_window, RankSummary
-from overtrack_web.lib.authentication import require_login, check_authentication
+from overtrack_web.data.apex import RANK_RP, RankSummary, SEASONS, Season, get_tier_window
+from overtrack_web.lib.authentication import check_authentication, require_login
 from overtrack_web.lib.opengraph import Meta
 from overtrack_web.lib.session import session
 from overtrack_web.views.apex.game import make_game_description
-from overtrack_models.apex_game_summary import ApexGameSummary
-from overtrack_models.user import User
 
 request: Request = request
 logger = logging.getLogger(__name__)

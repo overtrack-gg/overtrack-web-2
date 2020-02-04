@@ -12,7 +12,7 @@ from flask import Blueprint, Flask, Response, g, request, url_for
 from werkzeug.utils import redirect
 
 from overtrack_web.lib.session import Session, _user_cache
-from overtrack_models.user import User
+from overtrack_models.orm.user import User
 
 HMAC_KEY = base64.b64decode(os.environ['HMAC_KEY'])
 SESSION_EXPIRE_TIME = 4 * 30 * 24 * 60 * 60

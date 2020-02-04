@@ -11,7 +11,7 @@ os.environ['HMAC_KEY'] = base64.b64encode(b'').decode()
 
 from overtrack_web.data import WELCOME_META
 from overtrack_web.data import Season, SEASONS
-from overtrack_models.apex_game_summary import ApexGameSummary
+from overtrack_models.orm.apex_game_summary import ApexGameSummary
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 bootstrap = Bootstrap(app)
@@ -131,7 +131,7 @@ def welcome():
 # hack for streamer URLs
 # TODO: replace when we have share links
 from overtrack_web.views import render_games_list
-from overtrack_models.user import User
+from overtrack_models.orm.user import User
 
 
 @app.route('/eeveea_')

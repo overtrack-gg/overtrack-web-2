@@ -5,15 +5,19 @@ from typing import Any, Dict, List
 from urllib.parse import urlparse
 
 import boto3
+import dataclasses
 import requests
+import time
 from dataclasses import dataclass
 from flask import Blueprint, Request, render_template, request
 
+from overtrack_models.dataclasses import typedload
+from overtrack_models.dataclasses.apex.apex_game import ApexGame
+from overtrack_models.orm.apex_game_summary import ApexGameSummary
 from overtrack_web.lib.authentication import check_authentication
+from overtrack_web.lib.context_processors import image_url
 from overtrack_web.lib.opengraph import Meta
 from overtrack_web.lib.session import session
-from overtrack_web.lib.context_processors import image_url
-from overtrack_models.apex_game_summary import ApexGameSummary
 
 request: Request = request
 logger = logging.getLogger(__name__)

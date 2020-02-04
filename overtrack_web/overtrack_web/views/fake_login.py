@@ -11,7 +11,7 @@ fake_login_blueprint = Blueprint('fake_login', __name__)
 def fake_login():
     from flask import request
     from urllib import parse
-    from overtrack_models.user import User
+    from overtrack_models.orm.user import User
     from overtrack_web.lib.authentication import make_cookie
     from flask import Response
 

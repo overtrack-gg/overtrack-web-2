@@ -15,7 +15,7 @@
                     {% if player['stats']['rp'] %}
                     <tr style="color: maroon;">
                         <th class="name">Rank Points</th>
-                        <td class="value">{{ player['stats']['rp'] }} {{ format_rp(player['stats']['rp_change']) }}</td>
+                        <td class="value">{{ player.stats.rp }} {{ format_rp(player.stats.rp_change) }}</td>
                     </tr>
                     <tr style="padding: 2px;">
                         <td colspan="2"></td>
@@ -23,30 +23,30 @@
                     {% endif %}
                     <tr>
                         <th class="name">Kills</th>
-                        <td class="value">{{ player['stats']['kills'] | ifnone('?') }}</td>
+                        <td class="value">{{ player.stats.kills | ifnone('?') }}</td>
                     </tr>
                     <tr>
                         <th class="name">Damage Dealt</th>
-                        <td class="value">{{ player['stats']['damage_dealt'] | ifnone('?') }}</td>
+                        <td class="value">{{ player.stats.damage_dealt | ifnone('?') }}</td>
                     </tr>
                     <tr>
                         <th class="name">Damage Taken</th>
-                        <td class="value">{{ player['stats']['damage_taken'] | ifnone('?') }}</td>
+                        <td class="value">{{ player.stats.damage_taken | ifnone('?') }}</td>
                     </tr>
-                    {% if player['stats'].get('shots_hit') %}
+                    {% if player.stats.shots_hit %}
                     <tr>
                         <th class="name">Shots Hit</th>
-                        <td class="value">{{ player['stats']['shots_hit'] }} ({{ (player['stats']['shots_hit'] / player['stats']['shots_fired'] * 100) | int }}%)</td>
+                        <td class="value">{{ player.stats.shots_hit }} ({{ (player.stats.shots_hit / player.stats.shots_fired * 100) | int }}%)</td>
                     </tr>
                     {% endif %}
                     <tr>
                         <th class="name">Players Revived</th>
-                        <td class="value">{{ player['stats']['players_revived'] | ifnone('?') }}</td>
+                        <td class="value">{{ player.stats.players_revived | ifnone('?') }}</td>
                     </tr>
-                    {% if player['stats']['survival_time'] %}
+                    {% if player.stats.survival_time %}
                     <tr>
                         <th class="name">Survival Time</th>
-                        <td class="value">{{ s2ts(player['stats']['survival_time']) if player['stats']['survival_time'] else '' }}</td>
+                        <td class="value">{{ s2ts(player.stats.survival_time) if player.stats.survival_time else '' }}</td>
                     </tr>
                     {% endif %}
 <!--                    <tr>-->
@@ -109,7 +109,7 @@
 <meta content="{{ og_title }}" property="og:title">
 <meta name="theme-color" content="{{ theme_colour }}">
 <meta content="{{ og_description }}" property="og:description">
-<meta content="{{ image_url(game['squad']['player']['champion']) }}" property='og:image'>
+<meta content="{{ image_url(game.squad['player']['champion']) }}" property='og:image'>
 <link type="application/json+oembed" href="{{ url_for('static', filename='oembed.json') }}"/>
 {% endblock %}
 
@@ -199,12 +199,12 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for weapon in game['weapons']['weapon_stats'] %}
+                                    {% for weapon in game.weapons.weapon_stats %}
                                     <tr>
-                                        <th class="weapon">{{ weapon['weapon'] }}</th>
-                                        <td class="knockdowns">{{ weapon['knockdowns'] or 0 }}</td>
-                                        <td class="time-held">{{ s2ts(weapon.get('time_held', 0)) }}</td>
-                                        <td class="time-active">{{ s2ts(weapon.get('time_active', 0)) }}</td>
+                                        <th class="weapon">{{ weapon.weapon }}</th>
+                                        <td class="knockdowns">{{ weapon.knockdowns or 0 }}</td>
+                                        <td class="time-held">{{ s2ts(weapon.time_held) }}</td>
+                                        <td class="time-active">{{ s2ts(weapon.time_active) }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -228,10 +228,10 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td class="value">{{ game['combat']['knockdowns'] | length }}</td>
-                                    <td class="value">{{ game['combat']['eliminations'] | length }}</td>
-                                    <td class="value">{{ game['combat']['knockdown_assists'] | length }}</td>
-                                    <td class="value">{{ game['combat']['elimination_assists'] | length }}</td>
+                                    <td class="value">{{ game.combat.knockdowns | length }}</td>
+                                    <td class="value">{{ game.combat.eliminations | length }}</td>
+                                    <td class="value">{{ game.combat.knockdown_assists | length }}</td>
+                                    <td class="value">{{ game.combat.elimination_assists | length }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -245,16 +245,16 @@
                         <h5>Route</h5>
                     </div>
                     <div class="card-body">
-                        {{ map.map(game['route'], game['combat']) }}
+                        {{ map.map(game.route, game.combat) }}
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="row squad-row">
-            {{ player(game['squad']['player'], 0) }}
-            {{ player(game['squad']['squadmates'][0], 1) }}
-            {{ player(game['squad']['squadmates'][1], 2) }}
+            {{ player(game.squad.player, 0) }}
+            {{ player(game.squad.squadmates[0], 1) }}
+            {{ player(game.squad.squadmates[1], 2) }}
         </div>
 
         {% if admin_data %}

@@ -5,7 +5,7 @@ from typing import DefaultDict, List
 
 from flask import Blueprint, url_for
 
-from overtrack_models.apex_game_summary import ApexGameSummary
+from overtrack_models.orm.apex_game_summary import ApexGameSummary
 
 logger = logging.getLogger(__name__)
 

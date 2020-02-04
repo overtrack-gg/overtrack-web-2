@@ -5,8 +5,8 @@ from flask import Blueprint, render_template
 
 from overtrack_web.lib.authentication import require_login, require_authentication
 from overtrack_web.lib.session import session
-from overtrack_models.apex_game_summary import ApexGameSummary
-from overtrack_models.user import User
+from overtrack_models.orm.apex_game_summary import ApexGameSummary
+from overtrack_models.orm.user import User
 
 
 def _get_points(placed: int) -> int:

@@ -16,7 +16,7 @@ from oauthlib.oauth2 import OAuth2Error
 from overtrack_web.lib.authentication import require_authentication, require_login
 from overtrack_web.lib.decorators import restrict_origin
 from overtrack_web.lib.session import session
-from overtrack_models.notifications import DiscordBotNotification
+from overtrack_models.orm.notifications import DiscordBotNotification
 
 HMAC_KEY = base64.b64decode(os.environ['HMAC_KEY'])
 
@@ -54,7 +54,7 @@ discord_bot_blueprint = Blueprint('discord_bot', __name__)
 
 @discord_bot_blueprint.route('/')
 @require_login
-def root():
+def discord_bot():
     notifications = []
     for n in DiscordBotNotification.user_id_index.query(session.user_id):
         # TODO: should we try update server/channel names?

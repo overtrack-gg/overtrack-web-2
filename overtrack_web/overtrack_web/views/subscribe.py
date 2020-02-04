@@ -13,7 +13,7 @@ from overtrack_web.lib.authentication import require_login
 from overtrack_web.lib.decorators import restrict_origin
 from overtrack_web.lib.paypal import PayPal
 from overtrack_web.lib.session import session
-from overtrack_models.subscription_details import SubscriptionDetails
+from overtrack_models.orm.subscription_details import SubscriptionDetails
 
 # default keys here are test/sandbox keys
 

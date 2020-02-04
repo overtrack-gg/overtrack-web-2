@@ -18,11 +18,11 @@
 {%- endmacro %}
 
 {% macro summary(game, clickable=True, show_time=True, show_player=False) -%}
-    <tr data-href={{url_for('game.game', key=game.key)}}
+    <tr data-href={{url_for('apex_game.game', key=game.key)}}
         data-key="{{game.key}}"
         class="{{'clickable' if game.url and clickable else ''}} {{ 'win' if game.won else '' }} placed-{{game.placed}}">
         {% if show_player %}<th class="player">{{ game.player_name }}</th>{% endif %}
-        {% if show_time %}<td class="time"><div class="datetime-format-time">{{ game.timestamp }}</div></td>{% endif %}
+        {% if show_time %}<td class="time"><div class="datetime-format-timestamp">{{ game.timestamp }}</div></td>{% endif %}
         <td class="duration">{{ s2ts(game.duration) }}</td>
         <td class="squad m-0 p-0 h-100 noheight">
             <div style="background-image: url('{{ image_url(game.champion) }}')" class="character-icon highlight"></div>

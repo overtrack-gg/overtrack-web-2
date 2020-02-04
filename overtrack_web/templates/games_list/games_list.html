@@ -51,7 +51,7 @@
                     {% if latest_game %}
                     <div class="card bg-dark latest-game">
                         <div class="card-header">
-                            <a href="/game/{{ latest_game['key'] }}"><h5>Most recent match</h5></a>
+                            <a href="{{ url_for('apex_game.game', key=latest_game.key) }}"><h5>Most recent match</h5></a>
                         </div>
                         <div class="card-body">
                             {{ game_small.game(latest_game) }}

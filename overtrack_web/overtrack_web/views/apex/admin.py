@@ -2,7 +2,7 @@ import logging
 
 from flask import Blueprint, url_for
 
-from overtrack_models.user import User
+from overtrack_models.orm.user import User
 
 logger = logging.getLogger(__name__)
 

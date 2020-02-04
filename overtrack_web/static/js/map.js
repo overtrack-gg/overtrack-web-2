@@ -1,7 +1,5 @@
-const RES = "/static/"
-const IMAGE = "https://d2igtsro72if25.cloudfront.net/2/images/"
+const IMAGE = "https://cdn.overtrack.gg/static/images/"
 
-var locations = route.locations;
 var landed_index = route.landed_location_index;
 var [drop, travel_full] = [route.locations.slice(0, landed_index), route.locations.slice(landed_index ? landed_index - 1: 0)];
 var travel = [];
@@ -33,8 +31,8 @@ var placed = 3;
 
 const TIMESCALE = 10;
 
-const TIMESTART = locations[0][0];
-const TIMEEND = locations[locations.length - 1][0];
+const TIMESTART = route.locations[0][0];
+const TIMEEND = route.locations[route.locations.length - 1][0];
 const TIMEDURATION = TIMEEND - TIMESTART;
 
 const LINE_SIZE = 2;
@@ -377,8 +375,8 @@ function draw_map() {
         heatmap.selectAll("activity-heatmap")
             .append("circle")
             .attr("class", "activity-heatmap")
-            .attr("cx", rescale_x(locations[locations.length - 1][1][0]))
-            .attr("cy", rescale_y(locations[locations.length - 1][1][1]))
+            .attr("cx", rescale_x(route.locations[route.locations.length - 1][1][0]))
+            .attr("cy", rescale_y(route.locations[route.locations.length - 1][1][1]))
             .attr("r", 0)
             .attr("fill", "Red")
             .attr("opacity", 0.5)
