@@ -11,7 +11,14 @@ from werkzeug.utils import redirect
 from overtrack_web.data import CDN_URL, WELCOME_META
 from overtrack_web.lib.authentication import check_authentication
 
+from overtrack_web.lib import dataclasses_asdict_namedtuple_patch
+
+# port of https://bugs.python.org/issue34363 to the dataclasses backport
+# see https://github.com/ericvsmith/dataclasses/issues/151
+dataclasses_asdict_namedtuple_patch.patch()
+
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
+app.url_map.strict_slashes = False
 bootstrap = Bootstrap(app)
 
 if app.config['DEBUG']:
