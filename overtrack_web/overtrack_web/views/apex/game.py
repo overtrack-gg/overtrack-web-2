@@ -34,7 +34,7 @@ except:
     logger.exception('Failed to create AWS logs client - running without admin logs')
     logs = None
 
-game_blueprint = Blueprint('game', __name__)
+game_blueprint = Blueprint('apex_game', __name__)
 
 
 def get_summary(key):
@@ -65,29 +65,36 @@ def game(key: str):
         )
         game_data = json.loads(game_object['Body'].read())
     except:
+        game_object = None
         logger.exception('Failed to fetch game data from S3 - trying HTTP')
         r = requests.get(summary.url)
         r.raise_for_status()
         game_data = r.json()
 
+    t0 = time.perf_counter()
+    game = typedload.load(game_data, ApexGame)
+    print(time.perf_counter() - t0)
+
+    dataclasses.asdict(game)
+
     # used for link previews
     og_description = make_game_description(summary, divider='\n')
     meta = Meta(
-        title=f'{game_data["squad"]["player"]["name"]} placed #{summary.placed}',  # TODO: find another way of getting the name,
+        title=f'{game.squad.player.name} placed #{summary.placed}',  # TODO: find another way of getting the name,
         description=og_description,
         colour={
             1: '#ffdf00',
             2: '#ef20ff',
             3: '#d95ff'
         }.get(summary.placed, '#992e26'),
-        image_url=image_url(game_data['squad']['player']['champion'])
+        image_url=image_url(game.squad.player.champion)
     )
 
     scrim_details = None
-    if summary.scrims and summary.match_id and game_data.get('match_ids'):
-        champion_name = game_data.get('champion', {}).get('ocr_name') or summary.match_id.split('/')[1]
+    if summary.scrims and summary.match_id and game.match_id:
+        champion_name = (game.champion or {}).get('ocr_name') or summary.match_id.split('/')[1]
         matching_games = []
-        for match_id in game_data['match_ids']:
+        for match_id in game.match_ids:
             logger.info(f'Checking for matching scrims with match_id={match_id}')
             for other_game in ApexGameSummary.match_id_index.query(
                 match_id,
@@ -111,7 +118,7 @@ def game(key: str):
         )
     logger.info(f'Scrim details: {scrim_details}')
 
-    if logs and check_authentication() is None and session.superuser:
+    if logs and check_authentication() is None and session.superuser and game_object:
         try:
             admin_data = get_admin_data(summary, game_object)
         except:
@@ -123,7 +130,7 @@ def game(key: str):
     return render_template(
         'game/game.html',
         summary=summary,
-        game=game_data,
+        game=game,
         is_ranked=summary.rank is not None,
 
         scrim_details=scrim_details,

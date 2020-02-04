@@ -38,8 +38,6 @@ def placement_score(games: List[ApexGameSummary]) -> Tuple[int, float]:
     return round(mean(scores)), 1.
 
 
-
-
 def kills_10min(games: List[ApexGameSummary]) -> Tuple[float, float]:
     valid_games = [g for g in games if g.placed]
     kills = [g.kills for g in valid_games]
@@ -85,7 +83,7 @@ STAT_FUNCTIONS = {
 
 logger = logging.getLogger(__name__)
 
-results_blueprint = Blueprint('stats', __name__)
+results_blueprint = Blueprint('apex_stats', __name__)
 
 
 def get_games(user: User):
@@ -98,11 +96,15 @@ def render_results(user: User):
     if not len(games):
         return render_template('client.html', no_games_alert=True)
 
-    hist, edges = np.histogram([g.placed for g in games], range(1, 22))
-    freq = hist / len(games)
-    placements_prob = [np.sum(freq[:i]) * 100 for i in range(0, 21)]
-    print(freq * 100)
-    print(placements_prob)
+    hist = [0 for _ in range(20)]
+    total = 0
+    for g in games:
+        if 1 <= g.placed <= 20:
+            hist[g.placed - 1] = hist[g.placed - 1] + 1
+            total += 1
+
+    freq = [v / total for v in hist]
+    placements_prob = [sum(freq[:i]) * 100 for i in range(0, 20)] + [100]
 
     statsrow = []
     for name, func in STAT_FUNCTIONS.items():
@@ -110,7 +112,7 @@ def render_results(user: User):
 
     return render_template(
         'results/results.html',
-        placements_data=hist.tolist(),
+        placements_data=hist,
         placements_prob=placements_prob,
 
         statsrow=statsrow

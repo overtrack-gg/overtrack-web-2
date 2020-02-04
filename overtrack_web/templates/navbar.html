@@ -1,3 +1,9 @@
+{% macro navbar_elem(text, path) -%}
+<li class="nav-item {{ 'active' if request.path == path else '' }}" style="font-weight: bold;">
+    <a class="nav-link" href="{{ path }}">{{ text }}</a>
+</li>
+{%- endmacro -%}
+
 {% macro navbar() -%}
 <nav class="navbar navbar-expand-lg navbar-dark">
     <a class="navbar-brand" href="/">OverTrack</a>
@@ -8,31 +14,21 @@
     <div class="collapse navbar-collapse justify-content-between" id="navbar">
         <ul class="navbar-nav">
             {% if request.path.startswith('/game/') %}
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Games /</a>
-                </li>
-                <li class="nav-item active" style="font-weight: bold; margin-left: -10px;">
-                    <a class="nav-link" href="#">Game </a>
-                </li>
-            {% else %}
-                <li class="nav-item {{ 'active' if request.path == '/apex/games' else '' }}" style="font-weight: bold;">
-                    <a class="nav-link" href="/apex/games">Games</a>
-                </li>
-            {% endif %}
-            <li class="nav-item {{ 'active' if request.path.startswith('/apex/stats') else '' }}">
-                <a class="nav-link" href="/apex/stats">Stats</a>
+            <li class="nav-item">
+                <a class="nav-link" href="/">Games /</a>
             </li>
+            <li class="nav-item active" style="font-weight: bold; margin-left: -10px;">
+                <a class="nav-link" href="#">Game </a>
+            </li>
+            {% else %}
+            {{ navbar_elem('Games', url_for('apex_games_list.games_list')) }}
+            {% endif %}
+            {{ navbar_elem('Stats', url_for('apex_stats.results')) }}
             <div class="dropdown-divider"></div>
             <li class="divider-vertical"></li>
-            <li class="nav-item {{ 'active' if request.path.startswith('/apex/discord_bot') else '' }}">
-                <a class="nav-link" href="/apex/discord_bot">Discord Bot</a>
-            </li>
-            <li class="nav-item {{ 'active' if request.path == '/client' else '' }}">
-                <a class="nav-link" href="/client">Download Client</a>
-            </li>
-            <li class="nav-item {{ 'active' if request.path == '/subscribe/' else '' }}">
-                <a class="nav-link" href="/subscribe/">Subscribe</a>
-            </li>
+            {{ navbar_elem('Discord Bot', url_for('discord_bot.discord_bot')) }}
+            {{ navbar_elem('Download Client', url_for('client')) }}
+            {{ navbar_elem('Subscribe ♥', url_for('subscribe.subscribe')) }}
         </ul>
         <ul class="navbar-nav pull-right">
             <li class="nav-item">

@@ -1,5 +1,7 @@
+import base64
 import json
 import logging
+from typing import Optional, Tuple
 from urllib.parse import urlparse
 
 import boto3
@@ -21,6 +23,8 @@ from overtrack_web.lib.opengraph import Meta
 from overtrack_web.lib.session import session
 from overtrack_web.views.apex.game import make_game_description
 
+PAGINATION_SIZE = 30
+
 request: Request = request
 logger = logging.getLogger(__name__)
 try:
@@ -30,10 +34,10 @@ except:
     logger.exception('Failed to create AWS S3 client - running without admin logs')
     s3 = None
 
-games_list_blueprint = Blueprint('games_list', __name__)
+games_list_blueprint = Blueprint('apex_games_list', __name__)
 
 
-@games_list_blueprint.route('/')
+@games_list_blueprint.route('')
 @require_login
 def games_list() -> Response:
     return render_games_list(session.user)
@@ -41,7 +45,8 @@ def games_list() -> Response:
 
 def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[str] = None) -> Response:
     user.refresh()
-    games, is_ranked, season = get_games(user)
+    games_it, is_ranked, season = get_games(user, limit=PAGINATION_SIZE)
+    games, next_from = paginate(games_it, PAGINATION_SIZE)
 
     if not len(games):
         logger.info(f'User {user.username} has no games')
@@ -70,20 +75,21 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
             r = requests.get(games[0].url)
             r.raise_for_status()
             latest_game_data = r.json()
+        latest_game = typedload.load(latest_game_data, ApexGame)
     else:
-        latest_game_data = None
+        latest_game = None
     t1 = time.perf_counter()
     logger.info(f'latest game fetch: {(t1 - t0) * 1000:.2f}ms')
 
     is_rank_valid = (
         is_ranked and
-        latest_game_data and
-        latest_game_data['rank'] and
-        latest_game_data['rank']['rp'] is not None and
-        latest_game_data['rank']['rp_change'] is not None
+        latest_game and
+        latest_game.rank and
+        latest_game.rank.rp is not None and
+        latest_game.rank.rp_change is not None
     )
     if is_rank_valid:
-        rp = latest_game_data['rank']['rp'] + latest_game_data['rank']['rp_change']
+        rp = latest_game.rank.rp + latest_game.rank.rp_change
         derived_rank = None
         derived_tier = None
         for rank, (lower, upper) in RANK_RP.items():
@@ -111,8 +117,9 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
     else:
         rp_data = None
 
-    if make_meta and latest_game_data:
-        description = f'{len(games)} Season {season.index} games\n'
+    if make_meta and latest_game:
+        # description = f'{len(games)} Season {season.index} games\n'
+        description = ''
         if rank_summary:
             description += 'Rank: ' + rank_summary.rank.title()
             if rank_summary.tier:
@@ -120,7 +127,7 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
             description += '\n'
         description += f'Last game: {make_game_description(games[0], divider=" / ", include_knockdowns=False)}'
         summary_meta = Meta(
-            title=(meta_title or latest_game_data['squad']['player']['name']) + "'s Games",
+            title=(meta_title or latest_game.squad.player.name) + "'s Games",
             description=description,
             colour=rank_summary.color if rank_summary else '#992e26',
             image_url=url_for('static', filename=f'images/{games[0].rank.rank}.png') if games[0].rank else None
@@ -136,6 +143,7 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
     return render_template(
         'games_list/games_list.html',
         games=games,
+        next_from=next_from,
         meta=summary_meta,
 
         season=season,
@@ -145,13 +153,28 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
         rank_summary=rank_summary,
         rp_data=rp_data,
 
-        latest_game=latest_game_data,
+        latest_game=latest_game,
 
         show_sub_request=show_sub_request,
     )
 
 
-def get_games(user: User) -> Tuple[List[ApexGameSummary], bool, Season]:
+@games_list_blueprint.route('/games_pagination')
+@require_login
+def games_pagination():
+    games_it, is_ranked, season = get_games(session.user, limit=PAGINATION_SIZE)
+    games, next_from = paginate(games_it, PAGINATION_SIZE)
+    return render_template_string(
+        '''
+            {% import 'games_list/games_page.html' as games_page with context %}
+            {{ games_page.next_page(games, next_from) }}
+        ''',
+        games=games,
+        next_from=next_from,
+    )
+
+
+def get_games(user: User, limit: Optional[int] = None) -> Tuple[ResultIteratorExt[ApexGameSummary], bool, Season]:
     try:
         season_id = int(request.args['season'])
         is_ranked = request.args['ranked'].lower() == 'true'
@@ -171,10 +194,47 @@ def get_games(user: User) -> Tuple[List[ApexGameSummary], bool, Season]:
     else:
         filter_condition &= ApexGameSummary.rank.does_not_exist()
 
+    if 'last_evaluated' in request.args:
+        last_evaluated = json.loads(b64_decode(request.args['last_evaluated']))
+    else:
+        last_evaluated = None
+
     t0 = time.perf_counter()
-    logger.info(f'Getting games for {user.username}: {user.user_id}, {range_key_condition}, {filter_condition}')
-    games = list(ApexGameSummary.user_id_time_index.query(user.user_id, range_key_condition, filter_condition, newest_first=True))
+    logger.info(
+        f'Getting games for {user.username}: {user.user_id}, {range_key_condition}, {filter_condition} '
+        f'with last_evaluated={last_evaluated} and limit={limit}'
+    )
+    games = ApexGameSummary.user_id_time_index.query(
+        user.user_id,
+        range_key_condition,
+        filter_condition,
+        last_evaluated_key=last_evaluated,
+        newest_first=True,
+        limit=limit,
+    )
     t1 = time.perf_counter()
     logger.info(f'Games query: {(t1 - t0) * 1000:.2f}ms')
 
     return games, is_ranked, season
+
+
+def paginate(games_it: ResultIteratorExt[ApexGameSummary], page_size: int):
+    games = list(islice(games_it, page_size))
+    if games_it.last_evaluated_key:
+        next_args = MultiDict(request.args)
+        next_args['last_evaluated'] = b64_encode(json.dumps(games_it.last_evaluated_key))
+        next_from = url_for('apex_games_list.games_pagination', **next_args)
+    else:
+        next_from = None
+    return games, next_from
+
+
+def b64_encode(s: str) -> str:
+    encoded = base64.urlsafe_b64encode(s.encode()).decode()
+    return encoded.rstrip("=")
+
+
+def b64_decode(s: str) -> str:
+    padding = 4 - (len(s) % 4)
+    s = s + ("=" * padding)
+    return base64.urlsafe_b64decode(s.encode()).decode()

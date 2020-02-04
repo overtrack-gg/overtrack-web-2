@@ -1,3 +1,4 @@
+{% import 'games_list/games_page.html' as games_page with context %}
 {% import 'games_list/game_summary.html' as game_summary with context %}
 {% import 'games_list/rank.html' as rank with context %}
 {% import 'game/game_small.html' as game_small with context %}
@@ -93,18 +94,18 @@
 
                 <div class="col-lg-70pc col-sm-12 games-list-games">
                     <div class="table-responsive">
-                        <table class="table table-borderless table-striped table-hover table-dark shadow games-list narrow">
+                        <table id="gamesList" class="table table-dark table-borderless table-striped table-hover shadow games-list narrow">
                             <thead class="">
                                 {{ game_summary.header() }}
                             </thead>
-                            <tbody>
-                            {% for game in games %}
-                                <tr><td class="date-divider" colspan="{{10}}" data-timestamp="{{game.timestamp}}"></td></div>
-                                <tr></tr>
-                                {{ game_summary.summary(game) }}
-                            {% endfor %}
+                            <tbody id="gamesListBody">
+                            {{ games_page.next_page(games, next_from) }}
                             </tbody>
                         </table>
+                        <div id="indicator" class="d-flex justify-content-center" style="display: none">
+                            <div class="spinner-border" role="status">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -120,63 +121,60 @@
 {% endif %}
 <script defer src="{{ url_for('static', filename='js/map.js') }}"></script>
 <script type="text/javascript">
+let dateOpts = {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+};
+let lastText = new Date().toLocaleString('default', dateOpts);
+
+function update_times(){
     // format times in local timezone and add date dividers
-    let times = document.getElementsByClassName('datetime-format-time');
+
+    let times = Array.prototype.slice.call(document.getElementsByClassName('datetime-format-timestamp'));
     for (let e of times){
         let t = new Date(e.innerText * 1000);
         e.innerText = t.toLocaleString('default', {
             hour: 'numeric',
-            minute: '2-digit'
+            minute: '2-digit',
         });
+        e.classList.remove('datetime-format-timestamp');
+        e.classList.add('datetime-format-time');
     }
 
-    let dates = document.getElementsByClassName('date-divider');
-    let dateOpts = {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-        // year: 'numeric',
-    };
-    let lastText = new Date().toLocaleString('default', dateOpts);
+    let dates = Array.prototype.slice.call(document.getElementsByClassName('date-divider-timestamp'));
     for (let e of dates){
         let d = new Date(+e.getAttribute('data-timestamp') * 1000);
         let text = d.toLocaleString('default', dateOpts);
         if (text != lastText){
             lastText = text;
             e.innerText = text;
-            e.classList.add('date-divider-visible');
+            e.classList.remove('date-divider-invisible');
         }
+        e.classList.remove('date-divider-timestamp');
     }
-
-    let style = document.createElement('style');
-    let head = document.head || document.getElementsByTagName('head')[0];
-    head.appendChild(style);
-    style.type = 'text/css';
-    let css = `
-.datetime-format-time {
-    display: table-cell !important;
 }
-.date-divider-visible {
-    display: table-cell !important;
-}
-`;
-    if (style.styleSheet){
-        style.styleSheet.cssText = css;
-    } else {
-        style.appendChild(document.createTextNode(css));
-    }
-    document.head.appendChild(style);
-
-    // make table rows clickable
-    $(document).ready(function($) {
-        $("tr.clickable").click(function() {
-            window.document.location = $(this).data("href");
-        });
-        $("tr.clickable").mouseup(function() {
-            if (event.button === 1){
-                window.open($(this).data("href"));
-            }
-        });
+function make_clickable(){
+    $("tr.clickable").click(function() {
+        window.document.location = $(this).data("href");
     });
+    $("tr.clickable").mouseup(function() {
+        if (event.button === 1){
+            window.open($(this).data("href"));
+        }
+    });
+}
+function update_rows(){
+    window.setTimeout(
+        ()=>{
+            update_times();
+            make_clickable();
+        },
+        0
+    );
+}
+$(document).ready(function($) {
+    update_rows();
+});
 </script>
 {% endblock %}
