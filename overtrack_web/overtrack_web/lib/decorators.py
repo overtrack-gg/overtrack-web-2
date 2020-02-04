@@ -11,10 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 ORIGIN_WHITELIST = [
-    '05vtsqqgd3.execute-api.us-west-2.amazonaws.com',
-    'owyr1hktg5.execute-api.us-west-2.amazonaws.com',
+    'www.overtrack.gg',
     'overtrack.gg',
     'apex.overtrack.gg',
+    'dev.overtrack.gg',
     'api.overtrack.gg',
     'api2.overtrack.gg'
 ]
