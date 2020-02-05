@@ -26,9 +26,13 @@
             {{ navbar_elem('Stats', url_for('apex_stats.results')) }}
             <div class="dropdown-divider"></div>
             <li class="divider-vertical"></li>
+            {% if url_exists('discord_bot.discord_bot') %}
             {{ navbar_elem('Discord Bot', url_for('discord_bot.discord_bot')) }}
+            {% endif %}
             {{ navbar_elem('Download Client', url_for('client')) }}
+            {% if url_exists('subscribe.subscribe') %}
             {{ navbar_elem('Subscribe ♥', url_for('subscribe.subscribe')) }}
+            {% endif %}
         </ul>
         <ul class="navbar-nav pull-right">
             <li class="nav-item">

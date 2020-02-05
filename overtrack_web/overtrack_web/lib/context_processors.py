@@ -3,6 +3,16 @@ from typing import Optional
 
 from flask import url_for
 from jinja2 import Undefined
+from werkzeug.routing import BuildError
+
+
+def url_exists(*args):
+    try:
+        url_for(*args)
+    except BuildError:
+        return False
+    else:
+        return True
 
 
 def image_url(champ: Optional[str], large: bool = False) -> str:
@@ -77,10 +87,12 @@ def s2ts(s: float, ms: bool = False, zpad: bool = True) -> str:
 
 
 processors = {
+    'url_exists': url_exists,
+
     'to_ordinal': to_ordinal,
     's2ts': duration,
     'strftime': strftime,
     'image_url': image_url,
     'champion_colour': champion_colour,
-    'format_rp': format_rp
+    'format_rp': format_rp,
 }
