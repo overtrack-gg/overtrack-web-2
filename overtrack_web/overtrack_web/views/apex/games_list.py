@@ -46,7 +46,7 @@ def games_list() -> Response:
 @games_list_blueprint.route('/<string:username>')
 def public_games_list(username: str) -> Response:
     try:
-        user = User.username_index.get(username)
+        user = User.username_index.get(username.lower())
     except User.DoesNotExist:
         user = None
     if not user or (not user.apex_games_public and not is_superuser()):
@@ -59,7 +59,7 @@ def games_pagination():
     public = 'username' in request.args
     if public:
         try:
-            user = User.username_index.get(request.args['username'])
+            user = User.username_index.get(request.args['username'].lower())
         except User.DoesNotExist:
             user = None
         if not user or (not user.apex_games_public and not is_superuser()):
