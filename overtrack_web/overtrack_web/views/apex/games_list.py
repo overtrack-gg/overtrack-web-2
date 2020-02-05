@@ -181,12 +181,6 @@ def render_games_list(user: User, public=False, meta_title: Optional[str] = None
     else:
         summary_meta = WELCOME_META
 
-    if check_authentication() is None:
-        show_sub_request = not session.user.subscription_active
-    else:
-        show_sub_request = False
-
-    print(season, seasons)
     return render_template(
         'games_list/games_list.html',
         title=f"Apex Legends | {user.username}'s Games" if public else "My Games",
@@ -204,7 +198,7 @@ def render_games_list(user: User, public=False, meta_title: Optional[str] = None
 
         latest_game=latest_game,
 
-        show_sub_request=show_sub_request,
+        show_sub_request=not public and not session.user.subscription_active,
     )
 
 

@@ -123,6 +123,9 @@ def require_login(_endpoint=None, check_user: bool = False):
 
 
 def check_authentication(allow_audience: str = 'webapp', superuser_required: bool = False, check_user: bool = False) -> Optional[Response]:
+    if 'session' in g:
+        return None
+
     if 'scope' in g:
         funclocal_scope_manager = None
         scope = g.scope
