@@ -39,4 +39,5 @@ deploy:
     - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/static/*"
 
   only:
-    - "overwatch-merge"
+    - master
+    - "apex.overtrack.gg"
