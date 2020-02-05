@@ -7,7 +7,6 @@ import flask
 import functools
 import requests
 from flask import Flask, g, render_template, request, url_for
-from flask_bootstrap import Bootstrap
 from werkzeug.utils import redirect
 
 os.environ['HMAC_KEY'] = base64.b64encode(b'').decode()
@@ -70,7 +69,7 @@ authentication.check_authentication = mock_check_authentication
 @app.context_processor
 def inject_processors():
     from overtrack_web.lib.context_processors import processors as lib_context_processors
-    from overtrack_web.lib.session import session
+
     processors = dict(lib_context_processors)
     def current_user():
         return mock_user
@@ -125,7 +124,7 @@ def mock_get_summary(key):
 overtrack_web.views.apex.game.get_summary = mock_get_summary
 
 # complex views requiring their own controllers - slimmed down version from actual site
-from overtrack_web.views.apex.login import login_blueprint
+from overtrack_web.views.login import login_blueprint
 app.register_blueprint(login_blueprint)
 
 from overtrack_web.views.apex.games_list import games_list_blueprint

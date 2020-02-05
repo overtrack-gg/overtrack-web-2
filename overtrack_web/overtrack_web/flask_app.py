@@ -125,12 +125,13 @@ from overtrack_web.lib.template_filters import filters
 app.jinja_env.filters.update(filters)
 
 # complex views requiring their own controllers
-from overtrack_web.views.apex.login import login_blueprint
+from overtrack_web.views.login import login_blueprint
 app.register_blueprint(login_blueprint)
 
 from overtrack_web.views.apex.games_list import games_list_blueprint
 app.register_blueprint(games_list_blueprint, url_prefix='/apex/games')
 @app.route('/apex')
+@app.route('/games')
 def apex_games_redirect():
     return redirect(url_for('apex_games_list.games_list'), code=308)
 
