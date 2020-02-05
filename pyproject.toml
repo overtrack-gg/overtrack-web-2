@@ -12,7 +12,6 @@ pynamodb = "^4"
 
 zappa = { git = "https://github.com/overtrack-gg/Zappa.git", branch = "master" }
 flask = "^1"
-bootstrap-flask = "*"
 pyjwt = "*"
 requests_oauthlib = "*"
 dataclasses = "*"
@@ -24,10 +23,6 @@ stripe = "^2.35"
 
 [tool.poetry.dev-dependencies]
 
-#pytest = "*"
-#pytest-ordering = "*"
-#pytest-sugar = "*"
-#pytest-cov = "*"
 libsass = "^0.19"
 boussole = "^1.5"
 

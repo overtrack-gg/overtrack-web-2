@@ -16,21 +16,6 @@ test = ["coverage", "flake8", "pexpect", "wheel"]
 
 [[package]]
 category = "main"
-description = "Bootstrap helper for Flask/Jinja2."
-name = "bootstrap-flask"
-optional = false
-python-versions = "*"
-version = "1.2.0"
-
-[package.dependencies]
-Flask = "*"
-
-[package.extras]
-dev = ["coverage", "tox", "sphinx", "pallets-sphinx-themes", "sphinxcontrib-log-cabinet"]
-docs = ["sphinx", "pallets-sphinx-themes", "sphinxcontrib-log-cabinet"]
-
-[[package]]
-category = "main"
 description = "The AWS SDK for Python"
 name = "boto3"
 optional = false
@@ -700,17 +685,13 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools"]
 
 [metadata]
-content-hash = "0d4d04fefb5369da66f07e547dbb3d130729950b29358bd837a8ae8c6c070c95"
+content-hash = "1e4e6d40bc42e99986ee14c29786cdfca0a22db5aefdc7ed7d92e0c4b7a5a431"
 python-versions = "^3.6"
 
 [metadata.files]
 argcomplete = [
     {file = "argcomplete-1.11.1-py2.py3-none-any.whl", hash = "sha256:890bdd1fcbb973ed73db241763e78b6d958580e588c2910b508c770a59ef37d7"},
     {file = "argcomplete-1.11.1.tar.gz", hash = "sha256:5ae7b601be17bf38a749ec06aa07fb04e7b6b5fc17906948dc1866e7facf3740"},
-]
-bootstrap-flask = [
-    {file = "Bootstrap-Flask-1.2.0.tar.gz", hash = "sha256:d03c738f5377dbe7ecce010e28afcc0fb8373c4c9d01f8590af7657b53342c1d"},
-    {file = "Bootstrap_Flask-1.2.0-py2.py3-none-any.whl", hash = "sha256:ed817e82acadac4c8b3fc2d1a310325b6ed395d13b0f6ca9d14e1742f880e685"},
 ]
 boto3 = [
     {file = "boto3-1.11.10-py2.py3-none-any.whl", hash = "sha256:27e221d3868f35687807e5c920f7e8d4872f722f64196a7fd274a06ad65beec0"},

@@ -20,7 +20,6 @@ dataclasses_asdict_namedtuple_patch.patch()
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 app.url_map.strict_slashes = False
-bootstrap = Bootstrap(app)
 
 if app.config['DEBUG']:
     # live building of scss
