@@ -1,4 +1,5 @@
 import base64
+import functools
 import logging
 import os
 from typing import Tuple, List, NamedTuple
@@ -6,6 +7,9 @@ from typing import Tuple, List, NamedTuple
 import requests
 from flask import Flask, render_template, g, request
 from flask_bootstrap import Bootstrap
+from werkzeug.utils import redirect
+
+from overtrack_web.flask_app import url_for
 
 os.environ['HMAC_KEY'] = base64.b64encode(b'').decode()
 
@@ -100,23 +104,25 @@ def mock_get_summary(key):
 overtrack_web.views.apex.game.get_summary = mock_get_summary
 
 # complex views requiring their own controllers - slimmed down version from actual site
-from overtrack_web.lib.template_filters import filters
-app.jinja_env.filters.update(filters)
+from overtrack_web.views.apex.login import login_blueprint
+app.register_blueprint(login_blueprint)
 
-from overtrack_web.views import games_list_blueprint
-app.register_blueprint(games_list_blueprint)
+from overtrack_web.views.apex.games_list import games_list_blueprint
+app.register_blueprint(games_list_blueprint, url_prefix='/apex/games')
+@app.route('/apex')
+def apex_games_redirect():
+    return redirect(url_for('apex_games_list.games_list'), code=308)
 
-from overtrack_web.views import game_blueprint
-app.register_blueprint(game_blueprint)
+from overtrack_web.views.apex.game import game_blueprint
+# old url: /game/...
+app.register_blueprint(game_blueprint, url_prefix='/apex/games')
+@app.route('/game/<path:key>')
+def apex_game_redirect(key):
+    return redirect(url_for('apex_game.game', key=key), code=308)
 
-from overtrack_web.views import results_blueprint
-app.register_blueprint(results_blueprint, url_prefix='/stats')
-
-from overtrack_web.views import games_list
 @app.route('/')
 def root():
-    return games_list()
-
+    return redirect(url_for('apex_games_list.games_list'), code=307)
 
 # template only views
 @app.route('/client')
@@ -128,37 +134,10 @@ def welcome():
     return render_template('welcome.html', meta=WELCOME_META)
 
 
-# hack for streamer URLs
-# TODO: replace when we have share links
-from overtrack_web.views import render_games_list
-from overtrack_models.orm.user import User
-
-
-@app.route('/eeveea_')
-def eeveea_games():
-    return render_games_list(User.user_id_index.get(347766573), make_meta=True, meta_title='eeveea_')
-
-
-@app.route('/mendokusaii')
-def mendokusaii_games():
-    return render_games_list(User.user_id_index.get(-3), make_meta=True, meta_title='Mendokusaii')
-
-
-@app.route('/heylauren')
-def heylauren_games():
-    return render_games_list(User.user_id_index.get(-420), make_meta=True, meta_title='heylauren')
-
-
-@app.route('/shroud')
-def shroud_games():
-    return render_games_list(User.user_id_index.get(-400), make_meta=True, meta_title='Shroud')
-
-
-@app.route('/diegosaurs')
-def diegosaurs_games():
-    return render_games_list(User.user_id_index.get(-401), make_meta=True, meta_title='Diegosaurs')
-
-
-@app.route('/a_seagull')
-def a_seagull_games():
-    return render_games_list(User.user_id_index.get(-402), make_meta=True, meta_title='a_seagull')
+share_redirects = {
+    'mendokusaii': 'mendokusaii',
+}
+for key, username in share_redirects.items():
+    route = functools.partial(redirect, f'/apex/games/{username}', code=308)
+    route.__name__ = f'streamer_redirect_{key}'
+    app.route('/' + key)(route)

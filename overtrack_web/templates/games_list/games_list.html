@@ -4,7 +4,7 @@
 {% import 'game/game_small.html' as game_small with context %}
 
 {% extends "base.html" %}
-{% block title %}Games{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 {% block css %}
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/games.css') }}">
 {% endblock %}

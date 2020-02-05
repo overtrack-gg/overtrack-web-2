@@ -43,15 +43,28 @@ def games_list() -> Response:
     return render_games_list(session.user)
 
 
-def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[str] = None) -> Response:
+@games_list_blueprint.route('/<string:username>')
+def public_games_list(username: str) -> Response:
+    try:
+        user = User.username_index.get(username)
+    except User.DoesNotExist:
+        user = None
+    if not user or not user.apex_games_public:
+        return 'Share link not found', 404
+    return render_games_list(user, public=True)
+
+
+def render_games_list(user: User, public=False, meta_title: Optional[str] = None) -> Response:
     user.refresh()
     games_it, is_ranked, season = get_games(user, limit=PAGINATION_SIZE)
-    games, next_from = paginate(games_it, PAGINATION_SIZE)
+    games, next_from = paginate(games_it, username=user.username if public else None)
 
     if not len(games):
         logger.info(f'User {user.username} has no games')
-        return render_template('client.html', no_games_alert=True, meta=WELCOME_META)
+        if not public and 'season' not in request.args:
+            return render_template('client.html', no_games_alert=True, meta=WELCOME_META)
 
+    # TODO: don't list ranked/unranked if a player has e.g. no ranked games in a season
     seasons = []
     for sid in user.apex_seasons:
         if sid in SEASONS:
@@ -118,7 +131,7 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
     else:
         rp_data = None
 
-    if make_meta and latest_game:
+    if public and latest_game:
         # description = f'{len(games)} Season {season.index} games\n'
         description = ''
         if rank_summary:
@@ -128,7 +141,7 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
             description += '\n'
         description += f'Last game: {make_game_description(games[0], divider=" / ", include_knockdowns=False)}'
         summary_meta = Meta(
-            title=(meta_title or latest_game.squad.player.name) + "'s Games",
+            title=(meta_title or user.username) + "'s Games",
             description=description,
             colour=rank_summary.color if rank_summary else '#992e26',
             image_url=url_for('static', filename=f'images/{games[0].rank.rank}.png') if games[0].rank else None
@@ -141,8 +154,11 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
     else:
         show_sub_request = False
 
+    print(season, seasons)
     return render_template(
         'games_list/games_list.html',
+        title=f"Apex Legends | {user.username}'s Games" if public else "My Games",
+
         games=games,
         next_from=next_from,
         meta=summary_meta,
@@ -163,8 +179,18 @@ def render_games_list(user: User, make_meta: bool = False, meta_title: Optional[
 @games_list_blueprint.route('/games_pagination')
 @require_login
 def games_pagination():
-    games_it, is_ranked, season = get_games(session.user, limit=PAGINATION_SIZE)
-    games, next_from = paginate(games_it, PAGINATION_SIZE)
+    public = 'username' in request.args
+    if public:
+        try:
+            user = User.username_index.get(request.args['username'])
+        except User.DoesNotExist:
+            user = None
+        if not user or not user.apex_games_public:
+            return 'Share link not found', 404
+    else:
+        user = session.user
+    games_it, is_ranked, season = get_games(user, limit=PAGINATION_SIZE)
+    games, next_from = paginate(games_it, username=user.username if public else None)
     return render_template_string(
         '''
             {% import 'games_list/games_page.html' as games_page with context %}
@@ -184,7 +210,7 @@ def get_games(user: User, limit: Optional[int] = None) -> Tuple[ResultIteratorEx
         is_ranked = user.apex_last_game_ranked
 
     if season_id is None:
-        season_id = 3
+        season_id = sorted(s for s in SEASONS.keys() if s < 1000)[-1]
     logger.info(f'Getting games for {user.username} => season_id={season_id}')
 
     season = SEASONS[season_id]
@@ -219,11 +245,13 @@ def get_games(user: User, limit: Optional[int] = None) -> Tuple[ResultIteratorEx
     return games, is_ranked, season
 
 
-def paginate(games_it: ResultIteratorExt[ApexGameSummary], page_size: int):
+def paginate(games_it: ResultIteratorExt[ApexGameSummary], username: Optional[str] = None, page_size: int = PAGINATION_SIZE):
     games = list(islice(games_it, page_size))
     if games_it.last_evaluated_key:
         next_args = MultiDict(request.args)
         next_args['last_evaluated'] = b64_encode(json.dumps(games_it.last_evaluated_key))
+        if username:
+            next_args['username'] = username
         next_from = url_for('apex_games_list.games_pagination', **next_args)
     else:
         next_from = None

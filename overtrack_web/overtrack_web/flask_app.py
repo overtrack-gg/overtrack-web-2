@@ -1,3 +1,4 @@
+import functools
 import logging
 import os
 
@@ -115,7 +116,6 @@ def inject_processors():
 from overtrack_web.lib.template_filters import filters
 app.jinja_env.filters.update(filters)
 
-
 # complex views requiring their own controllers
 from overtrack_web.views.apex.login import login_blueprint
 app.register_blueprint(login_blueprint)
@@ -128,7 +128,11 @@ def apex_games_redirect():
 
 from overtrack_web.views.apex.game import game_blueprint
 # old url: /game/...
-app.register_blueprint(game_blueprint, url_prefix='/apex/game')
+app.register_blueprint(game_blueprint, url_prefix='/apex/games')
+@app.route('/game/<path:key>')
+def apex_game_redirect(key):
+    return redirect(url_for('apex_game.game', key=key), code=308)
+
 
 from overtrack_web.views.apex.stats import results_blueprint
 # old url: /stats
@@ -177,31 +181,34 @@ def discord_redirect():
     return redirect('https://discord.gg/JywstAB')
 
 
-# hack for streamer URLs
-# TODO: replace when we have share links
-from overtrack_web.views.apex.games_list import render_games_list
-from overtrack_models.orm.user import User
+share_redirects = {
+    'mendokusaii': 'mendokusaii',
+}
+for key, username in share_redirects.items():
+    route = functools.partial(redirect, f'/apex/games/{username}', code=308)
+    route.__name__ = f'streamer_redirect_{key}'
+    app.route('/' + key)(route)
 
-@app.route('/eeveea_')
-def eeveea_games():
-    return render_games_list(User.user_id_index.get(347766573), make_meta=True, meta_title='eeveea_')
-
-@app.route('/mendokusaii')
-def mendokusaii_games():
-    return render_games_list(User.user_id_index.get(-3), make_meta=True, meta_title='Mendokusaii')
-
-@app.route('/heylauren')
-def heylauren_games():
-    return render_games_list(User.user_id_index.get(-420), make_meta=True, meta_title='heylauren')
-
-@app.route('/shroud')
-def shroud_games():
-    return render_games_list(User.user_id_index.get(-400), make_meta=True, meta_title='Shroud')
-
-@app.route('/diegosaurs')
-def diegosaurs_games():
-    return render_games_list(User.user_id_index.get(-401), make_meta=True, meta_title='Diegosaurs')
-
-@app.route('/a_seagull')
-def a_seagull_games():
-    return render_games_list(User.user_id_index.get(-402), make_meta=True, meta_title='a_seagull')
+# @app.route('/eeveea_')
+# def eeveea_games():
+#     return render_games_list(User.user_id_index.get(347766573), public=True, meta_title='eeveea_')
+#
+# @app.route('/mendokusaii')
+# def mendokusaii_games():
+#     return render_games_list(User.user_id_index.get(-3), public=True, meta_title='Mendokusaii')
+#
+# @app.route('/heylauren')
+# def heylauren_games():
+#     return render_games_list(User.user_id_index.get(-420), public=True, meta_title='heylauren')
+#
+# @app.route('/shroud')
+# def shroud_games():
+#     return render_games_list(User.user_id_index.get(-400), public=True, meta_title='Shroud')
+#
+# @app.route('/diegosaurs')
+# def diegosaurs_games():
+#     return render_games_list(User.user_id_index.get(-401), public=True, meta_title='Diegosaurs')
+#
+# @app.route('/a_seagull')
+# def a_seagull_games():
+#     return render_games_list(User.user_id_index.get(-402), public=True, meta_title='a_seagull')
