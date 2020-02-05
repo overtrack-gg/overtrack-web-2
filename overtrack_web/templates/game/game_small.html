@@ -41,7 +41,7 @@
                     {{ player_summary(game.squad.squadmates[1]) }}
                 </tbody>
             </table>
-            {% if game.weapons.weapon_stats[0].knockdowns > 0 %}
+            {% if game.weapons.weapon_stats and game.weapons.weapon_stats[0].knockdowns > 0 %}
             <div class="table-responsive">
                 <table class="table table-dark table-borderless table-striped table-hover weapons-list">
                     <thead>
