@@ -23,7 +23,9 @@
             {% else %}
             {{ navbar_elem('Games', url_for('apex_games_list.games_list')) }}
             {% endif %}
+            {% if url_exists('apex_stats.results') %}
             {{ navbar_elem('Stats', url_for('apex_stats.results')) }}
+            {% endif %}
             <div class="dropdown-divider"></div>
             <li class="divider-vertical"></li>
             {% if url_exists('discord_bot.discord_bot') %}

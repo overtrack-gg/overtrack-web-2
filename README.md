@@ -16,10 +16,10 @@ This should be easy to modify to use a session cookie instead, which would allow
 
 Run either
 ```bash
-FLASK_APP=apextrack.local_flask_app FLASK_DEBUG=1 poetry run flask run 
+FLASK_APP=overtrack_web/overtrack_web/local_flask_app.py FLASK_DEBUG=1 poetry run flask run 
 ```
 if you are using poetry's automatic virtual environments or 
 ```bash
-FLASK_APP=apextrack.local_flask_app FLASK_DEBUG=1 flask run 
+FLASK_APP=overtrack_web/overtrack_web/local_flask_app.py FLASK_DEBUG=1 flask run 
 ```
 if you are managing your virtual environment yourself.

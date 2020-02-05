@@ -90,5 +90,5 @@ SEASONS = {
 
     2000: Season(2000, 1569956446, 1569956446 + 4 * 30 * 24 * 60 * 60, season_name='Scrims'),
 }
-
+latest_season = sorted(s for s in SEASONS.keys() if s < 1000)[-1]
 
