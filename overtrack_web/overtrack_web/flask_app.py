@@ -5,17 +5,16 @@ import os
 import flask
 import sentry_sdk
 from flask import Flask, render_template
-from flask_bootstrap import Bootstrap
 from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
 from werkzeug.utils import redirect
 
 from overtrack_web.data import CDN_URL, WELCOME_META
-from overtrack_web.lib.authentication import check_authentication, require_login
+from overtrack_web.lib.authentication import check_authentication
 
-from overtrack_web.lib import dataclasses_asdict_namedtuple_patch
 
 # port of https://bugs.python.org/issue34363 to the dataclasses backport
 # see https://github.com/ericvsmith/dataclasses/issues/151
+from overtrack_web.lib import dataclasses_asdict_namedtuple_patch
 dataclasses_asdict_namedtuple_patch.patch()
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
