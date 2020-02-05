@@ -9,6 +9,7 @@ RANK_RP = {
     'gold': (2800, 4800),
     'platinum': (4800, 7200),
     'diamond': (7200, 10_000),
+    # TODO: master
     'apex_predator': (10_000, 99_999)
 }
 
@@ -53,7 +54,8 @@ class RankSummary:
             'gold': '#4d4030',
             'platinum': '#24424a',
             'diamond': '#3a4b9e',
-            'apex predator': '#8a1f1c'
+            # TODO: master
+            'apex predator': '#8a1f1c',
         }[self.rank]
 
 
@@ -84,7 +86,7 @@ SEASONS = {
     3: Season(3, 1569956446, _season_4_start.timestamp(), has_ranked=True),
     1003: Season(1003, 1569956446, _season_4_start.timestamp(), season_name='Season 3 Duos'),
 
-    4: Season(3, _season_4_start.timestamp(), _season_4_start.timestamp() + (3 * 31 * 24 * 60 * 60), has_ranked=True),
+    4: Season(4, _season_4_start.timestamp(), _season_4_start.timestamp() + (3 * 31 * 24 * 60 * 60), has_ranked=True),
 
     2000: Season(2000, 1569956446, 1569956446 + 4 * 30 * 24 * 60 * 60, season_name='Scrims'),
 }

@@ -10,12 +10,12 @@ const dmin = Math.min(1000, d3.min(data, d => d.value))
 const dmaxfloor = d3.max(data, d => d.value)
 
 let rankBorders = [
-      0,  30,  60,  90,
-    120, 160, 200, 240,
-    280, 330, 380, 430,
-    480, 540, 600, 660,
-    720, 790, 860, 930,
-    1000
+      0,  300,  600,  900,
+    1200, 1600, 2000, 2400,
+    2800, 3300, 3800, 4300,
+    4800, 5400, 6000, 6600,
+    7200, 7900, 8600, 9300,
+    10000
 ]
 
 let dmaxceil = 0
@@ -26,7 +26,7 @@ for (let i = 0; i < rankBorders.length; i++) {
     }
 }
 
-let dmax = dmaxfloor >= 1000 ? dmaxfloor : dmaxceil
+let dmax = dmaxfloor >= 10000 ? dmaxfloor : dmaxceil
 rankBorders = rankBorders.filter(x => x >= dmin && x <= dmax)
 
 const minimal = rankBorders.length > 5
@@ -47,13 +47,12 @@ if (minimal) {
         }
     }
 
-    dmax = dmaxfloor >= 10000 ? dmaxfloor : dmaxceil
+    dmax = dmaxfloor >= 1000 ? dmaxfloor : dmaxceil
     rankBorders = rankBorders.filter(x => x >= dmin && x <= dmax)
 }
 
 if (dmax >= 10150 && dmin < dmax) {
     rankBorders.push(dmax)
-    console.log(rankBorders)
 }
 
 const rankNums = ({
@@ -128,12 +127,12 @@ const yAxis2 = g => g
     .attr("transform", `translate(${width - margin.right},0)`)
     .attr("color", "#ffffff")
     .call(d3.axisRight(y).tickValues(rankBorders).tickSizeInner(-width + margin.left + margin.right))
-    .call(g => g.selectAll(".tick").filter(t => t <= 1000).insert("image", "text")
+    .call(g => g.selectAll(".tick").filter(t => t <= 10000).insert("image", "text")
             .attr("x", 2.6)
             .attr("y", minimal ? -13 : -15)
             .attr("width", 25)
             .attr("height", 25)
-            .attr("xlink:href", t => "../static/images/rank-" + rankImages[t] + ".png"))
+            .attr("xlink:href", t => "/static/images/rank-" + rankImages[t] + ".png"))
     .call(g => g.selectAll(".tick text")
         .text(t => minimal ? "" : rankNums[t])
         .attr("x", 15)
