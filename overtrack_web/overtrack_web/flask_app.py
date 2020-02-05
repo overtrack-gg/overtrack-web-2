@@ -1,5 +1,6 @@
 import logging
 import os
+from urllib import parse
 
 import flask
 import functools
@@ -14,7 +15,6 @@ from overtrack_web.lib.authentication import check_authentication
 # port of https://bugs.python.org/issue34363 to the dataclasses backport
 # see https://github.com/ericvsmith/dataclasses/issues/151
 from overtrack_web.lib import dataclasses_asdict_namedtuple_patch
-
 dataclasses_asdict_namedtuple_patch.patch()
 
 request: Request = request
@@ -192,7 +192,21 @@ def discord_redirect():
 @app.route('/logout')
 def logout():
     response: Response = make_response(redirect(url_for('root')))
+    domain = parse.urlsplit(request.url).hostname
+
+    # remove non-domain specific cookie
     response.set_cookie('session', '', expires=0)
+
+    # remove domain specific cookie for this domain
+    response.set_cookie('session', '', expires=0, domain=domain)
+
+    if any(c not in '.0123456789' for c in domain):
+        # not an IP address - remove cookie for subdomains of this domain
+        response.set_cookie('session', '', expires=0, domain='.' + domain)
+        if domain.count('.') >= 2:
+            # we are on a subdomain - remove cookie for this and all other subdomains
+            response.set_cookie('session', '', expires=0, domain='.' + domain.split('.', 1)[-1])
+
     return response
 
 
