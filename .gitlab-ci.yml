@@ -23,10 +23,9 @@ deploy:
     - git clone git@gitlab.com:OverTrack/overtrack_2_api.git
     - mv -t . ./overtrack_2_api/api
 
-    # - zappa update test || { sleep 30; zappa tail test --since 1min --disable-keep-open; false; }
-
     - pushd overtrack_web
 
+    # - zappa update test || { sleep 30; zappa tail test --since 1min --disable-keep-open; false; }
     - zappa update main
 
     # install with dev deps this time

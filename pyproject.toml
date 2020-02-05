@@ -8,24 +8,18 @@ authors = ["Simon Pinfold <simon@uint8.me>"]
 python = "^3.6"
 
 overtrack-models = { git = "https://gitlab.com/OverTrack/overtrack-models.git", branch = "master" }
+pynamodb = "^4"
 
-dataclasses = "*"
-
-typedload = "*"
 zappa = { git = "https://github.com/overtrack-gg/Zappa.git", branch = "master" }
-
 flask = "^1"
 bootstrap-flask = "*"
 pyjwt = "*"
 requests_oauthlib = "*"
+dataclasses = "*"
 shortuuid = "*"
 
-pynamodb = "^4"
-
-pytest = "^4.4"
 datadog = "^0.29"
 sentry_sdk = "^0.11"
-
 stripe = "^2.35"
 
 [tool.poetry.dev-dependencies]
