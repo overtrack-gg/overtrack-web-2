@@ -284,7 +284,7 @@ def delete_channel():
     logger.info(f'Deleting {notification}')
     notification.delete()
 
-    return redirect(url_for('discord_bot.root'))
+    return redirect(url_for('discord_bot.discord_bot'))
 
 
 def _get_channel_and_guild_info(channel_id: str) -> Tuple[Dict, Dict]:
