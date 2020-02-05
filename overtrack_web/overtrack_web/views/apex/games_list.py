@@ -49,9 +49,41 @@ def public_games_list(username: str) -> Response:
         user = User.username_index.get(username)
     except User.DoesNotExist:
         user = None
-    if not user or not user.apex_games_public:
+    if not user or (not user.apex_games_public and not is_superuser()):
         return 'Share link not found', 404
     return render_games_list(user, public=True)
+
+
+@games_list_blueprint.route('/games_pagination')
+def games_pagination():
+    public = 'username' in request.args
+    if public:
+        try:
+            user = User.username_index.get(request.args['username'])
+        except User.DoesNotExist:
+            user = None
+        if not user or (not user.apex_games_public and not is_superuser()):
+            return 'Share link not found', 404
+    else:
+        if check_authentication() is None:
+            user = session.user
+        else:
+            return 'Not logged in', 403
+    games_it, is_ranked, season = get_games(user, limit=PAGINATION_SIZE)
+    games, next_from = paginate(games_it, username=user.username if public else None)
+    return render_template_string(
+        '''{% import 'games_list/games_page.html' as games_page with context %}
+           {{ games_page.next_page(games, next_from) }}''',
+        games=games,
+        next_from=next_from,
+    )
+
+
+def is_superuser():
+    if check_authentication() is None:
+        return session.user.superuser
+    else:
+        return False
 
 
 def render_games_list(user: User, public=False, meta_title: Optional[str] = None) -> Response:
@@ -173,31 +205,6 @@ def render_games_list(user: User, public=False, meta_title: Optional[str] = None
         latest_game=latest_game,
 
         show_sub_request=show_sub_request,
-    )
-
-
-@games_list_blueprint.route('/games_pagination')
-@require_login
-def games_pagination():
-    public = 'username' in request.args
-    if public:
-        try:
-            user = User.username_index.get(request.args['username'])
-        except User.DoesNotExist:
-            user = None
-        if not user or not user.apex_games_public:
-            return 'Share link not found', 404
-    else:
-        user = session.user
-    games_it, is_ranked, season = get_games(user, limit=PAGINATION_SIZE)
-    games, next_from = paginate(games_it, username=user.username if public else None)
-    return render_template_string(
-        '''
-            {% import 'games_list/games_page.html' as games_page with context %}
-            {{ games_page.next_page(games, next_from) }}
-        ''',
-        games=games,
-        next_from=next_from,
     )
 
 

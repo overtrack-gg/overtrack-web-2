@@ -9,11 +9,13 @@
 {{ game_summary.summary(game) }}
 {% endfor %}
 {% if next_from %}
-<tr ic-append-from='{{ next_from | safe }}'
+<tr id="gamesListReplace"
+    ic-append-from='{{ next_from | safe }}'
     ic-trigger-on='scrolled-into-view'
-    ic-target='#gamesListBody'
+    ic-target='#gamesListReplace'
     ic-indicator='#indicator'
     ic-on-complete='update_rows'
+    ic-replace-target='true'
 >
 </tr>
 {% endif %}
