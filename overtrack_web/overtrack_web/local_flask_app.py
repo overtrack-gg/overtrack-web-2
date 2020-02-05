@@ -26,14 +26,6 @@ app.url_map.strict_slashes = False
 
 logging.basicConfig(level=logging.INFO)
 
-# register context processors and filters
-@app.context_processor
-def inject_processors():
-    from overtrack_web.lib.context_processors import processors
-    return processors
-from overtrack_web.lib.template_filters import filters
-app.jinja_env.filters.update(filters)
-
 from sassutils.wsgi import SassMiddleware
 
 # live building of scss
@@ -60,11 +52,12 @@ class MockUser(NamedTuple):
     subscription_active: bool = True
     def refresh(self):
         pass
+mock_user = MockUser()
 class MockSession(NamedTuple):
     user_id: int
     key: str
     superuser: bool = False
-    user: MockUser = MockUser()
+    user: MockUser = mock_user
 def mock_check_authentication(*_, **__):
     g.session = MockSession(
         user_id=-1,
@@ -72,6 +65,19 @@ def mock_check_authentication(*_, **__):
     )
     return None
 authentication.check_authentication = mock_check_authentication
+
+# register context processors and filters
+@app.context_processor
+def inject_processors():
+    from overtrack_web.lib.context_processors import processors as lib_context_processors
+    from overtrack_web.lib.session import session
+    processors = dict(lib_context_processors)
+    def current_user():
+        return mock_user
+    processors['current_user'] = current_user
+    return processors
+from overtrack_web.lib.template_filters import filters
+app.jinja_env.filters.update(filters)
 
 # running locally - hack to load games from the API instead of from dynamodb
 GAMES_SOURCE = os.environ.get('GAMES_SOURCE', 'mendokusaii')
@@ -146,6 +152,10 @@ def client():
 @app.route('/welcome')
 def welcome():
     return render_template('welcome.html', meta=WELCOME_META)
+
+@app.route('/logout')
+def logout():
+    return redirect('root')
 
 
 share_redirects = {

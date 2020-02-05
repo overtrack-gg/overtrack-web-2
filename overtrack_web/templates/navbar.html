@@ -1,6 +1,6 @@
-{% macro navbar_elem(text, path) -%}
-<li class="nav-item {{ 'active' if request.path == path else '' }}" style="font-weight: bold;">
-    <a class="nav-link" href="{{ path }}">{{ text }}</a>
+{% macro navbar_elem(text, route, bold=True) -%}
+<li class="nav-item {{ 'active' if request.path == url_for(route) else '' }}" style="{{ 'font-weight: bold;' if bold else '' }}">
+    <a class="nav-link" href="{{ url_for(route) }}">{{ text }}</a>
 </li>
 {%- endmacro -%}
 
@@ -13,34 +13,32 @@
     </button>
     <div class="collapse navbar-collapse justify-content-between" id="navbar">
         <ul class="navbar-nav">
-            {% if request.path.startswith('/game/') %}
-            <li class="nav-item">
-                <a class="nav-link" href="/">Games /</a>
-            </li>
-            <li class="nav-item active" style="font-weight: bold; margin-left: -10px;">
-                <a class="nav-link" href="#">Game </a>
-            </li>
-            {% else %}
-            {{ navbar_elem('Games', url_for('apex_games_list.games_list')) }}
-            {% endif %}
-            {% if url_exists('apex_stats.results') %}
-            {{ navbar_elem('Stats', url_for('apex_stats.results')) }}
-            {% endif %}
+            {{ navbar_elem('Games', 'apex_games_list.games_list') }}
+            {{ navbar_elem('Stats', 'apex_stats.results') }}
             <div class="dropdown-divider"></div>
             <li class="divider-vertical"></li>
-            {% if url_exists('discord_bot.discord_bot') %}
-            {{ navbar_elem('Discord Bot', url_for('discord_bot.discord_bot')) }}
-            {% endif %}
-            {{ navbar_elem('Download Client', url_for('client')) }}
-            {% if url_exists('subscribe.subscribe') %}
-            {{ navbar_elem('Subscribe ♥', url_for('subscribe.subscribe')) }}
+            {{ navbar_elem('Discord Bot', 'discord_bot.discord_bot') }}
+            {{ navbar_elem('Download Client', 'client') }}
+            {% if not current_user() or not current_user().subscription_active %}
+            {{ navbar_elem('Subscribe ♥', 'subscribe.subscribe') }}
             {% endif %}
         </ul>
         <ul class="navbar-nav pull-right">
-            <li class="nav-item">
-                <a class="nav-link" target="_blank" href="https://discord.gg/JywstAB">Join Discord</a>
+            {{ navbar_elem('Join Discord', 'discord_redirect', bold=False) }}
+            {% if current_user() %}
+            <div class="dropdown-divider"></div>
+            <li class="divider-vertical"></li>
+            <li class="nav-item dropdown" style="font-weight: bold;">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" style="color: white;">
+                    {{ current_user().username }}
+                </a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
+                </div>
             </li>
+            {% endif %}
         </ul>
+
     </div>
 </nav>
 {%- endmacro -%}

@@ -1,6 +1,7 @@
 import logging
 
-from flask import Blueprint
+from flask import Blueprint, url_for
+from werkzeug.utils import redirect
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +14,6 @@ def fake_login():
     from urllib import parse
     from overtrack_models.orm.user import User
     from overtrack_web.lib.authentication import make_cookie
-    from flask import Response
 
     base_hostname = parse.urlsplit(request.base_url).hostname
     if base_hostname not in ['127.0.0.1', 'localhost']:
@@ -26,7 +26,7 @@ def fake_login():
             except User.DoesNotExist:
                 return 'User does not exist', 404
             else:
-                resp = Response(f'You are now authenticated as {user.username}')
+                resp = redirect(url_for('root'))
                 resp.set_cookie(
                     'session',
                     make_cookie(user)

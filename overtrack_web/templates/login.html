@@ -15,13 +15,20 @@
 <div class="container pt-3">
     <div class="container">
         <div class="row justify-content-md-center">
+            <div class="col-md-9 bg-dark">
+                <p>
+                    Please log in first. Choose your authentication provider:
+                </p>
+            </div>
+        </div>
+        <div class="row justify-content-md-center">
             <div class="card col-md-4 bg-dark">
                 <div class="card-header" style="background-color: #392E5C;">
                     <h5>Twitch</h5>
                 </div>
                 <div class="card-body">
                     <p class="card-text">
-                        Log in with Twitch if you are a new user and have a Twitch.tv account, or used a Twitch account to authenticate your client.
+                        Log in with Twitch if you are a new user, or have previously used a Twitch account to log in to OverTrack.
                     </p>
                     <a href="{{ login_twitch }}" class="btn btn-primary btn-lg btn-block btn-dark btn-twitch">
                         <span><img src="{{ url_for('static', filename='images/Glitch_White_RGB.png') }}"></span>
@@ -35,14 +42,14 @@
                 </div>
                 <div class="card-body">
                     <p class="card-text">
-                        Log in with Battle.net if you have an Battle.net login on overtrack.gg, or used a Battle.net account to authenticate your client.
+                        Log in with Battle.net if you have previously used a Battle.net account to log in to OverTrack.
                     </p>
                     <a href="{{ login_bnet }}" id="bnet_login" class="btn btn-primary btn-lg btn-block btn-dark btn-bnet">
                         Log in with Battle.net
                     </a>
                     <br>
                     <p class="card-text text-light">
-                        If you are having trouble being logged into the wrong Battle.net account, <a href="#" onclick="bnet_relogin()">click here</a>
+                        If you are having trouble with Battle.net login and are being logged into the wrong Battle.net account (e.g. logged into an alt), <a href="#" onclick="bnet_relogin()">click here</a>
                     </p>
                 </div>
             </div>

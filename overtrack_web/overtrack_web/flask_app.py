@@ -1,21 +1,23 @@
-import functools
 import logging
 import os
 
 import flask
+import functools
 import sentry_sdk
-from flask import Flask, render_template
+from flask import Flask, Request, Response, make_response, render_template, request
 from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
 from werkzeug.utils import redirect
 
 from overtrack_web.data import CDN_URL, WELCOME_META
 from overtrack_web.lib.authentication import check_authentication
 
-
 # port of https://bugs.python.org/issue34363 to the dataclasses backport
 # see https://github.com/ericvsmith/dataclasses/issues/151
 from overtrack_web.lib import dataclasses_asdict_namedtuple_patch
+
 dataclasses_asdict_namedtuple_patch.patch()
+
+request: Request = request
 
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 app.url_map.strict_slashes = False
@@ -108,7 +110,15 @@ except ImportError:
 # register context processors and filters
 @app.context_processor
 def inject_processors():
-    from overtrack_web.lib.context_processors import processors
+    from overtrack_web.lib.context_processors import processors as lib_context_processors
+    from overtrack_web.lib.session import session
+    processors = dict(lib_context_processors)
+    def current_user():
+        if check_authentication() is None:
+            return session.user
+        else:
+            return None
+    processors['current_user'] = current_user
     return processors
 
 from overtrack_web.lib.template_filters import filters
@@ -177,6 +187,13 @@ def welcome():
 @app.route('/discord')
 def discord_redirect():
     return redirect('https://discord.gg/JywstAB')
+
+
+@app.route('/logout')
+def logout():
+    response: Response = make_response(redirect(url_for('root')))
+    response.set_cookie('session', '', expires=0)
+    return response
 
 
 share_redirects = {
