@@ -86,17 +86,21 @@ def test():
     from flask import render_template_string
     from flask import request
 
-    return render_template_string('''
+    return render_template_string(
+        '''
 <html>
-<body style="background-color: #%6x">
+<body style="background-color: {{ bgcol }}">
 <p>{{ url_for('test') }}</p>
 <p>{{ url_for('test', _external=True) }}</p>
-<p>{{ url_for('game.apex_game', key='A') }}</p>
+<p>{{ url_for('apex_game.game', key='A') }}</p>
 <p>{{ request.host }}</p>
-<pre>%s</pre>
+<pre>{{ environ }}</pre>
 </body>
 </html>
-''' % (random.randint(0, 0xffffff), str(request.environ).replace(',', ',\n')))
+''',
+        bgcol=f'#{random.randint(0, 0xffffff):6x}',
+        environ=str(request.environ).replace(',', ',\n')
+    )
 
 
 # Fancy logging for running locally
