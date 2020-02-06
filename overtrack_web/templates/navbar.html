@@ -1,7 +1,9 @@
 {% macro navbar_elem(text, route, bold=True) -%}
+{% if url_exists(route) %}
 <li class="nav-item {{ 'active' if request.path == url_for(route) else '' }}" style="{{ 'font-weight: bold;' if bold else '' }}">
     <a class="nav-link" href="{{ url_for(route) }}">{{ text }}</a>
 </li>
+{% endif %}
 {%- endmacro -%}
 
 {% macro navbar() -%}
@@ -33,6 +35,10 @@
                     {{ current_user().username }}
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
+                    {% if url_exists('subscribe.subscribe') and current_user().subscription_active %}
+                    <a class="dropdown-item" href="{{ url_for('subscribe.subscribe') }}">Subscription</a>
+                    <div class="dropdown-divider"></div>
+                    {% endif %}
                     <a class="dropdown-item" href="{{ url_for('logout') }}">Logout</a>
                 </div>
             </li>
