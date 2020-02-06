@@ -34,6 +34,7 @@ deploy:
 
     - pip install awscli
     - aws s3 sync ./static/ s3://overtrack-web-2-assets/static --delete --acl public-read --cache-control max-age=86400
+    - aws s3 cp s3://overtrack-web-2-assets/static/images s3://overtrack-web-2-assets/static/images --recursive --acl public-read --cache-control max-age=604800 --metadata-directive REPLACE
     - aws configure set preview.cloudfront true
     - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DISTRIBUTION_ID --paths "/static/*"
 
