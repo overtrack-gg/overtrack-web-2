@@ -34,7 +34,7 @@
             <div class="col mx-3 p-3">
                 <h2 class="mb-lg-3">Add to existing channel</h2>
                 <div class="form-group">
-                    <select name="payload_existing" class="custom-select custom-select-lg bg-dark text-white">
+                    <select name="payload_existing" class="custom-select custom-select-lg text-white">
                         <option selected disabled>Choose a channel</option>
                         {% for channel in channels %}
                         <option value="{{ channel['payload'] }}">{{ channel['name'] }}</option>

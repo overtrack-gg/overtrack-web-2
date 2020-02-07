@@ -17,9 +17,9 @@ def url_exists(*args):
 
 def image_url(champ: Optional[str], large: bool = False) -> str:
     if large:
-        return url_for('static', filename=f'images/{champ.lower()}_large.png' if champ else '')
+        return url_for('static', filename=f'images/apex/{champ.lower()}_large.png' if champ else '')
     else:
-        return url_for('static', filename=f'images/{champ.lower()}.png' if champ else 'images/unknown.png')
+        return url_for('static', filename=f'images/apex/{champ.lower()}.png' if champ else 'images/apex/unknown.png')
 
 
 COLOURS = {

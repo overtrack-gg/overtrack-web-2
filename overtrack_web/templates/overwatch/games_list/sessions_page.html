@@ -1,0 +1,50 @@
+{% import 'overwatch/games_list/game_summary.html' as game_summary with context %}
+
+{% macro render_session(session) -%}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card session">
+                <div class="card-header" style="background-color: #58859F; ">
+                    <h5><span class="epoch-format-date">{{ session.start }}</span> - {{ session.account }} - {{ session.game_mode | gamemode }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="games-list">
+                        <div class="table-responsive">
+                            <table id="gamesList" class="table table-borderless table-striped table-hover shadow games-list narrow">
+                                <thead class="">
+                                {{ game_summary.render_header(session.quickplay) }}
+                                </thead>
+                                <tbody id="gamesListBody">
+                                {% for game in session.games %}
+                                {{ game_summary.render_game(game, session.quickplay) }}
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{%- endmacro %}
+
+{% macro render_sessions_page(sessions, next_from) -%}
+    {% for session in sessions %}
+        {{ render_session(session) }}
+    {% endfor %}
+    {% if next_from %}
+    <div id="nextSessions"
+        ic-append-from='{{ next_from | safe }}'
+        ic-trigger-on='scrolled-into-view'
+        ic-target='#nextSessions'
+        ic-indicator='#indicator'
+        ic-on-complete='update_sessions'
+        ic-replace-target='true'
+    >
+        <div id="indicator" class="d-flex justify-content-center" style="display: none !important;">
+            <div class="spinner-border" role="status">
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endmacro %}

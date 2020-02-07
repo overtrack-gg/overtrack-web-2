@@ -1,0 +1,55 @@
+{% macro rank_image(rank) -%}
+    <svg id="rank-svg" viewBox="0 0 362 133" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin-top: -8px;">
+        <style>
+            @import url('https://fonts.googleapis.com/css?family=Russo+One&amp;display=swap');
+
+            .rank-font-big {
+                font: 1.25em "Russo One", sans-serif;
+                fill: white;
+            }
+
+            .rank-font {
+                font: 1.1em "Russo One", sans-serif;
+                fill: white;
+            }
+        </style>
+        <svg y="28">
+            <defs>
+                <clipPath id="bar-clip">
+                    <polygon points="116,85 126,75 352,75 352,85" />
+                </clipPath>
+            </defs>
+            <polygon points="0,0 105,0 145,40 362,40 362,105 0,105"
+                     fill="#402020a0"
+                     stroke="#aeaeae"
+                     stroke-width="3" />
+            <line x1="105" y1="0" x2="145" y2="40" stroke="#aeaeae" stroke-width="5" />
+            <polygon points="362,4 362,34 150,34 120,4" fill="{{ rank.color }}" />
+            <text x="256"
+                  y="20"
+                  text-anchor="middle"
+                  dominant-baseline="middle"
+                  class="rank-font-big">{{ rank.rank.upper() }} {{ rank.tier }}</text>
+            <polygon points="116,85 126,75 352,75 352,85" fill="#716f6e" />
+            <polygon points="116,85 116,75 {{
+                        (rank.rp - rank.floor) / (rank.ceil - rank.floor) * (352 - 116) + 126
+                        }},75 {{
+                        (rank.rp - rank.floor) / (rank.ceil - rank.floor) * (352 - 116) + 116
+                        }},85"
+                     clip-path="url(#bar-clip)"
+                     fill="#ffffff" />
+            <text x="132" y="64" text-anchor="left" dominant-baseline="middle" class="rank-font">{{ rank.rp }}
+                <tspan fill="#959595"> / {{ rank.ceil }}</tspan>
+            </text>
+        </svg>
+        <image xlink:href="{{ url_for("static", filename="images/apex/rank-" + rank.uri + ".png", _external=True) }}"
+               width="30%"
+               x="6"
+               y="0" />
+        <text x="60"
+              y="102"
+              text-anchor="middle"
+              dominant-baseline="middle"
+              class="rank-font">{{ rank.tier }}</text>
+    </svg>
+{%- endmacro %}

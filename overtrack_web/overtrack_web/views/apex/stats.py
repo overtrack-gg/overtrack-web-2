@@ -83,7 +83,7 @@ STAT_FUNCTIONS = {
 
 logger = logging.getLogger(__name__)
 
-results_blueprint = Blueprint('apex_stats', __name__)
+results_blueprint = Blueprint('apex.stats', __name__)
 
 
 def get_games(user: User):
@@ -111,12 +111,19 @@ def render_results(user: User):
         statsrow.append((name, *func(games)))
 
     return render_template(
-        'results/results.html',
+        'apex/results/results.html',
         placements_data=hist,
         placements_prob=placements_prob,
 
         statsrow=statsrow
     )
+
+
+@results_blueprint.context_processor
+def context_processor():
+    return {
+        'game_name': 'apex'
+    }
 
 
 @results_blueprint.route('/')

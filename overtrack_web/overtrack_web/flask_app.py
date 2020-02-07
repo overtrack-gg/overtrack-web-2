@@ -113,18 +113,12 @@ except ImportError:
 
 # register context processors and filters
 @app.context_processor
-def inject_processors():
+def context_processor():
     from overtrack_web.lib.context_processors import processors as lib_context_processors
     from overtrack_web.lib.session import session
     processors = dict(lib_context_processors)
-    def current_user():
-        if check_authentication() is None:
-            return session.user
-        else:
-            return None
-    processors['current_user'] = current_user
+    processors['user'] = session.user if check_authentication() is None else None
     return processors
-
 from overtrack_web.lib.template_filters import filters
 app.jinja_env.filters.update(filters)
 
@@ -132,12 +126,13 @@ app.jinja_env.filters.update(filters)
 from overtrack_web.views.login import login_blueprint
 app.register_blueprint(login_blueprint)
 
-from overtrack_web.views.apex.games_list import games_list_blueprint
-app.register_blueprint(games_list_blueprint, url_prefix='/apex/games')
+# ------ APEX ROUTING ------
+from overtrack_web.views.apex.games_list import games_list_blueprint as apex_games_list_blueprint
+app.register_blueprint(apex_games_list_blueprint, url_prefix='/apex/games')
 @app.route('/apex')
 @app.route('/games')
 def apex_games_redirect():
-    return redirect(url_for('apex_games_list.games_list'), code=308)
+    return redirect(url_for('apex.games_list.games_list'), code=308)
 
 from overtrack_web.views.apex.game import game_blueprint
 # old url: /game/...
@@ -146,7 +141,6 @@ app.register_blueprint(game_blueprint, url_prefix='/apex/games')
 def apex_game_redirect(key):
     return redirect(url_for('apex_game.game', key=key), code=308)
 
-
 from overtrack_web.views.apex.stats import results_blueprint
 # old url: /stats
 app.register_blueprint(results_blueprint, url_prefix='/apex/stats')
@@ -154,8 +148,12 @@ app.register_blueprint(results_blueprint, url_prefix='/apex/stats')
 from overtrack_web.views.apex.scrims import scrims_blueprint
 app.register_blueprint(scrims_blueprint, url_prefix='/apex/scrims')
 
+# ------ OVERWATCH ROUTING ------
+from overtrack_web.views.overwatch.games_list import games_list_blueprint as overwatch_games_list_blueprint
+app.register_blueprint(overwatch_games_list_blueprint, url_prefix='/overwatch/games')
+
 try:
-    from overtrack_web.views.apex.discord_bot import discord_bot_blueprint
+    from overtrack_web.views.discord_bot import discord_bot_blueprint
 except:
     logging.exception('Failed to import discord_bot_blueprint - running without /discord_bot')
 else:
@@ -173,7 +171,7 @@ else:
 @app.route('/')
 def root():
     if check_authentication() is None:
-        return redirect(url_for('apex_games_list.games_list'), code=307)
+        return redirect(url_for('apex.games_list.games_list'), code=307)
     else:
         return welcome()
 

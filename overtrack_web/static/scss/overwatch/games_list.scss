@@ -1,0 +1,43 @@
+.game-summary > td {
+    padding: 0.2rem;
+}
+
+.game-result-win > .colour-by-result {
+    color: #90ff90;
+}
+.game-result-loss > .colour-by-result {
+    color: #ff6e6e;
+}
+.game-result-draw > .colour-by-result {
+    color: #f0ad4e;
+}
+.game-result-unknown > .colour-by-result {
+    color: #e305f8;
+}
+
+.game-summary > .end-sr > img {
+    height: 30px;
+}
+.game-summary > .hero > img {
+    height: 30px;
+}
+
+.game-summary > .map > .map-wrap {
+    height: 30px;
+}
+.game-summary > .map > .map-wrap > .map-bg {
+    background-position: center 67%;
+    height: 28px;
+    position: absolute;
+    width: 210px;
+    z-index: 0;
+    -webkit-filter: blur(2px) brightness(75%);
+    filter: blur(2px) brightness(75%);
+}
+.game-summary > .map > .map-wrap > .map-title {
+    z-index: 1;
+    display: inline-block;
+    padding-left: 20px;
+    position: relative;
+    padding-right: 20px;
+}

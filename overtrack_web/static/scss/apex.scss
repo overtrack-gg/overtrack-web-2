@@ -1,0 +1,142 @@
+$navbar-color: #6D3332;
+
+$body-color: #f8f9fa;
+$body-bg: #343a40;
+
+$card-bg: #282C2F;
+
+$table-dark-color: #f8f9fa;
+$table-dark-bg: #212529;
+
+@import "base";
+
+@import "apex/games_list";
+@import "apex/game";
+
+.card-main {
+    border-top: 0;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+    padding: 20px;
+}
+.innercol {
+    padding: 10px;
+}
+.card-body li {
+    padding-bottom: 10px;
+}
+
+
+/* we need a wider page for the table */
+.container.games-list {
+  max-width: 1350px ;
+}
+@media (min-width: 1210px) {
+  .col-lg-30pc {
+    -ms-flex: 0 0 30%;
+    flex: 0 0 30%;
+    max-width: 30%;
+  }
+  .col-lg-70pc {
+    -ms-flex: 0 0 70%;
+    flex: 0 0 70%;
+    max-width: 70%;
+  }
+  .col-lg-100pc {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  .games-list-games {
+    padding-left: 10px;
+    padding-right: 0px;
+  }
+}
+@media (max-width: 1210px) {
+  .card.stats {
+    display: none;
+  }
+  .games-list-games {
+    padding: 0px;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+}
+@media (max-width: 845px) {
+  .games-list .time, .games-list .duration, .games-list .squad {
+    display: none;
+  }
+  .games-list th.knockdowns {
+    left: 0px !important;
+  }
+}
+@media (max-width: 545px) {
+  .games-list .squad-kills {
+    display: none;
+  }
+}
+@media (max-width: 480px) {
+  .games-list .knockdowns, .games-list .kills {
+    display: none;
+  }
+}
+
+.card-header {
+    white-space:nowrap;
+}
+.card-body {
+    padding-top: 0;
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+    padding: 0.5rem;
+}
+.card-header {
+  white-space: nowrap;
+  padding-bottom: 0;
+  background-color: #992e2690;
+}
+.card {
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+.row {
+  padding-bottom: 0;
+}
+.text-blue {
+    color: #4d95ff;
+}
+.text-purple {
+    color: #ef20ff;
+}
+.text-gold {
+    color: #ffdf00;
+}
+.table-responsive {
+    display: table;
+}
+.table-tight td, .table-tight th {
+  padding: 6px;
+  margin: 0px;
+}
+
+.player-profile-panel {
+  background-color: #343A40;
+  border-radius: 6px;
+  box-shadow: 0 2px 3px rgba(10, 10, 10, 0.1), 0 0 0 1px rgba(10, 10, 10, 0.1);
+  color: #ffffff;
+  display: block;
+  padding: 1.25rem;
+}
+
+.player-games-list {
+  display: block;
+  padding: 1.25rem;
+}
+
+.game {
+  display: block;
+  background-color: #2F486C;
+  padding: 1.25rem;
+  margin: 10px 0;
+}

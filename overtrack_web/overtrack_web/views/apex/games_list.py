@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 import boto3
 import requests
 import time
-from flask import Blueprint, Request, Response, render_template, request, url_for, render_template_string
+from flask import Blueprint, Request, Response, render_template, render_template_string, request, url_for
 from itertools import islice
 from werkzeug.datastructures import MultiDict
 
@@ -33,7 +33,14 @@ except:
     logger.exception('Failed to create AWS S3 client - running without admin logs')
     s3 = None
 
-games_list_blueprint = Blueprint('apex_games_list', __name__)
+games_list_blueprint = Blueprint('apex.games_list', __name__)
+
+
+@games_list_blueprint.context_processor
+def context_processor():
+    return {
+        'game_name': 'apex',
+    }
 
 
 @games_list_blueprint.route('')
@@ -49,7 +56,7 @@ def public_games_list(username: str) -> Response:
     except User.DoesNotExist:
         user = None
     if not user or (not user.apex_games_public and not is_superuser()):
-        return 'Share link not found', 404
+        return 'User not found or games not public', 404
     return render_games_list(user, public=True)
 
 
@@ -62,7 +69,7 @@ def games_pagination():
         except User.DoesNotExist:
             user = None
         if not user or (not user.apex_games_public and not is_superuser()):
-            return 'Share link not found', 404
+            return 'User not found or games not public', 404
     else:
         if check_authentication() is None:
             user = session.user
@@ -71,7 +78,7 @@ def games_pagination():
     games_it, is_ranked, season = get_games(user, limit=PAGINATION_SIZE)
     games, next_from = paginate(games_it, username=user.username if public else None)
     return render_template_string(
-        '''{% import 'games_list/games_page.html' as games_page with context %}
+        '''{% import 'apex/games_list/games_page.html' as games_page with context %}
            {{ games_page.next_page(games, next_from) }}''',
         games=games,
         next_from=next_from,
@@ -174,13 +181,13 @@ def render_games_list(user: User, public=False, meta_title: Optional[str] = None
             title=(meta_title or user.username) + "'s Games",
             description=description,
             colour=rank_summary.color if rank_summary else '#992e26',
-            image_url=url_for('static', filename=f'images/{games[0].rank.rank}.png') if games[0].rank else None
+            image_url=url_for('static', filename=f'images/apex/{games[0].rank.rank}.png') if games[0].rank else None
         )
     else:
         summary_meta = WELCOME_META
 
     return render_template(
-        'games_list/games_list.html',
+        'apex/games_list/games_list.html',
         title=f"Apex Legends | {user.username}'s Games" if public else "My Games",
 
         games=games,
@@ -251,7 +258,7 @@ def paginate(games_it: ResultIteratorExt[ApexGameSummary], username: Optional[st
         next_args['last_evaluated'] = b64_encode(json.dumps(games_it.last_evaluated_key))
         if username:
             next_args['username'] = username
-        next_from = url_for('apex_games_list.games_pagination', **next_args)
+        next_from = url_for('apex.games_list.games_pagination', **next_args)
     else:
         next_from = None
     return games, next_from

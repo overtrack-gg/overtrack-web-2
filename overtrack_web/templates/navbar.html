@@ -1,7 +1,13 @@
-{% macro navbar_elem(text, route, bold=True) -%}
+{% macro navbar_elem(text, route, bold=True, new_tab=False) -%}
 {% if url_exists(route) %}
 <li class="nav-item {{ 'active' if request.path == url_for(route) else '' }}" style="{{ 'font-weight: bold;' if bold else '' }}">
-    <a class="nav-link" href="{{ url_for(route) }}">{{ text }}</a>
+    {% if new_tab %}
+    <a class="nav-link" href="{{ url_for(route) }}" target="_blank" rel="noopener noreferrer">
+    {% else %}
+    <a class="nav-link" href="{{ url_for(route) }}">
+    {% endif %}
+        {{ text }}
+    </a>
 </li>
 {% endif %}
 {%- endmacro -%}
@@ -15,27 +21,35 @@
     </button>
     <div class="collapse navbar-collapse justify-content-between" id="navbar">
         <ul class="navbar-nav">
-            {{ navbar_elem('Games', 'apex_games_list.games_list') }}
-            {{ navbar_elem('Stats', 'apex_stats.results') }}
+            {% if game_name %}
+            <li class="nav-item">
+                <b class="nav-link">
+<!--                TODO: icon and dropdown list etc.-->
+                    {{ game_name }} &nbsp;&gt;
+                </b>
+            </li>
+            {{ navbar_elem('Games', game_name + '.games_list.games_list') }}
+            {{ navbar_elem('Stats', game_name + '.stats.results') }}
+            {% endif %}
             <div class="dropdown-divider"></div>
             <li class="divider-vertical"></li>
             {{ navbar_elem('Discord Bot', 'discord_bot.discord_bot') }}
-            {{ navbar_elem('Download Client', 'client') }}
-            {% if not current_user() or not current_user().subscription_active %}
+            {% if not user or not user.subscription_active %}
             {{ navbar_elem('Subscribe ♥', 'subscribe.subscribe') }}
             {% endif %}
         </ul>
         <ul class="navbar-nav pull-right">
-            {{ navbar_elem('Join Discord', 'discord_redirect', bold=False) }}
-            {% if current_user() %}
+            {{ navbar_elem('Download Client', 'client') }}
+            {{ navbar_elem('Join Discord', 'discord_redirect', new_tab=True) }}
+            {% if user %}
             <div class="dropdown-divider"></div>
             <li class="divider-vertical"></li>
             <li class="nav-item dropdown" style="font-weight: bold;">
                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" style="color: white;">
-                    {{ current_user().username }}
+                    {{ user.username }}
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
-                    {% if url_exists('subscribe.subscribe') and current_user().subscription_active %}
+                    {% if url_exists('subscribe.subscribe') and user.subscription_active %}
                     <a class="dropdown-item" href="{{ url_for('subscribe.subscribe') }}">Subscription</a>
                     <div class="dropdown-divider"></div>
                     {% endif %}

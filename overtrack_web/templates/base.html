@@ -27,11 +27,15 @@
         <link type="application/json+oembed" href="{{ meta.oembed }}"/>
         {% endif %}
     {% endif %}
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.css') }}">
+    {% if game_name %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/' + game_name + '.css') }}">
+    {% else %}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/base.css') }}">
+    {% endif %}
     {% block css %}{% endblock %}
-    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}"/>
+    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='images/apex/favicon.png') }}"/>
 </head>
-<body class="has-background-black-ter has-text-white text-light bg-dark">
+<body class="has-background-black-ter has-text-white">
 {{ navbar.navbar() }}
 {% block content %}{% endblock %}
 <script       src="{{ url_for('static', filename='js/lib/jquery.min.js') }}"></script>

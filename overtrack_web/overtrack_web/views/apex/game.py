@@ -37,6 +37,13 @@ except:
 game_blueprint = Blueprint('apex_game', __name__)
 
 
+@game_blueprint.context_processor
+def context_processor():
+    return {
+        'game_name': 'apex'
+    }
+
+
 def get_summary(key):
     return ApexGameSummary.get(key)
 
@@ -127,7 +134,7 @@ def game(key: str):
         admin_data = None
 
     return render_template(
-        'game/game.html',
+        'apex/game/game.html',
         summary=summary,
         game=game,
         is_ranked=summary.rank is not None,

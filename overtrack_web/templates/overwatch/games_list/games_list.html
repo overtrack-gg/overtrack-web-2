@@ -1,0 +1,106 @@
+{% import 'overwatch/games_list/sessions_page.html' as sessions_page with context %}
+
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section>
+    <div class="container">
+        {% if show_sub_request %}
+        <div class="alert alert-primary sub-request" role="alert">
+            <h2>Support OverTrack's Development</h2>
+            <p>
+                Hi! I'm glad you're enjoying using OverTrack. <br/>
+                This has been a project I have poured my heart and soul into, and have been working fulltime on for some time. <br/>
+                I need the support of people like you to keep OverTrack alive. If you would like to help support the development of OverTrack, please consider subscribing.
+            </p>
+            <a href="/subscribe" class="btn btn-primary sub-link">Subscribe ♥</a>
+        </div>
+        {% endif %}
+
+        <div class="card season-selector">
+            <div class="card-header" style="background-color: #58859F; ">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle"
+                            type="button"
+                            id="dropdownMenuButton"
+                            data-toggle="dropdown"
+                            aria-haspopup="true"
+                            aria-expanded="false">
+                        {{ current_season.name }}
+                    </button>
+                    <div class="dropdown-menu"
+                         aria-labelledby="dropdownMenuButton"
+                         x-placement="bottom-start"
+                         style="position: absolute; transform: translate3d(0px, 38px, 0px); top: 0px; left: 0px; will-change: transform;">
+                        {% for s in seasons %}
+                        <a class="dropdown-item" href="?season={{ s.index }}">{{ s.name }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="sessions-list">
+                    {{ sessions_page.render_sessions_page(sessions, next_from) }}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+let timeOpts = {
+    hour: 'numeric',
+    minute: '2-digit',
+}
+let dateOpts = {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+};
+
+function update_times(){
+    let times = Array.prototype.slice.call(document.getElementsByClassName('epoch-format-time'));
+    for (let e of times){
+        let t = new Date(e.innerText * 1000);
+        e.innerText = t.toLocaleString('default', timeOpts);
+        e.classList.remove('epoch-format-time');
+        e.classList.add('epoch-formatted-time');
+    }
+
+    let dates = Array.prototype.slice.call(document.getElementsByClassName('epoch-format-date'));
+    for (let e of dates){
+        let t = new Date(e.innerText * 1000);
+        e.innerText = t.toLocaleString('default', dateOpts);
+        e.classList.remove('epoch-format-date');
+        e.classList.add('epoch-formatted-date');
+    }
+}
+function make_clickable(){
+    $("tr.clickable").click(function() {
+        window.document.location = $(this).data("href");
+    });
+    $("tr.clickable").mouseup(function() {
+        if (event.button === 1){
+            window.open($(this).data("href"));
+        }
+    });
+}
+function update_sessions(){
+    window.setTimeout(
+        ()=>{
+            update_times();
+            make_clickable();
+        },
+        0
+    );
+}
+$(document).ready(function($) {
+    update_sessions();
+});
+</script>
+{% endblock %}

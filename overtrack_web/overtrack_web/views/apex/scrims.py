@@ -41,6 +41,13 @@ class Match:
         return pformat(dict(self.games))
 
 
+@scrims_blueprint.context_processor
+def context_processor():
+    return {
+        'game_name': 'apex'
+    }
+
+
 @scrims_blueprint.route('/directory')
 def directory():
     matches = {}

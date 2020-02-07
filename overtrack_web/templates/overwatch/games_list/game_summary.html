@@ -1,0 +1,72 @@
+{% macro render_header(quickplay=False) -%}
+<tr>
+    <th>Time</th>
+    <th colspan="{{ '1' if quickplay else '2' }}">Result</th>
+    {% if not quickplay %}
+    <th>Score</th>
+    <th>SR</th>
+    {% endif %}
+    <th>Duration</th>
+    <th>Map</th>
+    <th>Heroes</th>
+</tr>
+{%- endmacro %}
+
+{% macro render_game(game, quickplay=False) -%}
+<tr class="game-summary game-result-{{ game.result.lower() }} game-summary"
+    data-toggle="popover"
+    tabindex="0">
+    <td class="time">
+        <div class="epoch-format-time">
+            {{ game.time }}
+        </div>
+    </td>
+    {% if not quickplay %}
+    <td class="sr-change colour-by-result num text-right">
+        <b>{{ sr_change(game) }}</b>
+    </td>
+    {% endif %}
+    <td class="result colour-by-result text-left">
+        {{ game.result | result }}
+    </td>
+    {% if not quickplay %}
+    {% if game.score %}
+    <td class="score colour-by-result">
+        <span class="num">
+            {{ game.score[0] }}
+        </span>
+        /
+        <span class="num">
+            {{ game.score[1] }}
+        </span>
+    </td>
+    {% else %}
+    <td class="score empty"></td>
+    {% endif %}
+    <td class="end-sr num">
+        <img src="{{ url_for('static', filename='images/overwatch/rank_icons/' + rank(game) + '.png') }}">
+        <span>{{ game.end_sr | ifnone('?') }}</span>
+    </td>
+    {% endif %}
+    <td class="duration">
+        <div class="num">
+            {{ game.duration | duration }}
+        </div>
+    </td>
+    <td class="map">
+        <div class="map-wrap">
+            <div class="map-bg bg" style="{{ map_style(game.map) }}"></div>
+            <div class="map-title">
+                <div class="map-title-bg bg"></div>
+                <i>{{ game.map }}</i>
+            </div>
+        </div>
+    </td>
+    <td class="hero" style="position: relative">
+        {% for hero in game.heroes_played[:3] %}
+        <img src="{{ url_for('static', filename='images/overwatch/hero_icons/' + hero[0] + '.png') }}">
+        {% endfor %}
+<!--        <span class="game-edit glyphicon glyphicon-pencil"></span>-->
+    </td>
+</tr>
+{%- endmacro %}

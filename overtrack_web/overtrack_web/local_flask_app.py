@@ -11,7 +11,7 @@ from werkzeug.utils import redirect
 
 os.environ['HMAC_KEY'] = base64.b64encode(b'').decode()
 
-from overtrack_web.data.apex import SEASONS, Season, latest_season
+from overtrack_web.data.apex_data import seasons, ApexSeason, current_season
 from overtrack_web.data import WELCOME_META
 from overtrack_models.orm.apex_game_summary import ApexGameSummary
 
@@ -45,9 +45,9 @@ from overtrack_web.lib import authentication
 class MockUser(NamedTuple):
     # TODO: this is poorly mocked out
     username: str = 'MOCK_USER'
-    apex_last_season: int = latest_season
+    apex_last_season: int = current_season.index
     apex_last_game_ranked: bool = True
-    apex_seasons: List[int] = list(SEASONS.keys())
+    apex_seasons: List[int] = list(seasons.keys())
     subscription_active: bool = True
     def refresh(self):
         pass
@@ -69,11 +69,8 @@ authentication.check_authentication = mock_check_authentication
 @app.context_processor
 def inject_processors():
     from overtrack_web.lib.context_processors import processors as lib_context_processors
-
     processors = dict(lib_context_processors)
-    def current_user():
-        return mock_user
-    processors['current_user'] = current_user
+    processors['user'] = mock_user
     return processors
 from overtrack_web.lib.template_filters import filters
 app.jinja_env.filters.update(filters)
@@ -89,7 +86,7 @@ class MockGamesIterator:
         self.last_evaluated_key = last_evaluated_key
     def __iter__(self):
         return iter(self.games)
-def mock_get_games(user, limit=100) -> Tuple[MockGamesIterator, bool, Season]:
+def mock_get_games(user, limit=100) -> Tuple[MockGamesIterator, bool, ApexSeason]:
     try:
         season_id = int(request.args['season'])
         is_ranked = request.args['ranked'].lower() == 'true'
@@ -97,8 +94,9 @@ def mock_get_games(user, limit=100) -> Tuple[MockGamesIterator, bool, Season]:
         season_id = user.apex_last_season
         is_ranked = user.apex_last_game_ranked
     if season_id is None:
-        season_id = latest_season
-    season = SEASONS[season_id]
+        season_id = current_season.index
+    print(current_season.index, season_id)
+    season = seasons[season_id]
     games = []
     url = f'https://api2.overtrack.gg/apex/games/{GAMES_SOURCE}?season={season_id}&limit={limit}'
     logging.info(f'Fetching {url}')
@@ -131,7 +129,7 @@ from overtrack_web.views.apex.games_list import games_list_blueprint
 app.register_blueprint(games_list_blueprint, url_prefix='/apex/games')
 @app.route('/apex')
 def apex_games_redirect():
-    return redirect(url_for('apex_games_list.games_list'), code=308)
+    return redirect(url_for('apex.games_list.games_list'), code=308)
 
 from overtrack_web.views.apex.game import game_blueprint
 app.register_blueprint(game_blueprint, url_prefix='/apex/games')
@@ -141,7 +139,7 @@ def apex_game_redirect(key):
 
 @app.route('/')
 def root():
-    return redirect(url_for('apex_games_list.games_list'), code=307)
+    return redirect(url_for('apex.games_list.games_list'), code=307)
 
 # template only views
 @app.route('/client')
