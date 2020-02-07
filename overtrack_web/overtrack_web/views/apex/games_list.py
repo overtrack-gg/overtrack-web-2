@@ -1,4 +1,3 @@
-import base64
 import json
 import logging
 from typing import Optional, Tuple
@@ -16,12 +15,12 @@ from overtrack_models.dataclasses.apex.apex_game import ApexGame
 from overtrack_models.orm.apex_game_summary import ApexGameSummary
 from overtrack_models.orm.common import ResultIteratorExt
 from overtrack_models.orm.user import User
-from overtrack_web.data import WELCOME_META
-from overtrack_web.data.apex import RANK_RP, RankSummary, SEASONS, Season, get_tier_window
+from overtrack_web.data import ApexRankSummary, ApexSeason, WELCOME_META, apex_data
+from overtrack_web.lib import b64_decode, b64_encode
 from overtrack_web.lib.authentication import check_authentication, require_login
 from overtrack_web.lib.opengraph import Meta
 from overtrack_web.lib.session import session
-from overtrack_web.views.apex.game import make_game_description, compat_game_data
+from overtrack_web.views.apex.game import compat_game_data, make_game_description
 
 PAGINATION_SIZE = 30
 
@@ -99,9 +98,8 @@ def render_games_list(user: User, public=False, meta_title: Optional[str] = None
     # TODO: don't list ranked/unranked if a player has e.g. no ranked games in a season
     seasons = []
     for sid in user.apex_seasons:
-        if sid in SEASONS:
-            s = SEASONS[sid]
-            seasons.append(s)
+        if sid in apex_data.seasons:
+            seasons.append(apex_data.seasons[sid])
 
     logger.info(f'User {user.username} has user.apex_seasons={user.apex_seasons} => {seasons}')
     seasons = sorted(seasons, key=lambda s: s.start, reverse=True)
@@ -138,10 +136,10 @@ def render_games_list(user: User, public=False, meta_title: Optional[str] = None
         rp = latest_game.rank.rp + latest_game.rank.rp_change
         derived_rank = None
         derived_tier = None
-        for rank, (lower, upper) in RANK_RP.items():
+        for rank, (lower, upper) in apex_data.rank_rp.items():
             if lower <= rp < upper:
                 derived_rank = rank
-                rank_floor, rank_ceil = get_tier_window(rp, lower, (upper - lower) // 4)
+                rank_floor, rank_ceil = apex_data.get_tier_window(rp, lower, (upper - lower) // 4)
                 if rank != 'apex_predator':
                     division = (upper - lower) // 4
                     tier_ind = (rp - lower) // division
@@ -152,7 +150,7 @@ def render_games_list(user: User, public=False, meta_title: Optional[str] = None
                     rank_floor = 1000
                     rank_ceil = rp
                 break
-        rank_summary = RankSummary(rp, rank_floor, rank_ceil, derived_rank, derived_tier)
+        rank_summary = ApexRankSummary(rp, rank_floor, rank_ceil, derived_rank, derived_tier)
     else:
         rank_summary = None
 
@@ -202,7 +200,7 @@ def render_games_list(user: User, public=False, meta_title: Optional[str] = None
     )
 
 
-def get_games(user: User, limit: Optional[int] = None) -> Tuple[ResultIteratorExt[ApexGameSummary], bool, Season]:
+def get_games(user: User, limit: Optional[int] = None) -> Tuple[ResultIteratorExt[ApexGameSummary], bool, ApexSeason]:
     try:
         season_id = int(request.args['season'])
         is_ranked = request.args['ranked'].lower() == 'true'
@@ -211,10 +209,10 @@ def get_games(user: User, limit: Optional[int] = None) -> Tuple[ResultIteratorEx
         is_ranked = user.apex_last_game_ranked
 
     if season_id is None:
-        season_id = sorted(s for s in SEASONS.keys() if s < 1000)[-1]
+        season_id = apex_data.current_season.index
     logger.info(f'Getting games for {user.username} => season_id={season_id}')
 
-    season = SEASONS[season_id]
+    season = apex_data.seasons[season_id]
     range_key_condition = ApexGameSummary.timestamp.between(season.start, season.end)
     filter_condition = ApexGameSummary.season == season_id
     if is_ranked:
@@ -257,14 +255,3 @@ def paginate(games_it: ResultIteratorExt[ApexGameSummary], username: Optional[st
     else:
         next_from = None
     return games, next_from
-
-
-def b64_encode(s: str) -> str:
-    encoded = base64.urlsafe_b64encode(s.encode()).decode()
-    return encoded.rstrip("=")
-
-
-def b64_decode(s: str) -> str:
-    padding = 4 - (len(s) % 4)
-    s = s + ("=" * padding)
-    return base64.urlsafe_b64decode(s.encode()).decode()

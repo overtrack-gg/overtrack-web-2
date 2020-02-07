@@ -1,5 +1,7 @@
 import os
 
+from overtrack_web.data import apex_data, overwatch_data
+from overtrack_web.data.apex_data import ApexRankSummary, ApexSeason
 from overtrack_web.lib.opengraph import Meta
 
 CDN_URL = os.environ.get('CDN_URL', 'https://cdn.overtrack.gg/static')
