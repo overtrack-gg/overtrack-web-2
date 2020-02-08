@@ -1,8 +1,8 @@
 function placefreq() {
     d3.selectAll("#placefreq-svg").remove();
 
-    const width = $('#placefreq').width();
-    const height = $('#placefreq').height();
+    const width = $('#placefreq').parent().width();
+    const height = $('#placefreq').parent().height();
 
     const margin = ({top: 20, right: 40, bottom: 30, left: 40});
 
@@ -106,8 +106,8 @@ function placefreq() {
 function placeprob() {
     d3.selectAll("#placeprob-svg").remove();
 
-    const width = $('#placeprob').width();
-    const height = $('#placeprob').height();
+    const width = $('#placeprob').parent().width();
+    const height = $('#placeprob').parent().height();
 
     const margin = ({top: 20, right: 20, bottom: 30, left: 40});
 
