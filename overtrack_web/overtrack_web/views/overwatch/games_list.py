@@ -62,7 +62,7 @@ class Session:
             return False
         elif self.game_mode != game.game_type:
             return False
-        elif game.time - self.end > SESSION_MAX_TIME_BETWEEN_GAMES * 60:
+        elif self.start - (game.time + game.duration) > SESSION_MAX_TIME_BETWEEN_GAMES * 60:
             return False
         else:
             self.games.append(game)
@@ -200,7 +200,7 @@ def games_next() -> FlaskResponse:
         else:
             return 'Not logged in', 403
 
-    sessions, season, last_evaluated = get_sessions(user)
+    sessions, season, last_evaluated = get_sessions(user, share_link=share_link)
 
     if last_evaluated:
         next_args['last_evaluated'] = last_evaluated
@@ -343,7 +343,7 @@ def get_sessions(
             logger.info(
                 f'    '
                 f'Added game to last session, '
-                f'offset={s2ts(game.time - sessions[-1].end)}, '
+                f'offset={s2ts(sessions[-1].games[-2].time - (game.time + game.duration))}, '
                 f'game={game}'
             )
         elif total_games + len(sessions) * sessions_count_as <= page_minimum_size:
