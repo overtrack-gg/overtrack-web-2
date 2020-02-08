@@ -22,6 +22,9 @@ $navbar-color: #222870 !default;
 @import "bootstrap/type";
 @import "bootstrap/spinners";
 
+.epoch-format-time, .epoch-format-date, epoch-format-datetime {
+    display: none;
+}
 
 /* Main */
 body {
