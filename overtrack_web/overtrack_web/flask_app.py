@@ -153,7 +153,7 @@ from overtrack_web.views.overwatch.games_list import games_list_blueprint as ove
 app.register_blueprint(overwatch_games_list_blueprint, url_prefix='/overwatch/games')
 
 try:
-    from overtrack_web.views.discord_bot import discord_bot_blueprint
+    from overtrack_web.views.apex.discord_bot import discord_bot_blueprint
 except:
     logging.exception('Failed to import discord_bot_blueprint - running without /discord_bot')
 else:

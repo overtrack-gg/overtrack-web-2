@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 ORIGIN_WHITELIST = [
+    'localhost',
     'www.overtrack.gg',
     'overtrack.gg',
     'apex.overtrack.gg',

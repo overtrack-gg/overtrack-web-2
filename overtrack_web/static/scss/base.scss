@@ -11,6 +11,9 @@ $navbar-color: #222870 !default;
 @import "bootstrap/bootstrap-reboot";
 @import "bootstrap/utilities/flex";
 @import "bootstrap/utilities/display";
+@import "bootstrap/utilities/spacing";
+@import "bootstrap/utilities/shadows";
+@import "bootstrap/utilities/borders";
 @import "bootstrap/vendor/rfs";
 @import "bootstrap/grid";
 @import "bootstrap/navbar";
@@ -21,6 +24,9 @@ $navbar-color: #222870 !default;
 @import "bootstrap/tables";
 @import "bootstrap/type";
 @import "bootstrap/spinners";
+@import "bootstrap/forms";
+@import "bootstrap/custom-forms";
+
 
 .epoch-format-time, .epoch-format-date, epoch-format-datetime {
     display: none;
@@ -81,8 +87,12 @@ body {
      content: "#";
      font-size: 25pt;
      color: gray;
-     top: 9px;
      position: absolute;
      font-weight: bold;
      margin-left: 3pt;
+}
+.discord-notifications a {
+    margin-top: -10px;
+    height: 30px;
+    padding-top: 0;
 }

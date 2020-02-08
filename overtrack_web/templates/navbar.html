@@ -30,10 +30,11 @@
             </li>
             {{ navbar_elem('Games', game_name + '.games_list.games_list') }}
             {{ navbar_elem('Stats', game_name + '.stats.results') }}
+            <div class="dropdown-divider"></div>
+            {{ navbar_elem('Discord Bot', game_name + '.discord_bot.root') }}
             {% endif %}
             <div class="dropdown-divider"></div>
             <li class="divider-vertical"></li>
-            {{ navbar_elem('Discord Bot', 'discord_bot.discord_bot') }}
             {% if not user or not user.subscription_active %}
             {{ navbar_elem('Subscribe ♥', 'subscribe.subscribe') }}
             {% endif %}
