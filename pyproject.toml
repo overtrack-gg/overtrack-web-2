@@ -17,8 +17,8 @@ requests_oauthlib = "*"
 dataclasses = "*"
 shortuuid = "*"
 
-datadog = "^0.29"
-sentry_sdk = "^0.11"
+datadog = "^0"
+sentry_sdk = "^0"
 stripe = "^2.35"
 
 [tool.poetry.dev-dependencies]
