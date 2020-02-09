@@ -9,7 +9,9 @@ Note specifically the dependency on [overtrack-models](https://gitlab.com/OverTr
 
 ### Running
 `overtrack_web/overtrack_web/local_flask_app.py` exposes a flask app that matches much of the live version and mocks access to games 
-so that games are populated from the OverTrack API using a public share link in the environment variable `GAMES_SOURCE` or `"mendokusaii"` by default. This should be easy to modify to use a session cookie instead, which would allow you use your own games.
+so that games are populated from the OverTrack API using public share links.
+The source of the "mock" games can be changed by changing the environment variables `APEX_GAMES_SOURCE` and `OVERWATCH_GAMES_SOURCE`.
+It would also be possible to modify the initial fetching of games to use a session cookie instead, which would allow you use your own games.
 
 `local_flask_app` does not run with the discord bot or subscribe pages active, and mocks login so that you are always logged in as a mock user.
 

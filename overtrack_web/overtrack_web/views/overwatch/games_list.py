@@ -328,7 +328,7 @@ def get_sessions(
     t0 = time.perf_counter()
     sessions: List[Session] = []
     total_games = 0
-    last_item = None
+    last_evaluated_key = None
     query = OverwatchGameSummary.user_id_time_index.query(
         user.user_id,
         range_key_condition,
@@ -353,9 +353,9 @@ def get_sessions(
         else:
             logger.info(f'Got {total_games} games over {len(sessions)} sessions - pagination limit reached')
             break
-        last_item = query._items[query._index - 1]
+        last_evaluated_key = query.last_evaluated_key
     else:
-        last_item = None
+        last_evaluated_key = None
 
     t1 = time.perf_counter()
     logger.info(f'Building sessions list took {(t1 - t0)*1000:.2f}ms - took {total_games / page_size + 0.5:.0f} result pages')
@@ -364,13 +364,12 @@ def get_sessions(
     for s in sessions:
         logger.info(f'    {s}')
 
-    if last_item is None:
+    if last_evaluated_key is None:
         logger.info(f'Reached end of query - not providing a last_evaluated')
         return sessions, season, None
     else:
-        last_item_keys = {key: last_item[key] for key in query.page_iter.key_names}
-        logger.info(f'Reached end of query with items remaining - returning last_evaluated={last_item_keys!r}')
-        return sessions, season, b64_encode(json.dumps(last_item_keys))
+        logger.info(f'Reached end of query with items remaining - returning last_evaluated={last_evaluated_key!r}')
+        return sessions, season, b64_encode(json.dumps(last_evaluated_key))
 
 
 def hopeful_int(s: Optional[str]) -> Optional[int]:

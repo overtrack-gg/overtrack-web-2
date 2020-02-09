@@ -44,10 +44,6 @@ def context_processor():
     }
 
 
-def get_summary(key):
-    return ApexGameSummary.get(key)
-
-
 @dataclass
 class ScrimDetails:
     champion_name: str
@@ -57,9 +53,8 @@ class ScrimDetails:
 
 @game_blueprint.route('/<path:key>')
 def game(key: str):
-
     try:
-        summary = get_summary(key)
+        summary = ApexGameSummary.get(key)
     except ApexGameSummary.DoesNotExist:
         return 'Game does not exist', 404
     logger.info(f'Fetching {summary.url}')

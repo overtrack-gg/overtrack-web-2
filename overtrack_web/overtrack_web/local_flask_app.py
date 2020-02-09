@@ -41,90 +41,29 @@ app.jinja_env.globals['url_for'] = url_for
 flask.url_for = url_for
 
 # running locally - patch login/auth code
-from overtrack_web.lib import authentication
-class MockUser(NamedTuple):
-    # TODO: this is poorly mocked out
-    username: str = 'MOCK_USER'
-    apex_last_season: int = current_season.index
-    apex_last_game_ranked: bool = True
-    apex_seasons: List[int] = list(seasons.keys())
-    subscription_active: bool = True
-    def refresh(self):
-        pass
-mock_user = MockUser()
-class MockSession(NamedTuple):
-    user_id: int
-    key: str
-    superuser: bool = False
-    user: MockUser = mock_user
-def mock_check_authentication(*_, **__):
-    g.session = MockSession(
-        user_id=-1,
-        key='MOCK-USER'
-    )
-    return None
-authentication.check_authentication = mock_check_authentication
+from overtrack_web.mocks import login_mocks
 
 # register context processors and filters
 @app.context_processor
 def inject_processors():
     from overtrack_web.lib.context_processors import processors as lib_context_processors
     processors = dict(lib_context_processors)
-    processors['user'] = mock_user
+    processors['user'] = login_mocks.mock_user
     return processors
 from overtrack_web.lib.template_filters import filters
 app.jinja_env.filters.update(filters)
 
 # running locally - hack to load games from the API instead of from dynamodb
-GAMES_SOURCE = os.environ.get('GAMES_SOURCE', 'mendokusaii')
-import overtrack_web.views.apex.games_list
-import overtrack_web.views.apex.stats
-import overtrack_web.views.apex.game
-class MockGamesIterator:
-    def __init__(self, games, last_evaluated_key):
-        self.games = games
-        self.last_evaluated_key = last_evaluated_key
-    def __iter__(self):
-        return iter(self.games)
-def mock_get_games(user, limit=100) -> Tuple[MockGamesIterator, bool, ApexSeason]:
-    try:
-        season_id = int(request.args['season'])
-        is_ranked = request.args['ranked'].lower() == 'true'
-    except:
-        season_id = user.apex_last_season
-        is_ranked = user.apex_last_game_ranked
-    if season_id is None:
-        season_id = current_season.index
-    print(current_season.index, season_id)
-    season = seasons[season_id]
-    games = []
-    url = f'https://api2.overtrack.gg/apex/games/{GAMES_SOURCE}?season={season_id}&limit={limit}'
-    logging.info(f'Fetching {url}')
-    r = requests.get(url)
-    r.raise_for_status()
-    data = r.json()
-    for g in data['games']:
-        games.append(ApexGameSummary(**g))
-    return MockGamesIterator(games, data['last_evaluated_key']), is_ranked, season
-overtrack_web.views.apex.games_list.get_games = mock_get_games
-def mock_get_games_stats(user):
-    games = []
-    r = requests.get(f'https://api2.overtrack.gg/apex/games/{GAMES_SOURCE}')
-    r.raise_for_status()
-    for g in r.json()['games']:
-        games.append(ApexGameSummary(**g))
-    return games
-overtrack_web.views.apex.stats.get_games = mock_get_games_stats
-def mock_get_summary(key):
-    r = requests.get(f'https://api2.overtrack.gg/apex/game_summary/{key}')
-    r.raise_for_status()
-    return ApexGameSummary(**r.json())
-overtrack_web.views.apex.game.get_summary = mock_get_summary
+from overtrack_web.mocks.apex_mocks import mock_apex_games
+mock_apex_games()
+from overtrack_web.mocks.overwatch_mocks import mock_overwatch_games
+mock_overwatch_games()
 
 # complex views requiring their own controllers - slimmed down version from actual site
 from overtrack_web.views.login import login_blueprint
 app.register_blueprint(login_blueprint)
 
+# ------ APEX ROUTING ------
 from overtrack_web.views.apex.games_list import games_list_blueprint
 app.register_blueprint(games_list_blueprint, url_prefix='/apex/games')
 @app.route('/apex')
@@ -136,6 +75,14 @@ app.register_blueprint(game_blueprint, url_prefix='/apex/games')
 @app.route('/game/<path:key>')
 def apex_game_redirect(key):
     return redirect(url_for('apex_game.game', key=key), code=308)
+
+from overtrack_web.views.apex.stats import results_blueprint
+app.register_blueprint(results_blueprint, url_prefix='/apex/stats')
+
+# ------ OVERWATCH ROUTING ------
+from overtrack_web.views.overwatch.games_list import games_list_blueprint as overwatch_games_list_blueprint
+app.register_blueprint(overwatch_games_list_blueprint, url_prefix='/overwatch/games')
+
 
 @app.route('/')
 def root():
