@@ -28,17 +28,19 @@ logging.basicConfig(level=logging.INFO)
 from sassutils.wsgi import SassMiddleware
 
 # live building of scss
-app.wsgi_app = SassMiddleware(app.wsgi_app, {
-    'overtrack_web': ('../static/scss', '../static/css', '/static/css')
-})
-# this middleware wants css files to end with .scss.css, while boussole compiles to .css
-orig_url_for = flask.url_for
-def url_for(endpoint, **values):
-    if endpoint == 'static' and 'filename' in values and values['filename'].endswith('.css'):
-        values['filename'] = values['filename'].replace('.css', '.scss.css')
-    return orig_url_for(endpoint, **values)
-app.jinja_env.globals['url_for'] = url_for
-flask.url_for = url_for
+from sassutils.wsgi import SassMiddleware, Manifest
+# noinspection PyTypeChecker
+app.wsgi_app = SassMiddleware(
+    app.wsgi_app,
+    {
+        'overtrack_web': Manifest(
+            '../static/scss',
+            '../static/css',
+            '/static/css',
+            strip_extension=True,
+        )
+    }
+)
 
 # running locally - patch login/auth code
 from overtrack_web.mocks import login_mocks
