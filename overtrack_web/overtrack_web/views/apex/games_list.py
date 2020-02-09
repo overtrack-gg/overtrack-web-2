@@ -81,15 +81,9 @@ def games_pagination():
         '''{% import 'apex/games_list/games_page.html' as games_page with context %}
            {{ games_page.next_page(games, next_from) }}''',
         games=games,
+        is_ranked=is_ranked,
         next_from=next_from,
     )
-
-
-def is_superuser():
-    if check_authentication() is None:
-        return session.user.superuser
-    else:
-        return False
 
 
 def render_games_list(user: User, public=False, meta_title: Optional[str] = None) -> Response:
@@ -263,3 +257,10 @@ def paginate(games_it: ResultIteratorExt[ApexGameSummary], username: Optional[st
     else:
         next_from = None
     return games, next_from
+
+
+def is_superuser():
+    if check_authentication() is None:
+        return session.user.superuser
+    else:
+        return False
