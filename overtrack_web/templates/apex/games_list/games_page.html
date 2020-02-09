@@ -3,7 +3,10 @@
 {% macro next_page(games, next_from) -%}
 {% for game in games %}
 <tr>
-    <td class="date-divider date-divider-invisible date-divider-timestamp" colspan="{{10}}" data-timestamp="{{game.timestamp}}"></td>
+    <td class="date-divider date-divider-invisible date-divider-timestamp"
+        colspan="{{10}}"
+        data-timestamp="{{game.timestamp}}">
+    </td>
 </tr>
 <tr></tr>
 {{ game_summary.summary(game) }}
