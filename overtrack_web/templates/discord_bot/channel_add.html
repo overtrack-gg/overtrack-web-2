@@ -46,6 +46,7 @@
         <div class="row">
             <div class="col mx-3 p-3">
                 <h5 class="mb-lg-3">Add to existing channel</h5>
+                {% if channels %}
                 <div class="form-group">
                     <select name="existing_args" class="custom-select text-white">
                         <option selected disabled>Choose a channel</option>
@@ -70,6 +71,18 @@
                 <button type="submit" class="btn btn-primary btn-block" name="existing" value="true">
                     Add to channel
                 </button>
+                {% else %}
+                <p>
+                    It looks like you dont't have any valid channels to post your games to.
+                </p>
+                {% if not allow_create_channel %}
+                <p>
+                    A server admin can install the OverTrack bot in a new channel/server with the "Add New Bot" option.
+                    If the bot does exist in a channel you are in, but you don't see it here make sure you have permission to post messages to that channel.
+                </p>
+                <a href="{{ discord_bot_root }}">Back</a>
+                {% endif %}
+                {% endif %}
             </div>
             {% if allow_create_channel %}
             <div class="col mx-3 p-3">

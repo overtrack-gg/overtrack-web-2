@@ -209,6 +209,8 @@ def bot_authorized():
     return render_template(
         'discord_bot/channel_add.html',
 
+        discord_bot_root=url_for(discord_bot_blueprint.name + '.root'),
+
         add_to_channel=url_for(discord_bot_blueprint.name + '.add_to_channel'),
         channels=channel_group,
 
@@ -503,6 +505,8 @@ def add_to_existing():
 
     return render_template(
         'discord_bot/channel_add.html',
+
+        discord_bot_root=url_for(discord_bot_blueprint.name + '.root'),
 
         add_to_channel=url_for(discord_bot_blueprint.name + '.add_to_channel'),
         channels=allowed_servers,
