@@ -215,8 +215,9 @@ def get_games(user: User, limit: Optional[int] = None) -> Tuple[ResultIteratorEx
         season_id = user.apex_last_season
         is_ranked = user.apex_last_game_ranked
 
-    if season_id is None:
+    if season_id is None or season_id not in apex_data.seasons:
         season_id = apex_data.current_season.index
+
     logger.info(f'Getting games for {user.username} => season_id={season_id}')
 
     season = apex_data.seasons[season_id]
