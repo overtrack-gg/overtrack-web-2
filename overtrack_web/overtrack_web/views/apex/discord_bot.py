@@ -134,7 +134,7 @@ def authorize_bot():
     oauth = requests_oauthlib.OAuth2Session(
         CLIENT_ID,
         redirect_uri=url_for(discord_bot_blueprint.name + '.bot_authorized', _external=True),
-        scope=['bot'],
+        scope=['identify', 'bot'],
     )
     authorisation_url, state = oauth.authorization_url(AUTHORISE_URL, permissions=SEND_MESSAGES | MANAGE_ROLES | MANAGE_CHANNELS)
     logger.info(f'Got OAUTH authorisation url: {authorisation_url}')
@@ -398,7 +398,7 @@ def authorize_list_servers():
     oauth = requests_oauthlib.OAuth2Session(
         CLIENT_ID,
         redirect_uri=url_for(discord_bot_blueprint.name + '.add_to_existing', _external=True),
-        scope=['guilds'],
+        scope=['identify', 'guilds'],
     )
     authorisation_url, state = oauth.authorization_url(AUTHORISE_URL)
     logger.info(f'Got OAUTH authorisation url: {authorisation_url}')
