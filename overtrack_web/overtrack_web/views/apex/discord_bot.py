@@ -84,6 +84,17 @@ def root():
     notifications = []
     n: DiscordBotNotification
     for n in DiscordBotNotification.user_id_index.query(session.user_id):
+        # update cache
+        try:
+            n.refresh()
+        except DiscordBotNotification.DoesNotExist:
+            logger.warning(f'Found matching {n} in cache, but it has been deleted, not included')
+            continue
+        for o in list(notification_cache[n.guild_id]):
+            if n.key == o.key:
+                notification_cache[n.guild_id].remove(o)
+        notification_cache[n.guild_id].append(n)
+
         channel_info, guild_info = _get_channel_and_guild_info(n.channel_id)
         if not channel_info or not guild_info:
             logger.info(f'Could not get channel info for {n} - ignoring')
@@ -439,6 +450,11 @@ def add_to_existing():
     for membership in guilds:
         existing_notification: DiscordBotNotification
         for existing_notification in notification_cache[membership['id']]:
+            try:
+                existing_notification.refresh()
+            except DiscordBotNotification.DoesNotExist:
+                logger.warning(f'Found matching {existing_notification} in cache, but it has been deleted, not included')
+                continue
             if not existing_notification.autoapprove_children:
                 logger.warning(f'Found matching {existing_notification}, but autoapprove_children is False, not including')
                 continue
