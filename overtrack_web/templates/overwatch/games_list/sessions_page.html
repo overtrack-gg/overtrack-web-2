@@ -10,16 +10,18 @@
                 <div class="card-body">
                     <div class="games-list">
                         <div class="table-responsive">
-                            <table id="gamesList" class="table table-borderless table-striped table-hover shadow games-list narrow">
-                                <thead class="">
-                                {{ game_summary.render_header(session.quickplay) }}
-                                </thead>
-                                <tbody id="gamesListBody">
-                                {% for game in session.games %}
-                                {{ game_summary.render_game(game, session.quickplay) }}
-                                {% endfor %}
-                                </tbody>
-                            </table>
+                            <a class="make-clickable-target">
+                                <table id="gamesList" class="table table-borderless table-striped table-hover shadow games-list narrow">
+                                    <thead class="">
+                                    {{ game_summary.render_header(session.quickplay) }}
+                                    </thead>
+                                    <tbody id="gamesListBody">
+                                    {% for game in session.games %}
+                                    {{ game_summary.render_game(game, session.quickplay) }}
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -38,7 +40,7 @@
         ic-trigger-on='scrolled-into-view'
         ic-target='#nextSessions'
         ic-indicator='#indicator'
-        ic-on-complete='update_sessions'
+        ic-on-complete='update_elements'
         ic-replace-target='true'
     >
         <div id="indicator" class="d-flex justify-content-center" style="display: none !important;">

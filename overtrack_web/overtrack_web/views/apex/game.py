@@ -76,8 +76,6 @@ def game(key: str):
     game_data = compat_game_data(game_data)
     game = typedload.load(game_data, ApexGame)
 
-    dataclasses.asdict(game)
-
     # used for link previews
     og_description = make_game_description(summary, divider='\n')
     meta = Meta(

@@ -97,3 +97,20 @@ body {
     height: 30px;
     padding-top: 0;
 }
+
+.report-footer {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  height: 34px;
+  width: 260px;
+  background-color: $navbar-color;
+  padding-left: 15px;
+  padding-top: 5px;
+  border-top-left-radius: 5px;
+}
+.report-footer a {
+  color: white;
+  font-weight: bold;
+  text-decoration: underline;
+}

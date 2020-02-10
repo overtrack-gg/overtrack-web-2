@@ -1,0 +1,56 @@
+{% import 'util.html' as util with context %}
+
+{% extends "base.html" %}
+{% block title %}Game{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        {{ util.dict_to_card(summary_dict, 'Summary') }}
+        {{ util.dict_to_card(game_dict, 'Game') }}
+    </div>
+    <div class="row">
+        {{ util.dict_to_card(all_stats, 'Stats') }}
+    </div>
+</div>
+<div class="report-footer">
+    <a href="#" onclick="report_issue()">Report an issue with this game</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+<script src="https://browser.sentry-cdn.com/5.0.6/bundle.min.js" crossorigin="anonymous"></script>
+<script type="text/javascript">
+class UserReport extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "{{ game.key }}";
+  }
+};
+function report_issue(){
+    Sentry.init({
+        dsn: 'https://3ff0ce0da5ef40c19c6ef3a13a39aea5@sentry.io/1434728',
+        beforeSend(event, hint) {
+            Sentry.showReportDialog({
+                eventId: event.event_id,
+                labelName: 'Discord Name',
+                user: {
+                    'name': 'Not Provided',
+                    'email': 'none@example.com'
+                },
+
+                title: 'Report Tracking Issue',
+                subtitle: 'Please also join the Discord to stay in the loop and provide more feedback if necessary. https://discord.gg/JywstAB',
+                labelComments: 'What\'s wrong with this game?',
+                labelSubmit: 'Submit',
+            });
+            return event;
+        }
+    });
+    let error = new UserReport('User Reported Issue');
+    Sentry.captureException(error, {fingerprint: ["{{ game['key'] }}"]});
+}
+
+</script>
+{% endblock %}

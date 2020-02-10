@@ -1,5 +1,6 @@
 {% import 'apex/games_list/game_summary.html' as game_summary with context %}
 {% import 'apex/game/map.html' as map with context %}
+{% import 'util.html' as util with context %}
 
 {% macro player(player, index) -%}
 {% if player %}
@@ -67,41 +68,6 @@
 </div>
 {% endif %}
 {%- endmacro %}
-
-{% macro dict_to_card(d, name, width=6) -%}
-{% if d %}
-<div class="col-sm-{{ width }} card">
-    <div class="card-header">
-        {% if '_href' in d %}
-        <a href="{{ d['_href'] }}"><h5>{{ name }}</h5></a>
-        {% else %}
-        <h5>{{ name }}</h5>
-        {% endif %}
-    </div>
-    <div class="card-body">
-        <table class="table table-dark table-borderless table-striped table-hover">
-            <tbody>
-            {% for e in d.items() %}
-            {% if e[0] != '_href' %}
-            <tr>
-                <th>{{ e[0] }}</th>
-                <td>
-                {% if e[1] is not string and e[1][1] is string and e[1][1].startswith('http') %}
-                <a href="{{ e[1][1] }}">{{ e[1][0] }}</a>
-                {% else %}
-                {{ e[1] }}
-                {% endif %}
-                </td>
-            </tr>
-            {% endif %}
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-{% endif %}
-{%- endmacro %}
-
 
 {% extends "base.html" %}
 {% block title %}Game{% endblock %}
@@ -257,8 +223,8 @@
         <hr/>
         <div class="admin-data">
             <div class="row">
-                {{ dict_to_card(admin_data['summary'], 'Game Summary') }}
-                {{ dict_to_card(admin_data['game_metadata'], 'Metadata') }}
+                {{ util.dict_to_card(admin_data['summary'], 'Game Summary') }}
+                {{ util.dict_to_card(admin_data['game_metadata'], 'Metadata') }}
             </div>
             <div class="row" style="left: 1vw; position: absolute; right: 1vw;">
                 <div class="col-sm-12 card">

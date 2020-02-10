@@ -5,7 +5,7 @@ from urllib import parse
 import flask
 import functools
 import sentry_sdk
-from flask import Flask, Request, Response, make_response, render_template, request
+from flask import Flask, Request, Response, make_response, render_template, request, url_for
 from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
 from werkzeug.utils import redirect
 
@@ -152,6 +152,9 @@ app.register_blueprint(scrims_blueprint, url_prefix='/apex/scrims')
 # ------ OVERWATCH ROUTING ------
 from overtrack_web.views.overwatch.games_list import games_list_blueprint as overwatch_games_list_blueprint
 app.register_blueprint(overwatch_games_list_blueprint, url_prefix='/overwatch/games')
+
+from overtrack_web.views.overwatch.game import game_blueprint as overwatch_game_blueprint
+app.register_blueprint(overwatch_game_blueprint, url_prefix='/overwatch/games')
 
 try:
     from overtrack_web.views.apex.discord_bot import discord_bot_blueprint
