@@ -85,6 +85,9 @@ app.register_blueprint(results_blueprint, url_prefix='/apex/stats')
 from overtrack_web.views.overwatch.games_list import games_list_blueprint as overwatch_games_list_blueprint
 app.register_blueprint(overwatch_games_list_blueprint, url_prefix='/overwatch/games')
 
+from overtrack_web.views.overwatch.game import game_blueprint as overwatch_game_blueprint
+app.register_blueprint(overwatch_game_blueprint, url_prefix='/overwatch/games')
+
 
 @app.route('/')
 def root():
