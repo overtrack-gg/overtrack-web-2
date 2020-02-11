@@ -43,6 +43,20 @@
         margin-bottom: 5px;
     }
 
+    .text-unknown {
+        color: #e305f8;
+    }
+    .text-blue {
+        color: #5bc0de;
+    }
+    .text-red {
+        color: #ff7874;
+    }
+    .player {
+        font-size: 14px;
+    }
+
+
     svg {
         overflow: visible!important;
     }
@@ -81,16 +95,16 @@
             fill: lightblue;
         }
 
-        .timeline-event.support-assist {
-            font-size: 18px;
-            font-weight: bold;
-            fill: lightgreen;
-        }
-
-        .timeline-event.ability-assist {
+        .timeline-event.killfeed-assist {
             font-size: 18px;
             font-weight: bold;
             fill: lightgoldenrodyellow;
+        }
+
+        .timeline-event.elimination-assist {
+            font-size: 18px;
+            font-weight: bold;
+            fill: lightgreen;
         }
 
         .timeline-event.destruction {

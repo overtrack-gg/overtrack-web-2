@@ -69,7 +69,7 @@ def duration(t: Optional[float]):
     return s2ts(t).split(':', 1)[1]
 
 
-def s2ts(s: float, ms: bool = False, zpad: bool = True) -> str:
+def s2ts(s: float, ms: bool = False, zpad: bool = False) -> str:
     sign = ''
     if s < 0:
         sign = '-'
@@ -79,20 +79,28 @@ def s2ts(s: float, ms: bool = False, zpad: bool = True) -> str:
     if zpad or int(h):
         ts = '%s%02d:%02d:%02d' % (sign, h, m % 60, s % 60)
     else:
-        ts = '%s%02d:%02d' % (sign, m % 60, s % 60)
+        ts = '%s%2d:%02d' % (sign, m % 60, s % 60)
     if ms:
         return ts + f'{s % 1 :1.3f}'[1:]
     else:
         return ts
 
 
+def ticks(start, stop, nbins=10, steps=(1, 3, 6, 10), prune='upper'):
+    from overtrack_web.vendor.matplotlib.ticker import MaxNLocator
+    return MaxNLocator(nbins=nbins, steps=steps, prune=prune).tick_values(start, stop)
+
+
 processors = {
     'url_exists': url_exists,
 
     'to_ordinal': to_ordinal,
-    's2ts': duration,
+    's2ts': s2ts,
+    'duration': duration,
     'strftime': strftime,
     'image_url': image_url,
     'champion_colour': champion_colour,
     'format_rp': format_rp,
+
+    'ticks': ticks,
 }

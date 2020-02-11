@@ -10,7 +10,7 @@ with xmlargs = {
 }
 %}
 {% if image %}
-<image xlink:href="{{ image }}" {{ xmlargs | xmlattr }} {{ kwargs | xmlattr }} width="{{ width }}" height="{{ height }}">
+<image href="{{ image }}" {{ xmlargs | xmlattr }} {{ kwargs | xmlattr }} width="{{ width }}" height="{{ height }}">
 </image>
 {% else %}
 <text{{ xmlargs | xmlattr }} {{ kwargs | xmlattr }} y="20">
@@ -43,12 +43,18 @@ with xmlargs = {
                 <div class="row ticker">
                     <div class="col-2"></div>
                     <svg class="col-9" height="20px" style="padding: 0px; ">
+                        <g transform="translate(0,19)" fill="none" font-size="10" font-family="sans-serif" text-anchor="middle">
+                            {% for t in ticks(0, stage.duration, nbins=10) %}
+                            <line stroke="white" x1="{{ (t / stage.duration) * 100 }}%" x2="{{ (t / stage.duration) * 100 }}%" y2="-6"></line>
+                            <text fill="white" x="{{ (t / stage.duration) * 100 }}%" y="-9" dy="0em">{{ s2ts(t) }}</text>
+                            {% endfor %}
+                        </g>
                     </svg>
                     <div class="col-1"></div>
                 </div>
-                {% for player in game.teams.blue %}
+                {% for player in game.teams.all_players %}
                 <div class="row player">
-                    <b class="col-2 text-right text-blue" style="padding-left: 0px; padding-right: 10px; line-height: 40px;">{{ player.name }}</b>
+                    <b class="col-2 text-right text-{{ 'blue' if player.blue_team else 'red' }}" style="padding-left: 0px; padding-right: 10px; line-height: 40px;">{{ player.name }}</b>
                     <svg class="timeline col-9" height="40px" style="padding: 0px;">
                         <rect width="100%" height="40px" fill="#4a5561" stroke="white"></rect>
 
@@ -62,6 +68,26 @@ with xmlargs = {
                                 image=url_for('static', filename='images/overwatch/hero_icons/' + hero_played_segment.hero + '.png'),
                                 y=0,
                             )
+                        }}
+                        {% endfor %}
+
+                        {% for assist in player.killfeed_assists %}
+                        {{
+                        timeline_event(
+                            assist,
+                            stage,
+                            'killfeed-assist',
+                        )
+                        }}
+                        {% endfor %}
+
+                        {% for assist in player.elimination_assists %}
+                        {{
+                        timeline_event(
+                            assist,
+                            stage,
+                            'elimination-assist',
+                        )
                         }}
                         {% endfor %}
 
@@ -86,6 +112,22 @@ with xmlargs = {
                                 y=12,
                                 width=15,
                                 height=15,
+                                transform='translate(-6)',
+                            )
+                        }}
+                        {% endfor %}
+
+                        {% for resurrect in player.resurrected %}
+                        {{
+                            timeline_event(
+                                resurrect,
+                                stage,
+                                'resurrect',
+                                image=url_for('static', filename='images/overwatch/timeline_icons/res.png'),
+
+                                y=9,
+                                width=20,
+                                height=20,
                                 transform='translate(-6)',
                             )
                         }}
@@ -116,6 +158,11 @@ with xmlargs = {
                         <span class="death">{{ player.deaths | length }}</span>
                     </b>
                 </div>
+                {% if player.index == 5 %}
+                <div class="row" style="height: 8px;">
+
+                </div>
+                {% endif %}
                 {% endfor %}
             </div>
             </div>

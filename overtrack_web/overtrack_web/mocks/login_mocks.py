@@ -19,6 +19,7 @@ class MockUser(NamedTuple):
     overwatch_seasons: List[int] = list(overwatch_data.seasons.keys())[-5:]
 
     subscription_active: bool = bool(random.randint(0, 1))
+    superuser: bool = False
 
     def refresh(self):
         pass

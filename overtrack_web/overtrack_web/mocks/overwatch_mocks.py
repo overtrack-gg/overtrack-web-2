@@ -7,6 +7,7 @@ from typing import List
 import requests
 
 from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
+from overtrack_models.orm.user import User
 from overtrack_web.mocks.dynamo_mocks import MockIndex
 from overtrack_web.mocks.login_mocks import mock_user
 
@@ -30,6 +31,15 @@ def mock_overwatch_games():
         cached_overwatch_games,
         'user_id'
     )
+
+    OverwatchGameSummary.refresh = lambda self: None
+
+    fake_ow_user = User(_username=GAMES_SOURCE, user_id=mock_user.user_id, overwatch_games_public=True)
+    User.username_index = MockIndex(
+        [fake_ow_user],
+        'username'
+    )
+    User.refresh = lambda self: None
 
 
 def download_games_list() -> List[OverwatchGameSummary]:
