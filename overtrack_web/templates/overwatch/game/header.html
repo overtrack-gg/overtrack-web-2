@@ -1,0 +1,36 @@
+<div class="jumbotron map-banner" style="{{ map_jumbo_style(game.map) }}">
+    <div class="container">
+        <div class="row">
+            <div class="pull-left col-lg-8">
+                <h1 class="mapname">{{ game.map.name }}<small class="epoch-format-datetime">{{ game.timestamp }}</small></h1>
+                <p>
+                    <img class="maptype"
+                         src="{{ url_for('static', filename='images/overwatch/map_type_icons/' + game.map.type.lower() + '.svg') }}">
+                    {{ game.map.type }}
+                    <span class="glyphicon glyphicon-time" style="font-size:18px"></span>
+                    11:17 minutes
+                </p>
+            </div>
+            <div class="float-right col-lg-4">
+                <h1 class="text-right game-result-{{ summary.result.lower() }}">
+                    <span class="colour-by-result">{{ summary.result }}</span>
+                </h1>
+                <p style="text-align: right">
+                    {% if game.competitive %}
+                    SR: {{ game.start_sr | ifnone('?') }} → {{ game.end_sr | ifnone('?') }}
+                    {% if game.teams.owner.rank %}
+                    <img height="35"
+                         style="vertical-align: bottom"
+                         src="{{ url_for('static', filename='images/overwatch/rank_icons/' + game.teams.owner.rank + '.png') }}">
+                    {% if game.start_sr and game.end_sr %}
+                    ({{ sr_change(summary) }})
+                    {% endif %}
+                    {% endif %}
+                    {% else %}
+                    {{ game.mode.name | title }}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

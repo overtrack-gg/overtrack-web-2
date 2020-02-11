@@ -7,6 +7,14 @@ let dateOpts = {
     month: 'short',
     day: 'numeric',
 };
+let datetimeOpts = {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+};
+
 
 function update_times(){
     let times = Array.prototype.slice.call(document.getElementsByClassName('epoch-format-time'));
@@ -23,6 +31,14 @@ function update_times(){
         e.innerText = t.toLocaleString('default', dateOpts);
         e.classList.remove('epoch-format-date');
         e.classList.add('epoch-formatted-date');
+    }
+
+    let datetimes = Array.prototype.slice.call(document.getElementsByClassName('epoch-format-datetime'));
+    for (let e of datetimes){
+        let t = new Date(e.innerText * 1000);
+        e.innerText = t.toLocaleString('default', datetimeOpts);
+        e.classList.remove('epoch-format-datetime');
+        e.classList.add('epoch-formatted-datetime');
     }
 }
 function make_clickable(){

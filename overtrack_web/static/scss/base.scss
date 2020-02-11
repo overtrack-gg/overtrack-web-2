@@ -14,6 +14,8 @@ $navbar-color: #222870 !default;
 @import "bootstrap/utilities/spacing";
 @import "bootstrap/utilities/shadows";
 @import "bootstrap/utilities/borders";
+@import "bootstrap/utilities/float";
+@import "bootstrap/utilities/text";
 @import "bootstrap/vendor/rfs";
 @import "bootstrap/grid";
 @import "bootstrap/navbar";
@@ -29,8 +31,12 @@ $navbar-color: #222870 !default;
 @import "bootstrap/alert";
 
 
-.epoch-format-time, .epoch-format-date, epoch-format-datetime {
+.epoch-format-time, .epoch-format-date, .epoch-format-datetime {
     display: none;
+}
+
+a.make-clickable-target {
+    text-decoration: none;
 }
 
 /* Main */
@@ -44,11 +50,14 @@ body {
 /* Navbar */
 .navbar {
     background-color: $navbar-color;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 .navbar .divider-vertical {
     height: 7px;
     margin: 0 9px;
 }
+
 
 /* Report an error */
 .sentry-error-embed .form-content .form-field:nth-child(2) {

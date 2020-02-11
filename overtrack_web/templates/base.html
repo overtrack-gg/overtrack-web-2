@@ -38,11 +38,11 @@
 <body class="has-background-black-ter has-text-white">
 {{ navbar.navbar() }}
 {% block content %}{% endblock %}
-<script       src="{{ url_for('static', filename='js/lib/jquery.min.js') }}"></script>
-<script defer src="{{ url_for('static', filename='js/lib/popper.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/lib/jquery.min.js') }}"></script>
+{# <script defer src="{{ url_for('static', filename='js/lib/popper.min.js') }}"></script> #}
 <script defer src="{{ url_for('static', filename='js/lib/bootstrap.min.js') }}"></script>
 <script defer src="{{ url_for('static', filename='js/lib/intercooler-1.2.1.min.js') }}"></script>
-<script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% block scripts %}{% endblock %}
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-99105415-2"></script>
 <script>

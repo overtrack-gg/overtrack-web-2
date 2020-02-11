@@ -1,0 +1,103 @@
+.overwatch-game {
+    .jumbotron.map-banner {
+        background-size: cover;
+        background-position: 0 0,center;
+        border-radius: 0;
+        padding-bottom: 5px;
+        padding-top: 15px;
+    }
+/*    .jumbotron.map-banner:before {
+        position: absolute;
+        content: " ";
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        display: block;
+        background-color: rgba(36,42,88,.3);
+    }*/
+
+    .jumbotron h1 {
+        color: orange;
+        /*text-shadow: 1px 1px 2px #000;*/
+    }
+    .jumbotron h1 small {
+        font-size: 18px;
+        color: #bdbdbd;
+    }
+    .jumbotron p {
+        margin-bottom: 15px;
+        font-size: 23px;
+        font-weight: 200;
+        text-shadow: 1px 1px 2px #000;
+    }
+
+    .mapname > small {
+        padding-left: 20px;
+    }
+    .maptype {
+        -webkit-filter: invert(100%);
+        filter: invert(100%);
+        height: 18px;
+        margin-bottom: 5px;
+    }
+
+    svg {
+        overflow: visible!important;
+    }
+
+    .timeline {
+        .timeline-event {
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+        .timeline-event.death {
+            font-size: 24px;
+            font-weight: bold;
+            fill: black;
+            stroke: white;
+            fill: #811212;
+            stroke: red;
+        }
+
+        .timeline-event.resurrect {
+            font-size: 24px;
+            font-weight: bold;
+            fill: lightblue;
+        }
+
+        .timeline-event.kill {
+            font-size: 24px;
+            font-weight: bold;
+            fill: darkgray;
+            stroke: white;
+        }
+
+        .timeline-event.assist {
+            font-size: 18px;
+            font-weight: bold;
+            fill: lightblue;
+        }
+
+        .timeline-event.support-assist {
+            font-size: 18px;
+            font-weight: bold;
+            fill: lightgreen;
+        }
+
+        .timeline-event.ability-assist {
+            font-size: 18px;
+            font-weight: bold;
+            fill: lightgoldenrodyellow;
+        }
+
+        .timeline-event.destruction {
+            font-size: 20px;
+            fill: lightslategray;
+            stroke: whitesmoke;
+        }
+    }
+
+}

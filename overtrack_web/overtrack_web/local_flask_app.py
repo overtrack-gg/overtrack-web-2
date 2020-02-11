@@ -1,35 +1,29 @@
 import base64
 import logging
 import os
-from typing import List, NamedTuple, Tuple
 
-import flask
 import functools
-import requests
 from flask import Flask, g, render_template, request, url_for
 from werkzeug.utils import redirect
 
 os.environ['HMAC_KEY'] = base64.b64encode(b'').decode()
 
-from overtrack_web.data.apex_data import seasons, ApexSeason, current_season
-from overtrack_web.data import WELCOME_META
-from overtrack_models.orm.apex_game_summary import ApexGameSummary
-
-# port of https://bugs.python.org/issue34363 to the dataclasses backport
-# see https://github.com/ericvsmith/dataclasses/issues/151
-from overtrack_web.lib import dataclasses_asdict_namedtuple_patch
-dataclasses_asdict_namedtuple_patch.patch()
-
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 app.url_map.strict_slashes = False
 
-logging.basicConfig(level=logging.INFO)
+try:
+    from overtrack.util.logging_config import config_logger
+    config_logger(__name__, logging.INFO, False)
+except ImportError:
+    logging.basicConfig(level=logging.INFO)
 
-from sassutils.wsgi import SassMiddleware
+# Stop the app from reloading/initing twice
+print("reloading", os.environ.get('WERKZEUG_RUN_MAIN'), os.environ)
+if os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
+    raise ValueError()
 
 # live building of scss
 from sassutils.wsgi import SassMiddleware, Manifest
-# noinspection PyTypeChecker
 app.wsgi_app = SassMiddleware(
     app.wsgi_app,
     {
@@ -42,18 +36,28 @@ app.wsgi_app = SassMiddleware(
     }
 )
 
-# running locally - patch login/auth code
-from overtrack_web.mocks import login_mocks
+# port of https://bugs.python.org/issue34363 to the dataclasses backport
+# see https://github.com/ericvsmith/dataclasses/issues/151
+from overtrack_web.lib import dataclasses_asdict_namedtuple_patch
+dataclasses_asdict_namedtuple_patch.patch()
 
 # register context processors and filters
 @app.context_processor
 def inject_processors():
     from overtrack_web.lib.context_processors import processors as lib_context_processors
     processors = dict(lib_context_processors)
+    # running locally - patch login/auth code
+    from overtrack_web.mocks import login_mocks
     processors['user'] = login_mocks.mock_user
     return processors
 from overtrack_web.lib.template_filters import filters
 app.jinja_env.filters.update(filters)
+
+# in local mode, content is all fetched over http - cache for lightning fast reloads
+import requests_cache
+requests_cache.install_cache('requests_cache')
+import boto3
+boto3.client = None
 
 # running locally - hack to load games from the API instead of from dynamodb
 from overtrack_web.mocks.apex_mocks import mock_apex_games
@@ -94,10 +98,10 @@ def root():
     return redirect(url_for('apex.games_list.games_list'), code=307)
 
 # template only views
+from overtrack_web.data import WELCOME_META
 @app.route('/client')
 def client():
     return render_template('client.html', meta=WELCOME_META)
-
 @app.route('/welcome')
 def welcome():
     return render_template('welcome.html', meta=WELCOME_META)

@@ -1,0 +1,128 @@
+{%- macro timeline_event(event, stage, class, image=None, text="●", y=20, width=40, height=40) -%}
+{% if stage.start <= event.timestamp <= stage.end %}
+{%
+with xmlargs = {
+    'class': 'timeline-event ' + class,
+    'x': '%f%%' % ((event.timestamp - stage.start)  / stage.duration * 100 ),
+    'y': y,
+    'data-source': event,
+    'data-timestamp': '%f' % event.timestamp,
+}
+%}
+{% if image %}
+<image xlink:href="{{ image }}" {{ xmlargs | xmlattr }} {{ kwargs | xmlattr }} width="{{ width }}" height="{{ height }}">
+</image>
+{% else %}
+<text{{ xmlargs | xmlattr }} {{ kwargs | xmlattr }} y="20">
+{{ text }}
+</text>
+{% endif %}
+{% endwith %}
+{% endif %}
+{%- endmacro %}
+
+
+<div class="card text-center col-md-12">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs">
+            <li>
+                <b style="padding: 10px 15px;">Stages:</b>
+            </li>
+            {% for stage in game.stages.stages %}
+            <li class="nav-item">
+                <a class="nav-link {{ 'active' if stage.index == 0 else '' }}" data-toggle="tab" href="#stage{{ stage.index }}">{{ stage.name }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="tab-content card-body">
+        {% for stage in game.stages.stages %}
+        <div id="stage{{ stage.index }}" class="tab-pane {{ 'active' if stage.index == 0 else '' }}">
+            <div class="row">
+            <div class="col-12">
+                <div class="row ticker">
+                    <div class="col-2"></div>
+                    <svg class="col-9" height="20px" style="padding: 0px; ">
+                    </svg>
+                    <div class="col-1"></div>
+                </div>
+                {% for player in game.teams.blue %}
+                <div class="row player">
+                    <b class="col-2 text-right text-blue" style="padding-left: 0px; padding-right: 10px; line-height: 40px;">{{ player.name }}</b>
+                    <svg class="timeline col-9" height="40px" style="padding: 0px;">
+                        <rect width="100%" height="40px" fill="#4a5561" stroke="white"></rect>
+
+                        {% for hero_played_segment in player.hero_played_segments %}
+                        {{ hero_played_segment }}
+                        {{
+                            timeline_event(
+                                hero_played_segment,
+                                stage,
+                                'hero-selected',
+                                image=url_for('static', filename='images/overwatch/hero_icons/' + hero_played_segment.hero + '.png'),
+                                y=0,
+                            )
+                        }}
+                        {% endfor %}
+
+                        {% for kill in player.kills %}
+                        {{
+                            timeline_event(
+                                kill,
+                                stage,
+                                'kill',
+                            )
+                        }}
+                        {% endfor %}
+
+                        {% for death in player.deaths %}
+                        {{
+                            timeline_event(
+                                death,
+                                stage,
+                                'death',
+                                image=url_for('static', filename='images/overwatch/timeline_icons/skull.png'),
+
+                                y=12,
+                                width=15,
+                                height=15,
+                                transform='translate(-6)',
+                            )
+                        }}
+                        {% endfor %}
+
+<!--                        <text class="timeline-event assist event-assist0"-->
+<!--                              x="0"-->
+<!--                              y="20"-->
+<!--                              data-source="FIJSION"-->
+<!--                              data-type="assist"-->
+<!--                              data-timestamp="88920">-->
+<!--                            ●-->
+<!--                        </text>-->
+<!--                        <text class="timeline-event ability-assist event2"-->
+<!--                              x="6.290679304897314%"-->
+<!--                              y="20"-->
+<!--                              data-other="FIJSION"-->
+<!--                              data-type="ability-assist"-->
+<!--                              data-timestamp="88920">-->
+<!--                            ●-->
+<!--                        </text>-->
+
+
+                    </svg>
+                    <b class="col-1 text-left num" style="padding-left: 10px; padding-right: 0px;">
+                        <span class="kill">{{ player.kills | length }}</span>
+                        <span> / </span>
+                        <span class="death">{{ player.deaths | length }}</span>
+                    </b>
+                </div>
+                {% endfor %}
+            </div>
+            </div>
+            <div class="col-3">
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

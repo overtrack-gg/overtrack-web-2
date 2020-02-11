@@ -1,4 +1,4 @@
-$navbar-color: #222870;
+$navbar-color: #222854;
 
 $body-color: #ebebeb;
 $body-bg: #222854;
@@ -8,7 +8,28 @@ $card-bg: #0d1235;
 $table-dark-color: #f8f9fa;
 $table-dark-bg: #212529;
 $table-accent-bg: #2f214a;
+$table-hover-bg: #604499;
 
 @import "base";
+@import "bootstrap/jumbotron";
+@import "bootstrap/nav";
+
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+.game-result-win > .colour-by-result {
+    color: #90ff90;
+}
+.game-result-loss > .colour-by-result {
+    color: #ff6e6e;
+}
+.game-result-draw > .colour-by-result {
+    color: #f0ad4e;
+}
+.game-result-unknown > .colour-by-result {
+    color: #e305f8;
+}
 
 @import "overwatch/games_list";
+@import "overwatch/game";

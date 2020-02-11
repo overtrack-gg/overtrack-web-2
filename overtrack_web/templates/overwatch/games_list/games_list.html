@@ -1,5 +1,3 @@
-{% import 'overwatch/games_list/sessions_page.html' as sessions_page with context %}
-
 {% extends "base.html" %}
 {% block title %}{{ title }}{% endblock %}
 
@@ -41,7 +39,7 @@
             </div>
             <div class="card-body">
                 <div id="sessions-list">
-                    {{ sessions_page.render_sessions_page(sessions, next_from) }}
+                    {% include 'overwatch/games_list/sessions_page.html' %}
                 </div>
             </div>
         </div>

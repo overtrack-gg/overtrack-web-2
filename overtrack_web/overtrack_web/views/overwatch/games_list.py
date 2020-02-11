@@ -23,6 +23,8 @@ from overtrack_web.lib.authentication import check_authentication, require_login
 from overtrack_web.lib.session import session
 
 # Fetch at least 30 games per page
+from overtrack_web.views.overwatch import sr_change, OLDEST_SUPPORTED_GAME_VERSION
+
 PAGINATION_PAGE_MINIMUM_SIZE = 30
 # But with each session start counting as 2 games (due to element height)
 PAGINATION_SESSIONS_COUNT_AS = 2
@@ -102,17 +104,6 @@ class Session:
 
 @games_list_blueprint.context_processor
 def context_processor():
-    def sr_change(game: OverwatchGameSummary) -> str:
-        if game.rank == 'placement':
-            return '-'
-        elif game.start_sr and game.end_sr:
-            if game.start_sr == game.end_sr:
-                return '0'
-            else:
-                return f'{game.end_sr - game.start_sr:+}'
-        else:
-            return '?'
-
     def map_style(map_name: str):
         map_name = map_name.lower().replace(' ', '-')
         map_name = ''.join(c for c in map_name if c in (string.digits + string.ascii_letters + '-'))
@@ -208,11 +199,11 @@ def games_next() -> FlaskResponse:
     else:
         next_from = None
 
-    return render_template_string(
-        '''{% import 'overwatch/games_list/sessions_page.html' as sessions_page with context %}
-           {{ sessions_page.render_sessions_page(sessions, next_from) }}''',
+    return render_template(
+        'overwatch/games_list/sessions_page.html',
         sessions=sessions,
         next_from=next_from,
+        OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
     )
 
 
@@ -270,6 +261,7 @@ def render_games_list(user: User, share_link: Optional[ShareLink] = None, **next
 
         seasons=seasons,
         current_season=current_season,
+        OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
     )
 
 

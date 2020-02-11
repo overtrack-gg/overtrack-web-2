@@ -1,20 +1,5 @@
-{% macro render_header(quickplay=False) -%}
-<tr>
-    <th>Time</th>
-    <th colspan="{{ '1' if quickplay else '2' }}">Result</th>
-    {% if not quickplay %}
-    <th>Score</th>
-    <th>SR</th>
-    {% endif %}
-    <th>Duration</th>
-    <th>Map</th>
-    <th>Heroes</th>
-</tr>
-{%- endmacro %}
-
-{% macro render_game(game, quickplay=False) -%}
-<tr class="game-summary game-result-{{ game.result.lower() }} game-summary {{ 'make-clickable' if game.viewable and game.has_v2_game else '' }}"
-    data-href="{{ url_for('overwatch.game.game', key=game.key) if game.viewable and game.has_v2_game else '#' }}"
+<tr class="overwatch-game-summary game-result-{{ game.result.lower() }} game-summary {{ 'make-clickable' if game.viewable and game.game_version and game.game_version >= OLDEST_SUPPORTED_GAME_VERSION }}"
+    data-href="{{ url_for('overwatch.game.game', key=game.key) if game.viewable and game.game_version and game.game_version >= OLDEST_SUPPORTED_GAME_VERSION else '#' }}"
     data-toggle="popover"
     tabindex="0">
     <td class="time">
@@ -27,7 +12,7 @@
         <b>{{ sr_change(game) }}</b>
     </td>
     {% endif %}
-    <td class="result colour-by-result text-left">
+    <td class="result colour-by-result trext-left">
         {{ game.result | result }}
     </td>
     {% if not quickplay %}
@@ -70,4 +55,3 @@
 <!--        <span class="game-edit glyphicon glyphicon-pencil"></span>-->
     </td>
 </tr>
-{%- endmacro %}

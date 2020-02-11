@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def mock_apex_games():
-    cached_apex_games = get_mock_data()
+    cached_apex_games = download_games_list()
 
     primary_index = MockIndex(
         cached_apex_games,
@@ -32,47 +32,24 @@ def mock_apex_games():
     )
 
 
-def get_mock_data() -> List[ApexGameSummary]:
-    cache_path = os.path.join(tempfile.gettempdir(), 'apex_games.json')
-    logger.info(f'Cache path is {cache_path}')
-    try:
-        with open(cache_path) as f:
-            logger.info(f'Loading cached games')
-            data = json.load(f)
-            if data['source'] != GAMES_SOURCE:
-                raise ValueError('Cache is for wrong account')
-            cached_apex_games = [
-                ApexGameSummary(**g) for g in data['games']
-            ]
-    except Exception as e:
-        logger.warning(f'Unable to load cached apex games - downloading')
-        next_key = True
-        _games = []
-        while next_key:
-            url = 'https://api2.overtrack.gg/apex/games/' + GAMES_SOURCE + '?limit=500'
-            if isinstance(next_key, str):
-                url += '&last_evaluated_key=' + next_key
-            logger.info(f'Downloading page {url}')
-            r = requests.get(url)
-            print(r.status_code)
-            r.raise_for_status()
-            data = r.json()
+def download_games_list() -> List[ApexGameSummary]:
+    games = []
+    next_key = True
+    while next_key:
+        url = 'https://api2.overtrack.gg/apex/games/' + GAMES_SOURCE + '?limit=500'
+        if isinstance(next_key, str):
+            url += '&last_evaluated_key=' + next_key
+        logger.info(f'Downloading games list: {url}')
+        r = requests.get(url)
+        r.raise_for_status()
+        data = r.json()
 
-            logger.info(f'Got {len(data["games"])} games')
-            _games += data['games']
-            next_key = data['last_evaluated_key']
-            print(next_key)
+        games += data['games']
+        next_key = data['last_evaluated_key']
 
-        cached_apex_games = [
-            ApexGameSummary(**g) for g in _games
-        ]
-
-        logger.info(f'Caching games')
-        with open(cache_path, 'w') as f:
-            json.dump({
-                'games': _games,
-                'source': GAMES_SOURCE
-            }, f, indent=2)
+    cached_apex_games = [
+        ApexGameSummary(**g) for g in games
+    ]
 
     for g in cached_apex_games:
         g.user_id = mock_user.user_id

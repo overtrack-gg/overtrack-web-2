@@ -19,17 +19,19 @@ from overtrack_web.lib.context_processors import image_url
 from overtrack_web.lib.opengraph import Meta
 from overtrack_web.lib.session import session
 
+
 request: Request = request
 logger = logging.getLogger(__name__)
 try:
     s3 = boto3.client('s3')
-    """ :type s3: boto3_type_annotations.s3.Client """
+    """ :type s3: mypy_boto3.s3.Client """
+    s3.list_objects_v2(Bucket='overwatch-apex-games')
 except:
-    logger.exception('Failed to create AWS S3 client - running without admin logs')
+    logger.exception('Failed to create AWS S3 client - fetching games over HTTP')
     s3 = None
 try:
     logs = boto3.client('logs')
-    """ :type s3: boto3_type_annotations.s3.Client """
+    """ :type s3: mypy_boto3.logs.Client """
 except:
     logger.exception('Failed to create AWS logs client - running without admin logs')
     logs = None
