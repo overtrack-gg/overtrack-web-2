@@ -1,4 +1,4 @@
-{%- macro timeline_event(event, stage, class, image=None, text="●", y=20, width=40, height=40) -%}
+{%- macro timeline_event(event, stage, class, image=None, text="●", y=20, height='100%') -%}
 {% if stage.start <= event.timestamp <= stage.end %}
 {%
 with xmlargs = {
@@ -10,7 +10,7 @@ with xmlargs = {
 }
 %}
 {% if image %}
-<image href="{{ image }}" {{ xmlargs | xmlattr }} {{ kwargs | xmlattr }} width="{{ width }}" height="{{ height }}">
+<image href="{{ image }}" {{ xmlargs | xmlattr }} {{ kwargs | xmlattr }} height="{{ height }}">
 </image>
 {% else %}
 <text{{ xmlargs | xmlattr }} {{ kwargs | xmlattr }} y="20">
@@ -21,6 +21,18 @@ with xmlargs = {
 {% endif %}
 {%- endmacro %}
 
+<svg height="0" width="0">
+    <defs>
+        <filter id="invertColour">
+            <feColorMatrix in="SourceGraphic"
+                           type="matrix"
+                           values="-1  0  0  0  1
+                                    0 -1  0  0  1
+                                    0  0 -1  0  1
+                                    0  0  0  1  0"/>
+        </filter>
+    </defs>
+</svg>
 
 <div class="card text-center col-md-12">
     <div class="card-header">
@@ -55,11 +67,14 @@ with xmlargs = {
                 {% for player in game.teams.all_players %}
                 <div class="row player">
                     <b class="col-2 text-right text-{{ 'blue' if player.blue_team else 'red' }}" style="padding-left: 0px; padding-right: 10px; line-height: 40px;">{{ player.name }}</b>
-                    <svg class="timeline col-9" height="40px" style="padding: 0px;">
-                        <rect width="100%" height="40px" fill="#4a5561" stroke="white"></rect>
+                    <svg class="timeline col-9" height="{{ 45 if player == game.teams.owner else 40 }}px" style="padding: 0px;">
+                        {% if player == game.teams.owner %}
+                        <rect width="100%" height="100%" fill="#4F7C8E" stroke="white"></rect>
+                        {% else %}
+                        <rect width="100%" height="100%" fill="#4a5561" stroke="white"></rect>
+                        {% endif %}
 
                         {% for hero_played_segment in player.hero_played_segments %}
-                        {{ hero_played_segment }}
                         {{
                             timeline_event(
                                 hero_played_segment,
@@ -69,6 +84,38 @@ with xmlargs = {
                                 y=0,
                             )
                         }}
+                        {% endfor %}
+
+                        {% for ult in player.ults %}
+                        {% if ult.stage == stage.index %}
+                        <rect class="timeline-event ult-period"
+                              x="{{ (ult.gained - stage.start) / stage.duration * 100 }}%"
+                              width="{{ ult.held / stage.duration * 100 }}%"
+                              y="35"
+                              height="10px"
+                              fill="#9FECFC"
+                              data-source="{{ ult_period }}"
+                              data-timestamp=""
+                              data-duration=""
+                        ></rect>
+                        <image class="timeline-event ult-use-image"
+                               href="{{ url_for('static', filename='images/overwatch/timeline_icons/ult_background.png') }}"
+                               x="{{ (ult.lost - stage.start) / stage.duration * 100 }}%"
+                               y="10"
+                               width="40"
+                               transform="translate(-20)"
+                        >
+                        </image>
+                        <image class="timeline-event ult-use-image"
+                               href="{{ url_for('static', filename='images/overwatch/ult_icons/' + ult.hero + '.png') }}"
+                               x="{{ (ult.lost - stage.start) / stage.duration * 100 }}%"
+                               y="15"
+                               width="30"
+                               transform="translate(-15)"
+                               filter="url(#invertColour)"
+                        >
+                        </image>
+                        {% endif %}
                         {% endfor %}
 
                         {% for assist in player.killfeed_assists %}
