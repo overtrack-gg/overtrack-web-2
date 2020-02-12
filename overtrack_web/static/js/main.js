@@ -15,31 +15,45 @@ let datetimeOpts = {
     minute: '2-digit',
 };
 
+var styleSheet = document.createElement("style");
+styleSheet.type = "text/css";
+document.head.appendChild(styleSheet);
+let updateIteration = 0
 
 function update_times(){
+    // Prevent reflow by only revealing the format update at the end
+    // On my machine this reduces update_times from ~100ms -> ~20ms for a smallish update
+    styleSheet.innerText = '.epoch-format-iteration-' + (+updateIteration) + ' { display: none; }'
+
     let times = Array.prototype.slice.call(document.getElementsByClassName('epoch-format-time'));
     for (let e of times){
-        let t = new Date(e.innerText * 1000);
-        e.innerText = t.toLocaleString('default', timeOpts);
+        e.classList.add('epoch-format-iteration-' + (+updateIteration));
         e.classList.remove('epoch-format-time');
         e.classList.add('epoch-formatted-time');
+        let t = new Date(e.innerText * 1000);
+        e.innerText = t.toLocaleString('default', timeOpts);
     }
 
     let dates = Array.prototype.slice.call(document.getElementsByClassName('epoch-format-date'));
     for (let e of dates){
-        let t = new Date(e.innerText * 1000);
-        e.innerText = t.toLocaleString('default', dateOpts);
+        e.classList.add('epoch-format-iteration-' + (+updateIteration));
         e.classList.remove('epoch-format-date');
         e.classList.add('epoch-formatted-date');
+        let t = new Date(e.innerText * 1000);
+        e.innerText = t.toLocaleString('default', dateOpts);
     }
 
     let datetimes = Array.prototype.slice.call(document.getElementsByClassName('epoch-format-datetime'));
     for (let e of datetimes){
-        let t = new Date(e.innerText * 1000);
-        e.innerText = t.toLocaleString('default', datetimeOpts);
+        e.classList.add('epoch-format-iteration-' + (+updateIteration));
         e.classList.remove('epoch-format-datetime');
         e.classList.add('epoch-formatted-datetime');
+        let t = new Date(e.innerText * 1000);
+        e.innerText = t.toLocaleString('default', datetimeOpts);
     }
+
+    styleSheet.innerText = '';
+    updateIteration += 1;
 }
 function make_clickable(){
     let clickables = Array.prototype.slice.call(document.getElementsByClassName('make-clickable'));
@@ -47,10 +61,10 @@ function make_clickable(){
         let link = e.parentElement.parentElement.parentElement;
         if (link.tagName === "A"){
             let href = e.getAttribute('data-href');
-            e.onmouseenter = function() {
+            e.onmouseenter = () => {
                 link.href = href;
             }
-            e.onmouseexit = function() {
+            e.onmouseexit = () => {
                 if (link.href === href) {
                     link.removeAttribute('href')
                 }
@@ -69,6 +83,6 @@ function update_elements(){
         0
     );
 }
-$(document).ready(function($) {
+document.addEventListener("DOMContentLoaded", function(event) {
     update_elements();
 });
