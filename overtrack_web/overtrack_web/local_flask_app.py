@@ -3,6 +3,8 @@ import logging
 import os
 
 import functools
+
+import flask
 from flask import Flask, g, render_template, request, url_for
 from werkzeug.utils import redirect
 
@@ -35,6 +37,15 @@ app.wsgi_app = SassMiddleware(
         )
     }
 )
+
+# Force js to be unminified
+orig_url_for = flask.url_for
+def url_for(endpoint, **values):
+    if endpoint == 'static' and 'filename' in values and values['filename'].endswith('.min.js'):
+        values['filename'] = values['filename'][:-len('.min.js')] + '.js'
+    return orig_url_for(endpoint, **values)
+app.jinja_env.globals['url_for'] = url_for
+flask.url_for = url_for
 
 # port of https://bugs.python.org/issue34363 to the dataclasses backport
 # see https://github.com/ericvsmith/dataclasses/issues/151
