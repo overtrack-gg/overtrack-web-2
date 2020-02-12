@@ -3,6 +3,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {# modern browsers prefer getting defer sources asap #}
+    <script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/lib/jquery-3.4.1.min.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/lib/bootstrap-4.1.3.min.js') }}"></script>
+    <script defer src="{{ url_for('static', filename='js/lib/intercooler-1.2.3.min.js') }}"></script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
     <title>{% block title %}Apex Tracker{% endblock %}</title>
@@ -38,11 +44,6 @@
 <body class="has-background-black-ter has-text-white">
 {{ navbar.navbar() }}
 {% block content %}{% endblock %}
-<script src="{{ url_for('static', filename='js/lib/jquery.min.js') }}"></script>
-{# <script defer src="{{ url_for('static', filename='js/lib/popper.min.js') }}"></script> #}
-<script defer src="{{ url_for('static', filename='js/lib/bootstrap.min.js') }}"></script>
-<script defer src="{{ url_for('static', filename='js/lib/intercooler-1.2.1.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
 {% block scripts %}{% endblock %}
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-99105415-2"></script>
 <script>
