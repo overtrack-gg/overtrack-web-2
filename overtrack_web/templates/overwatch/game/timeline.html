@@ -139,13 +139,26 @@ with xmlargs = {
                         {% endfor %}
 
                         {% for kill in player.kills %}
+                        {% if ability_is_ult(kill.ability) %}
                         {{
-                            timeline_event(
-                                kill,
-                                stage,
-                                'kill',
-                            )
+                        timeline_event(
+                            kill,
+                            stage,
+                            'kill',
+                            image=url_for('static', filename='images/overwatch/ult_icons/' + kill.left_hero + '.png'),
+                            height="30",
+                            width="30",
+                            transform="translate(-15)",
+                            y="4"
+                        )
                         }}
+                        {% else %}
+                        timeline_event(
+                            kill,
+                            stage,
+                            'kill',
+                        )
+                        {% endif %}
                         {% endfor %}
 
                         {% for death in player.deaths %}
@@ -179,24 +192,6 @@ with xmlargs = {
                             )
                         }}
                         {% endfor %}
-
-<!--                        <text class="timeline-event assist event-assist0"-->
-<!--                              x="0"-->
-<!--                              y="20"-->
-<!--                              data-source="FIJSION"-->
-<!--                              data-type="assist"-->
-<!--                              data-timestamp="88920">-->
-<!--                            ●-->
-<!--                        </text>-->
-<!--                        <text class="timeline-event ability-assist event2"-->
-<!--                              x="6.290679304897314%"-->
-<!--                              y="20"-->
-<!--                              data-other="FIJSION"-->
-<!--                              data-type="ability-assist"-->
-<!--                              data-timestamp="88920">-->
-<!--                            ●-->
-<!--                        </text>-->
-
 
                     </svg>
                     <b class="col-1 text-left num" style="padding-left: 10px; padding-right: 0px;">

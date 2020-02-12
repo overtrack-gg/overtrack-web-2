@@ -1,16 +1,18 @@
 import json
 import logging
 import string
+import warnings
 
 import boto3
 import requests
 from dataclasses import asdict, fields, is_dataclass
 from flask import Blueprint, Request, render_template, request, url_for
-from overtrack_models.dataclasses.overwatch.basic_types import Map
+from overtrack_models.dataclasses.overwatch.basic_types import Map, Hero
 from overtrack_models.dataclasses.overwatch.overwatch_game import OverwatchGame
 
 from overtrack_models.dataclasses.typedload import referenced_typedload
 from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
+from overtrack_web.data import overwatch_data
 from overtrack_web.views.overwatch import OLDEST_SUPPORTED_GAME_VERSION, sr_change
 
 GAMES_BUCKET = 'overtrack-overwatch-games'
@@ -45,11 +47,27 @@ def context_processor():
             f'url({url_for("static", filename="images/overwatch/map_banners/" + map_name + ".jpg")}); '
             f'background-color: #222854;'
         )
+
+    def ability_is_ult(ability) -> bool:
+        if not ability:
+            return False
+        hero_name, ability_name = ability.split('.')
+        hero = overwatch_data.heroes.get(hero_name)
+        if not hero:
+            warnings.warn(f'Could not get hero data for {hero_name}', RuntimeWarning)
+            return False
+        if not hero.ult:
+            warnings.warn(f'Hero {hero_name} does not have ult defined', RuntimeWarning)
+            return False
+        return ability_name == hero.ult
+
     return {
         'game_name': 'overwatch',
 
         'sr_change': sr_change,
         'map_jumbo_style': map_jumbo_style,
+
+        'ability_is_ult': ability_is_ult
     }
 
 

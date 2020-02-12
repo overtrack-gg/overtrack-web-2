@@ -101,6 +101,7 @@ processors = {
     'image_url': image_url,
     'champion_colour': champion_colour,
     'format_rp': format_rp,
+    'repr': repr,
 
     'ticks': ticks,
 }

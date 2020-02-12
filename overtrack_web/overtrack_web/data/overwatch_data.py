@@ -1,6 +1,15 @@
-from typing import Optional
+import logging
+from typing import List, Optional, Tuple, Dict
 
+import requests
 from dataclasses import dataclass
+from overtrack_models.dataclasses.overwatch.basic_types import Hero
+
+from overtrack_models.dataclasses import Literal
+from overtrack_models.dataclasses.typedload import typedload
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -39,6 +48,19 @@ seasons = {
 }
 current_season = seasons[sorted(seasons.keys())[-1]]
 # TODO: update seasons from API
+
+
+StatType = Literal['maximum', 'average', 'best', 'duration']
+Role = Literal['tank', 'damage', 'support']
+
+
+heroes: Dict[str, Hero] = {}
+try:
+    r = requests.get('https://api2.overtrack.gg/data/overwatch/heroes')
+    r.raise_for_status()
+    heroes = typedload.load(r.json(), Dict[str, Hero])
+except:
+    logger.exception(f'Failed to fetch overwatch hero data')
 
 
 def sr_to_rank(sr: int) -> str:
