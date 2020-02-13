@@ -117,6 +117,10 @@ def client():
 def welcome():
     return render_template('welcome.html', meta=WELCOME_META)
 
+@app.route('/discord')
+def discord_redirect():
+    return redirect('https://discord.gg/JywstAB')
+
 @app.route('/logout')
 def logout():
     return redirect('root')
