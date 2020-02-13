@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 try:
     s3 = boto3.client('s3')
     """ :type s3: mypy_boto3.s3.Client """
-    s3.list_objects_v2(Bucket='overwatch-apex-games')
+    s3.list_objects_v2(Bucket='overtrack-apex-games')
 except:
     logger.exception('Failed to create AWS S3 client - fetching games over HTTP')
     s3 = None
