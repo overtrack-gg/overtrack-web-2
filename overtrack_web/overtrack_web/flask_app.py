@@ -205,7 +205,8 @@ def logout():
     response.set_cookie('session', '', expires=0)
 
     # remove domain specific cookie for this domain
-    response.set_cookie('session', '', expires=0, domain=domain)
+    if domain not in ['localhost', '127.0.0.1']:
+        response.set_cookie('session', '', expires=0, domain=domain)
 
     if any(c not in '.0123456789' for c in domain):
         # not an IP address - remove cookie for subdomains of this domain
