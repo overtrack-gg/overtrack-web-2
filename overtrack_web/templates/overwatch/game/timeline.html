@@ -19,32 +19,42 @@
             </li>
             {% for stage in game.stages.stages %}
             <li class="nav-item">
-                <a class="nav-link {{ 'active' if stage.index == 0 else '' }}" data-toggle="tab" href="#stage{{ stage.index }}">{{ stage.name }}</a>
+                <a class="nav-link {{ 'active' if loop.first else '' }}" data-toggle="tab" href="#stage{{ stage.index }}">{{ stage.name }}</a>
             </li>
             {% endfor %}
         </ul>
     </div>
     <div class="tab-content card-body">
         {% for stage in game.stages.stages %}
-        <div id="stage{{ stage.index }}" class="tab-pane {{ 'active' if stage.index == 0 else '' }}">
+        <div id="stage{{ stage.index }}" class="tab-pane {{ 'active' if loop.first else '' }}">
             <div class="row">
-            <div class="col-12">
-                <div class="row ticker">
-                    <div class="col-2"></div>
-                    <svg class="col-9" height="20px" style="padding: 0px; ">
-                        <g transform="translate(0,19)" fill="none" font-size="10" font-family="sans-serif" text-anchor="middle">
-                            {% for t in ticks(0, stage.duration, nbins=10) %}
-                            <line stroke="white" x1="{{ (t / stage.duration) * 100 }}%" x2="{{ (t / stage.duration) * 100 }}%" y2="-6"></line>
-                            <text fill="white" x="{{ (t / stage.duration) * 100 }}%" y="-9" dy="0em">{{ s2ts(t) }}</text>
-                            {% endfor %}
-                        </g>
-                    </svg>
-                    <div class="col-1"></div>
+                <div class="player-names col-auto" style="padding-right: 29px;">
+                    <div class="row" style="height: 20px;"></div>
+                    {% for player in game.teams.all_players %}
+                    <b class="row text-right text-{{ 'blue' if player.blue_team else 'red' }}"
+                       style="line-height: {{ 45 if player == game.teams.owner else 40 }}px;">
+                        {{ player.name }}
+                    </b>
+                    {% if loop.index0 == 5 %}
+                    <div class="row" style="height: 8px;">
+                    </div>
+                    {% endif %}
+                    {% endfor %}
                 </div>
-                {% for player in game.teams.all_players %}
-                <div class="row player">
-                    <b class="col-2 text-right text-{{ 'blue' if player.blue_team else 'red' }}" style="padding-left: 0px; padding-right: 10px; line-height: 40px;">{{ player.name }}</b>
-                    <svg class="timeline col-9" height="{{ 45 if player == game.teams.owner else 40 }}px" style="padding: 0px;">
+                <div class="player-timelines col">
+                    <div class="row">
+                        <svg class="col-12 ticker" height="20px" style="padding: 0px; ">
+                            <g transform="translate(0,19)" fill="none" font-size="10" font-family="sans-serif" text-anchor="middle">
+                                {% for t in ticks(0, stage.duration, nbins=10) %}
+                                <line stroke="white" x1="{{ (t / stage.duration) * 100 }}%" x2="{{ (t / stage.duration) * 100 }}%" y2="-6"></line>
+                                <text fill="white" x="{{ (t / stage.duration) * 100 }}%" y="-9" dy="0em">{{ s2ts(t) }}</text>
+                                {% endfor %}
+                            </g>
+                        </svg>
+                    </div>
+                    {% for player in game.teams.all_players %}
+                    <div class="row">
+                        <svg class="col-12 timeline" height="{{ 45 if player == game.teams.owner else 40 }}px" style="padding: 0px;">
                         {% if player == game.teams.owner %}
                         <rect width="100%" height="100%" fill="#4F7C8E" stroke="white"></rect>
                         {% else %}
@@ -163,26 +173,34 @@
                         {% endfor %}
 
                     </svg>
-                    <b class="col-1 text-left num" style="padding-left: 10px; padding-right: 0px;">
-                        <span class="kill">
-                            {{ player.kills | selectattr('timestamp', 'ge', stage.start) | selectattr('timestamp', 'le', stage.end) | list | length }}
-                        </span>
-                        <span> / </span>
-                        <span class="death">
-                            {{ player.deaths | selectattr('timestamp', 'ge', stage.start) | selectattr('timestamp', 'le', stage.end) | list | length }}
-                        </span>
-                    </b>
+                    </div>
+                    {% if loop.index0 == 5 %}
+                    <div class="row" style="height: 8px;">
+                    </div>
+                    {% endif %}
+                    {% endfor %}
                 </div>
-                {% if player.index == 5 %}
-                <div class="row" style="height: 8px;">
-
+                <div class="player-kill-deaths col-auto">
+                    <div class="row" style="height: 20px;"></div>
+                    {% for player in game.teams.all_players %}
+                    <div class="row kill-death">
+                        <b class="col text-left num"
+                           style="line-height: {{ 45 if player == game.teams.owner else 40 }}px;">
+                            <span class="kill">
+                                {{ player.kills | selectattr('timestamp', 'ge', stage.start) | selectattr('timestamp', 'le', stage.end) | list | length }}
+                            </span>
+                            <span> / </span>
+                            <span class="death">
+                                {{ player.deaths | selectattr('timestamp', 'ge', stage.start) | selectattr('timestamp', 'le', stage.end) | list | length }}
+                            </span>
+                        </b>
+                    </div>
+                    {% if loop.index == 5 %}
+                    <div class="row" style="height: 8px;">
+                    </div>
+                    {% endif %}
+                   {% endfor %}
                 </div>
-                {% endif %}
-                {% endfor %}
-            </div>
-            </div>
-            <div class="col-3">
-
             </div>
         </div>
         {% endfor %}
