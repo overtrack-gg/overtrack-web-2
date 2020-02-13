@@ -63,12 +63,6 @@ def strftime(t: float):
     return dt.strftime('%I:%M %p')
 
 
-def duration(t: Optional[float]):
-    if t is None:
-        return '?'
-    return s2ts(t).split(':', 1)[1]
-
-
 def s2ts(s: float, ms: bool = False, zpad: bool = False) -> str:
     sign = ''
     if s < 0:
@@ -96,7 +90,7 @@ processors = {
 
     'to_ordinal': to_ordinal,
     's2ts': s2ts,
-    'duration': duration,
+    'duration': s2ts,
     'strftime': strftime,
     'image_url': image_url,
     'champion_colour': champion_colour,

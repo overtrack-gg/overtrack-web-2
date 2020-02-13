@@ -2,6 +2,7 @@ import json
 import logging
 import string
 import warnings
+from urllib.parse import urlparse
 
 import boto3
 import requests
@@ -13,6 +14,8 @@ from overtrack_models.dataclasses.overwatch.overwatch_game import OverwatchGame
 from overtrack_models.dataclasses.typedload import referenced_typedload
 from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
 from overtrack_web.data import overwatch_data
+from overtrack_web.lib.authentication import check_authentication
+from overtrack_web.lib.session import session
 from overtrack_web.views.overwatch import OLDEST_SUPPORTED_GAME_VERSION, sr_change
 
 GAMES_BUCKET = 'overtrack-overwatch-games'
@@ -78,10 +81,28 @@ def game(key: str):
     game = load_game(summary)
     game.timestamp = summary.time
 
+    summary_dict = summary.asdict()
+    summary_dict['key'] = (summary.key, f'https://overtrack-overwatch-games.s3.amazonaws.com/{summary.key}.json')
+
+    if check_authentication() is None and session.user.superuser:
+        try:
+            frames_url = urlparse(summary.frames_uri)
+            signed_url = s3.generate_presigned_url(
+                'get_object',
+                Params={
+                    'Bucket': frames_url.netloc,
+                    'Key': frames_url.path[1:]
+                }
+            )
+            summary_dict['frames_uri'] = (summary.frames_uri, signed_url)
+        except:
+            pass
+
     game_dict = {}
     for f in fields(game):
         if not is_dataclass(getattr(game, f.name)):
             game_dict[f.name] = getattr(game, f.name)
+    game_dict['key'] = (summary.key, f'https://overtrack-overwatch-games.s3.amazonaws.com/{summary.key}.json')
 
     return render_template(
         'overwatch/game/game.html',
@@ -89,10 +110,10 @@ def game(key: str):
         summary=summary,
         game=game,
 
-        summary_dict=summary.asdict(),
+        summary_dict=summary_dict,
         game_dict=game_dict,
 
-        all_stats=asdict(game.stats.stats['all heroes']),
+        all_stats=asdict(game.stats.stats['all heroes']) if 'all heroes' in game.stats.stats else {},
 
         OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
     )

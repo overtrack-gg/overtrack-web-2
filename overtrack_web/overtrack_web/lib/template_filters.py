@@ -1,6 +1,6 @@
 import string
 
-from overtrack_web.lib.context_processors import s2ts, duration
+from overtrack_web.lib.context_processors import s2ts
 
 
 def ifnone(v, o):
@@ -19,6 +19,5 @@ def strip(s, lowercase=False):
 filters = {
     'ifnone': ifnone,
     's2ts': s2ts,
-    'duration': duration,
     'strip': strip
 }
