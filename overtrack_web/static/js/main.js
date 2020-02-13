@@ -61,11 +61,11 @@ function make_clickable(){
         let link = e.parentElement.parentElement.parentElement;
         if (link.tagName === "A"){
             let href = e.getAttribute('data-href');
-            e.onmouseenter = () => {
+            e.onmouseenter = event => {
                 link.href = href;
             }
-            e.onmouseexit = () => {
-                if (link.href === href) {
+            e.onmouseleave = event => {
+                if (link.href.indexOf(href) != -1) {
                     link.removeAttribute('href')
                 }
             }
