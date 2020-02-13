@@ -20,7 +20,19 @@ def fake_login():
         logging.error('/fake_login exposed on non-loopback device: FLASK_DEBUG should not be set on nonlocal deployments')
         return f'Refusing to serve /fake_login on nonlocal base URL: {base_hostname}', 403
     else:
-        if 'username' in request.args:
+        if 'user_id' in request.args:
+            try:
+                user = User.user_id_index.get(int(request.args['user_id']))
+            except User.DoesNotExist:
+                return 'User does not exist', 404
+            else:
+                resp = redirect(url_for('root'))
+                resp.set_cookie(
+                    'session',
+                    make_cookie(user)
+                )
+                return resp
+        elif 'username' in request.args:
             try:
                 user = User.username_index.get(request.args['username'])
             except User.DoesNotExist:
