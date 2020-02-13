@@ -61,10 +61,19 @@
         overflow: visible!important;
     }
 
+    .dim .timeline .timeline-event {
+        opacity: 0.2;
+    }
+
     .timeline {
         .timeline-event {
             text-anchor: middle;
             dominant-baseline: middle;
+            cursor: pointer;
+        }
+
+        .timeline-event.highlight {
+            opacity: 1 !important;
         }
 
         .timeline-event.death {
