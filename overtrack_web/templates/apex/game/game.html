@@ -251,23 +251,6 @@
 {% block scripts %}
 <script defer src="{{ url_for('static', filename='js/lib/d3.v5.min.js') }}"></script>
 <script defer src="{{ url_for('static', filename='js/apex/map.js') }}"></script>
-
-<script type="text/javascript">
-    $(document).ready(function($) {
-        let time = document.getElementsByClassName('datetime-format-timestamp')[0];
-        let t = new Date(time.innerText * 1000);
-        time.innerText = t.toLocaleString('default', {
-            hour: 'numeric',
-            minute: '2-digit',
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric',
-        });
-        time.classList.remove('datetime-format-timestamp');
-        time.classList.add('datetime-format-time');
-    });
-</script>
-
 <script src="https://browser.sentry-cdn.com/5.0.6/bundle.min.js" crossorigin="anonymous"></script>
 <script type="text/javascript">
 class UserReport extends Error {
