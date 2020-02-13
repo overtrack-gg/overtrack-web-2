@@ -768,8 +768,8 @@ function draw_map() {
 
 }
 
-$(window).resize(draw_map);
-$(document).ready(function () {
+window.addEventListener("resize", draw_map);
+document.addEventListener("DOMContentLoaded", function(event) {
     let travel_last = travel_full[0];
     let travel_current = [travel_last];
 
