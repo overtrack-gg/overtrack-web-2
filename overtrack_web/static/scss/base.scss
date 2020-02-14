@@ -38,6 +38,18 @@ $navbar-color: #222870 !default;
 a.make-clickable-target {
     text-decoration: none;
 }
+a.nostyle {
+  color: inherit;
+  text-decoration: inherit;
+}
+a.nostyle:link {
+  color: inherit;
+  text-decoration: inherit;
+}
+a.nostyle:hover {
+  color: inherit;
+  text-decoration: inherit;
+}
 
 /* Main */
 body {

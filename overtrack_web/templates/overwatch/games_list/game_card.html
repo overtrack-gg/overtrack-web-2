@@ -1,0 +1,44 @@
+<a class="nostyle"
+   href="{{ url_for(
+                'overwatch.game.game',
+                key=game.key
+            ) if (
+                game.viewable and
+                game.game_version and
+                game.game_version >= OLDEST_SUPPORTED_GAME_VERSION
+            ) else '#' }}">
+<div class="card game-summary game-result-{{ game.result.lower() }}">
+    <div class="row no-gutters">
+        <div class="col thumbnail" style="{{ map_thumbnail_style(game.map) }}">
+            <div class="wedge"></div>
+            <div class="hero-icon role-{{ game.role }}">
+                <div class="hero-icon-background"></div>
+                <img class="hero-icon-image"
+                     src="{{ url_for('static', filename='images/overwatch/hero_icons/' + game.heroes_played[0][0] + '.png') }}"
+                     alt="{{ game.heroes_played[0][0] | title }}">
+            </div>
+        </div>
+        <div class="col">
+            <div class="card-body details">
+                <h3 class="d-inline-block card-title game-result game-result-{{ game.result.lower() }}">
+                    {{ game.result }}
+                </h3>
+                <h6 class="d-inline-block card-subtitle text-muted float-right margin-top game-time epoch-format-time">
+                    {{ game.time }}
+                </h6>
+                <div class="card-text">
+                    <p class="card-text d-inline-block">
+                        {% if not quickplay %}
+                            {{ game.start_sr | ifnone('?') }}
+                            →
+                            {{ game.end_sr | ifnone('?') }}
+                            ({{ sr_change(game) }})
+                        {% endif %}
+                    </p>
+                    <h6 class="d-inline-block text-muted float-right">{{ game.duration // 60 }} min</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</a>

@@ -6,30 +6,11 @@
                 <h5><span class="epoch-format-date">{{ session.start }}</span> - {{ session.account }} - {{ session.game_mode | gamemode }}</h5>
             </div>
             <div class="card-body">
-                <div class="games-list">
-                    <div class="table-responsive">
-                        <a class="make-clickable-target">
-                            <table id="gamesList" class="table table-borderless table-striped table-hover shadow games-list narrow">
-                                <thead class="">
-                                    <tr>
-                                        <th width="100px">Time</th>
-                                        <th colspan="{{ '1' if quickplay else '2' }}">Result</th>
-                                        {% if not quickplay %}
-                                        <th>Score</th>
-                                        <th>SR</th>
-                                        {% endif %}
-                                        <th>Duration</th>
-                                        <th>Map</th>
-                                        <th>Heroes</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="gamesListBody">
-                                    {% for game in session.games %}
-                                    {% include 'overwatch/games_list/game_summary.html' %}
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </a>
+                <div class="games-list container">
+                    <div class="card-deck">
+                    {% for game in session.games %}
+                    {% include 'overwatch/games_list/game_card.html' %}
+                    {% endfor %}
                     </div>
                 </div>
             </div>

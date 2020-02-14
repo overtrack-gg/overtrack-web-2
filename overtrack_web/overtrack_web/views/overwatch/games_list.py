@@ -104,13 +104,18 @@ class Session:
 
 @games_list_blueprint.context_processor
 def context_processor():
-    def map_style(map_name: str):
+
+    def map_thumbnail_style(map_name: str):
         map_name = map_name.lower().replace(' ', '-')
         map_name = ''.join(c for c in map_name if c in (string.digits + string.ascii_letters + '-'))
-        return f'background: url("' \
-               f'{ url_for("static", filename="images/overwatch/map_spans/")}' \
-               f'{map_name}.jpg' \
-               f'")'
+        return (
+            f'background-image: url({url_for("static", filename="images/overwatch/map_thumbnails/" + map_name + ".jpg")}); '
+            f'background-color: #222854;'
+            f'display: block;'
+            f'background-size: cover;'
+            f'background-repeat: no-repeat;'
+            f'background-position: center;'
+        )
 
     def rank(game: OverwatchGameSummary) -> str:
         if game.rank:
@@ -126,17 +131,12 @@ def context_processor():
         'game_name': 'overwatch',
 
         'sr_change': sr_change,
-        'map_style': map_style,
+        # 'map_style': map_style,
+        'map_thumbnail_style': map_thumbnail_style,
         'rank': rank,
     }
 
 
-@games_list_blueprint.app_template_filter('result')
-def result(s: str):
-    if s == 'UNKNOWN':
-        return 'UNK'
-    else:
-        return s
 
 
 @games_list_blueprint.app_template_filter('gamemode')

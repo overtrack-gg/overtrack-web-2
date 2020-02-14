@@ -1,4 +1,131 @@
+$summary-bg: #c1c1c1;
+$summary-fg: black;
+
+$summary-height: 80px;
+$summary-width: 366px - 10px;
+
+$thumbnail-width: 110px;
+
+.session {
+    .card-body {
+        padding: 5px;
+    }
+}
+
 .game-summary {
+    height: $summary-height;
+    width: $summary-width;
+    margin: 5px !important;
+    //margin-bottom: 15px !important;
+
+    border-radius: 4px;
+    border: hidden;
+    overflow: hidden;
+
+    background-color: $summary-bg;
+
+    color: $summary-fg;
+
+    .row {
+        height: 100%;
+    }
+    .col {
+        height: 100%;
+    }
+
+    .thumbnail {
+        width: $thumbnail-width;
+        min-width: $thumbnail-width;
+        max-width: $thumbnail-width;
+        height: 100%;
+
+        overflow: visible;
+        display: block;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+
+        .wedge {
+            left: $thumbnail-width - 25px;
+            border: 0;
+            height: 100%;
+            position: relative;
+            transform: skewX(-20deg);
+            border-radius: 0;
+            background-color: $summary-bg;
+            width: 300%;
+        }
+
+        .hero-icon {
+            float: right;
+            right: 4px;
+            position: absolute;
+            top: ($summary-height - 50px) / 2;
+
+            width: 50px;
+            height: 50px;
+        }
+
+        .hero-icon-background {
+            z-index: 0;
+            transform: skewX(-20deg);
+            border-color: rgba(255, 255, 255, 0.5);
+            border-style: double;
+            border-width: 2px;
+
+            height: 100%;
+            width: 100%;
+        }
+
+        .role-tank .hero-icon-background {
+            background-color: #e1af41;
+        }
+        .role-damage .hero-icon-background {
+            background-color: #e164aa;
+        }
+        .role-support .hero-icon-background {
+            background-color: #4ba5c8;
+        }
+
+        .hero-icon-image {
+            position: absolute;
+            left: -5px;
+            top: 5%;
+            z-index: 1;
+            height: 90%;
+            transform: scaleX(-1);
+            clip-path: polygon(-20% 0, 70% 0, 100% 100%, 12% 100%);
+        }
+    }
+
+    .game-result {
+        margin-bottom: 5px;
+    }
+    .game-time {
+        margin: 0;
+    }
+
+    .details {
+        height: 100%;
+        padding: 10px;
+        padding-left: 20px;
+
+        .game-result-win {
+            color: #90ff90;
+        }
+        .game-result-loss {
+            color: #ff6e6e;
+        }
+        .game-result-draw {
+            color: #f0ad4e;
+        }
+        .game-result-unknown {
+            color: #e305f8;
+        }
+
+
+    }
+
     td {
         padding: 0.2rem;
     }

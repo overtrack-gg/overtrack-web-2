@@ -18,6 +18,11 @@ logger = logging.getLogger(__name__)
 
 def mock_overwatch_games():
     cached_overwatch_games = download_games_list()
+    from overtrack_web.data import overwatch_data
+
+    for g, h in zip(sorted(cached_overwatch_games, key=lambda g: g.time, reverse=True), overwatch_data.heroes.keys()):
+        g.heroes_played[0] = (h, g.heroes_played[0][1])
+        g.role = overwatch_data.heroes[h].role
 
     primary_index = MockIndex(
         cached_overwatch_games,
