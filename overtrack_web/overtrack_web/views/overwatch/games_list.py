@@ -137,6 +137,12 @@ def context_processor():
     }
 
 
+@games_list_blueprint.app_template_filter('result')
+def result(s: str):
+    if s == 'UNKNOWN':
+        return 'UNK'
+    else:
+        return s
 
 
 @games_list_blueprint.app_template_filter('gamemode')

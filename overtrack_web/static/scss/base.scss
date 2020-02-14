@@ -8,27 +8,7 @@ $table-dark-bg: #212529 !default;
 
 $navbar-color: #222870 !default;
 
-@import "bootstrap/bootstrap-reboot";
-@import "bootstrap/utilities/flex";
-@import "bootstrap/utilities/display";
-@import "bootstrap/utilities/spacing";
-@import "bootstrap/utilities/shadows";
-@import "bootstrap/utilities/borders";
-@import "bootstrap/utilities/float";
-@import "bootstrap/utilities/text";
-@import "bootstrap/vendor/rfs";
-@import "bootstrap/grid";
-@import "bootstrap/navbar";
-@import "bootstrap/nav";
-@import "bootstrap/card";
-@import "bootstrap/buttons";
-@import "bootstrap/dropdown";
-@import "bootstrap/tables";
-@import "bootstrap/type";
-@import "bootstrap/spinners";
-@import "bootstrap/forms";
-@import "bootstrap/custom-forms";
-@import "bootstrap/alert";
+@import "bootstrap/bootstrap";
 
 
 .epoch-format-time, .epoch-format-date, .epoch-format-datetime {
