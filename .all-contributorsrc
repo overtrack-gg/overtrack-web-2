@@ -1,0 +1,25 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "synap5e",
+      "name": "Simon Pinfold",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/2515062?v=4",
+      "profile": "https://overtrack.gg",
+      "contributions": [
+        "code",
+        "design"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "projectName": "overtrack-web-2",
+  "projectOwner": "overtrack-gg",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "skipCi": true
+}
