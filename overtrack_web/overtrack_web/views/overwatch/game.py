@@ -61,13 +61,12 @@ def context_processor():
 
     def sort_stats(stats: Sequence[HeroStats]) -> List[HeroStats]:
         stats = sorted(list(stats), key=lambda s: (s.hero != 'all heroes', s.hero))
-        all_heroes_duration = stats[0].time_played
-        stats = [s for s in stats if s.time_played / all_heroes_duration > 0.25]
-
         heroes = [s.hero for s in stats]
         if 'all heroes' in heroes and len(heroes) == 2:
             # only 'all heroes' and one other
             stats = [s for s in stats if s.hero != 'all heroes']
+        else:
+            stats = [s for s in stats if s.time_played > 60]
 
         return stats
 
