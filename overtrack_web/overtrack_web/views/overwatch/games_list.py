@@ -213,6 +213,28 @@ def games_next() -> FlaskResponse:
     )
 
 
+@games_list_blueprint.route('/card/<path:key>')
+def game_card(key: str):
+    game = OverwatchGameSummary.get(key)
+    return render_template_string(
+        '''
+            <!DOCTYPE html>
+            <html lang="en">
+                <head>
+                    <title>{{ title }}</title>
+                    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/' + game_name + '.css') }}">
+                </head>
+                <body>
+                    {% include 'overwatch/games_list/game_card.html' %}
+                </body>
+            </html>
+        ''',
+        title='Card',
+        game=game,
+        OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
+    )
+
+
 def resolve_public_user(username: str) -> Optional[User]:
     try:
         user = User.username_index.get(username)  # TODO: make all usernames lower
