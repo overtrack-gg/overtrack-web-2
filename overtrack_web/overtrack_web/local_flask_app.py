@@ -35,8 +35,8 @@ os.environ['HMAC_KEY'] = base64.b64encode(b'').decode()
 
 # Stop the app from reloading/initing twice
 print("reloading", os.environ.get('WERKZEUG_RUN_MAIN'), os.environ)
-if os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
-    raise ValueError()
+if os.environ.get('FLASK_DEBUG') is not None and os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
+    raise ValueError('Prevented reload')
 
 # live building of scss
 from sassutils.wsgi import SassMiddleware, Manifest
