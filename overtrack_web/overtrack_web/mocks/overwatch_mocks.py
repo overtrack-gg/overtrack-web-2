@@ -26,7 +26,8 @@ def mock_overwatch_games():
 
     primary_index = MockIndex(
         cached_overwatch_games,
-        'key'
+        'key',
+        OverwatchGameSummary,
     )
     OverwatchGameSummary.query = primary_index.query
     OverwatchGameSummary.scan = primary_index.scan
@@ -34,7 +35,8 @@ def mock_overwatch_games():
 
     OverwatchGameSummary.user_id_time_index = MockIndex(
         cached_overwatch_games,
-        'user_id'
+        'user_id',
+        OverwatchGameSummary,
     )
 
     OverwatchGameSummary.refresh = lambda self: None
@@ -42,7 +44,8 @@ def mock_overwatch_games():
     fake_ow_user = User(_username=GAMES_SOURCE, user_id=mock_user.user_id, overwatch_games_public=True)
     User.username_index = MockIndex(
         [fake_ow_user],
-        'username'
+        'username',
+        User,
     )
     User.refresh = lambda self: None
 

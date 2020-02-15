@@ -20,7 +20,8 @@ def mock_apex_games():
 
     primary_index = MockIndex(
         cached_apex_games,
-        'key'
+        'key',
+        ApexGameSummary,
     )
     ApexGameSummary.query = primary_index.query
     ApexGameSummary.scan = primary_index.scan
@@ -28,7 +29,8 @@ def mock_apex_games():
 
     ApexGameSummary.user_id_time_index = MockIndex(
         cached_apex_games,
-        'user_id'
+        'user_id',
+        ApexGameSummary,
     )
 
 

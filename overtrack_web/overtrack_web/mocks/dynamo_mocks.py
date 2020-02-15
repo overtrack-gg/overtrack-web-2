@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Type
 
 from pynamodb.expressions.condition import *
 from pynamodb.expressions.operand import Path, Value
@@ -39,9 +39,10 @@ class MockResultIteratorExt:
 
 class MockIndex:
 
-    def __init__(self, cached_data, hash_key_attr_name: str):
+    def __init__(self, cached_data, hash_key_attr_name: str, model_class: Type):
         self.cached_data = cached_data
         self.hash_key_attr_name = hash_key_attr_name
+        self.model_class = model_class
 
     def query(
             self,
@@ -142,4 +143,7 @@ class MockIndex:
         return self.query(*args, **kwargs)
 
     def get(self, *args, **kwargs):
-        return next(self.query(*args, **kwargs))
+        try:
+            return next(self.query(*args, **kwargs))
+        except StopIteration:
+            raise self.model_class.DoesNotExist()
