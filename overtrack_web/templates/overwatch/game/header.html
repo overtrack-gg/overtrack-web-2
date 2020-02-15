@@ -5,8 +5,7 @@
                 <h1 class="mapname">{{ game.map.name }}<small class="epoch-format-datetime">{{ game.timestamp }}</small></h1>
                 <p>
                     <img class="maptype"
-                         src="{{ url_for('static', filename='images/overwatch/map_type_icons/' + game.map.type.lower() + '.svg') }}">
-                    {{ game.map.type }}
+                         src="{{ url_for('static', filename='images/overwatch/map_type_icons/' + (game.map.type or 'unknown').lower() + '.svg') }}">
                     <span class="glyphicon glyphicon-time" style="font-size:18px"></span>
                     11:17 minutes
                 </p>
