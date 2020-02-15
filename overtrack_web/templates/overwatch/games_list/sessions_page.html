@@ -8,9 +8,13 @@
             <div class="card-body">
                 <div class="games-list container">
                     <div class="card-deck">
-                    {% for game in session.games %}
-                    {% include 'overwatch/games_list/game_card.html' %}
-                    {% endfor %}
+                        {% for game in session.games %}
+                        {% include 'overwatch/games_list/game_card.html' %}
+                        {% endfor %}
+                        {% for i in range(3) %}
+                        <div class="card game-summary" style="height: 0;opacity: 0;">
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
