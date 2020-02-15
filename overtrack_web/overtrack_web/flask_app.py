@@ -1,11 +1,10 @@
+import functools
 import logging
 import os
-from urllib import parse
 
 import flask
-import functools
 import sentry_sdk
-from flask import Flask, Request, Response, make_response, render_template, request, url_for
+from flask import Flask, Request, render_template, request, url_for
 from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
 from werkzeug.utils import redirect
 
@@ -19,13 +18,30 @@ dataclasses_asdict_namedtuple_patch.patch()
 
 request: Request = request
 
+try:
+    # Fancy logging when possible
+    from overtrack.util.logging_config import config_logger
+    config_logger(__name__, logging.INFO, False)
+except ImportError:
+    logging.basicConfig(level=logging.INFO)
+
+
+# ------ FLASK SETUP AND CONFIG ------
 app = Flask(__name__, template_folder='../templates', static_folder='../static')
 app.url_map.strict_slashes = False
 
+@app.after_request
+def add_default_no_cache_header(response):
+    # response.cache_control.no_store = True
+    if 'cache-control' not in response.headers:
+        response.headers['cache-control'] = 'no-store'
+    return response
+
+
+# ------ FLASK DEBUG vs. LIVE CONFIG ------
 if app.config['DEBUG']:
     # live building of scss
     from sassutils.wsgi import SassMiddleware, Manifest
-    # noinspection PyTypeChecker
     app.wsgi_app = SassMiddleware(
         app.wsgi_app,
         {
@@ -62,7 +78,7 @@ else:
         sentry_sdk.capture_exception(e)
         return True
 
-    # Fetch static assets from cloudfront instead of through the lambda
+    # Fetch static assets from cdn instead of through the lambda
     orig_url_for = flask.url_for
     def url_for(endpoint, **values):
         if endpoint == 'static' and 'filename' in values:
@@ -73,46 +89,7 @@ else:
     flask.url_for = url_for
 
 
-@app.after_request
-def add_header(response):
-    # response.cache_control.no_store = True
-    if 'cache-control' not in response.headers:
-        response.headers['cache-control'] = 'no-store'
-    return response
-
-
-@app.route('/test')
-def test():
-    import random
-    from flask import render_template_string
-    from flask import request
-
-    return render_template_string(
-        '''
-<html>
-<body style="background-color: {{ bgcol }}">
-<p>{{ url_for('test') }}</p>
-<p>{{ url_for('test', _external=True) }}</p>
-<p>{{ url_for('apex_game.game', key='A') }}</p>
-<p>{{ request.host }}</p>
-<pre>{{ environ }}</pre>
-</body>
-</html>
-''',
-        bgcol=f'#{random.randint(0, 0xffffff):6x}',
-        environ=str(request.environ).replace(',', ',\n')
-    )
-
-
-# Fancy logging for running locally
-try:
-    from overtrack.util.logging_config import config_logger
-    config_logger(__name__, logging.INFO, False)
-except ImportError:
-    logging.basicConfig(level=logging.INFO)
-
-
-# register context processors and filters
+# ------ JINJA2 TEMPLATE VARIABLES AND FILTERS ------
 @app.context_processor
 def context_processor():
     from overtrack_web.lib.context_processors import processors as lib_context_processors
@@ -123,46 +100,74 @@ def context_processor():
 from overtrack_web.lib.template_filters import filters
 app.jinja_env.filters.update(filters)
 
-# complex views requiring their own controllers
+
+# ------ LOGIN/LOGOUT ------
 from overtrack_web.views.login import login_blueprint
 app.register_blueprint(login_blueprint)
 
-# ------ APEX ROUTING ------
+
+# ------ APEX ------
 from overtrack_web.views.apex.games_list import games_list_blueprint as apex_games_list_blueprint
 app.register_blueprint(apex_games_list_blueprint, url_prefix='/apex/games')
-@app.route('/apex')
-@app.route('/games')
-def apex_games_redirect():
-    return redirect(url_for('apex.games_list.games_list'), code=308)
 
 from overtrack_web.views.apex.game import game_blueprint
-# old url: /game/...
 app.register_blueprint(game_blueprint, url_prefix='/apex/games')
-@app.route('/game/<path:key>')
-def apex_game_redirect(key):
-    return redirect(url_for('apex_game.game', key=key), code=308)
 
 from overtrack_web.views.apex.stats import results_blueprint
-# old url: /stats
 app.register_blueprint(results_blueprint, url_prefix='/apex/stats')
 
 from overtrack_web.views.apex.scrims import scrims_blueprint
 app.register_blueprint(scrims_blueprint, url_prefix='/apex/scrims')
 
-# ------ OVERWATCH ROUTING ------
-from overtrack_web.views.overwatch.games_list import games_list_blueprint as overwatch_games_list_blueprint
-app.register_blueprint(overwatch_games_list_blueprint, url_prefix='/overwatch/games')
-
-from overtrack_web.views.overwatch.game import game_blueprint as overwatch_game_blueprint
-app.register_blueprint(overwatch_game_blueprint, url_prefix='/overwatch/games')
-
 try:
+    # support running even if the discord bot fails (e.g. missing env vars, fails to fetch cache of enabled bots)
     from overtrack_web.views.apex.discord_bot import discord_bot_blueprint
 except:
     logging.exception('Failed to import discord_bot_blueprint - running without /discord_bot')
 else:
     app.register_blueprint(discord_bot_blueprint, url_prefix='/apex/discord_bot')
 
+
+# ------ OVERWATCH ------
+from overtrack_web.views.overwatch.games_list import games_list_blueprint as overwatch_games_list_blueprint
+app.register_blueprint(overwatch_games_list_blueprint, url_prefix='/overwatch/games')
+
+from overtrack_web.views.overwatch.game import game_blueprint as overwatch_game_blueprint
+app.register_blueprint(overwatch_game_blueprint, url_prefix='/overwatch/games')
+
+
+# ------ LEGACY PAGE REDIRECTS ------
+@app.route('/game/<path:key>')
+def game_redirect(key):
+    from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
+    try:
+        OverwatchGameSummary.get(key)
+    except OverwatchGameSummary.DoesNotExist:
+        return redirect(url_for('apex.game.game', key=key), code=308)
+    else:
+        return redirect(url_for('overwatch.game.game', key=key), code=308)
+
+@app.route('/games/<string:key>')
+def overwatch_share_link_redirect(key):
+    return redirect(url_for('overwatch.games_list.shared_games_list', sharekey=key), code=308)
+
+# redirect old apex.overtrack.gg/<streamer> shares
+for key, username in {
+    'mendokusaii': 'mendokusaii',
+}.items():
+    app.add_url_rule(
+        f'/{key}',
+        f'hardcoded_redirect_{key}',
+        functools.partial(redirect, f'/apex/games/{username}', code=308)
+    )
+
+@app.route('/apex')
+@app.route('/games')
+def apex_games_redirect():
+    return redirect(url_for('apex.games_list.games_list'), code=308)
+
+
+# ------ SUBSCRIBE  ------
 try:
     from overtrack_web.views.subscribe import subscribe_blueprint
 except:
@@ -171,7 +176,7 @@ else:
     app.register_blueprint(subscribe_blueprint, url_prefix='/subscribe')
 
 
-# render the root page differently depending on logged in status
+# ------ ROOT PAGE  ------
 @app.route('/')
 def root():
     if check_authentication() is None:
@@ -180,8 +185,7 @@ def root():
         return welcome()
 
 
-# template only views
-
+# ------ SIMPLE INFO PAGES  ------
 @app.route('/client')
 def client():
     return render_template('client.html', meta=WELCOME_META)
@@ -190,62 +194,6 @@ def client():
 def welcome():
     return render_template('welcome.html', meta=WELCOME_META)
 
-
 @app.route('/discord')
 def discord_redirect():
     return redirect('https://discord.gg/JywstAB')
-
-
-@app.route('/logout')
-def logout():
-    response: Response = make_response(redirect(url_for('root')))
-    domain = parse.urlsplit(request.url).hostname
-
-    # remove non-domain specific cookie
-    response.set_cookie('session', '', expires=0)
-
-    # remove domain specific cookie for this domain
-    if domain not in ['localhost', '127.0.0.1']:
-        response.set_cookie('session', '', expires=0, domain=domain)
-
-    if any(c not in '.0123456789' for c in domain):
-        # not an IP address - remove cookie for subdomains of this domain
-        response.set_cookie('session', '', expires=0, domain='.' + domain)
-        if domain.count('.') >= 2:
-            # we are on a subdomain - remove cookie for this and all other subdomains
-            response.set_cookie('session', '', expires=0, domain='.' + domain.split('.', 1)[-1])
-
-    return response
-
-
-share_redirects = {
-    'mendokusaii': 'mendokusaii',
-}
-for key, username in share_redirects.items():
-    route = functools.partial(redirect, f'/apex/games/{username}', code=308)
-    route.__name__ = f'streamer_redirect_{key}'
-    app.route('/' + key)(route)
-
-# @app.route('/eeveea_')
-# def eeveea_games():
-#     return render_games_list(User.user_id_index.get(347766573), public=True, meta_title='eeveea_')
-#
-# @app.route('/mendokusaii')
-# def mendokusaii_games():
-#     return render_games_list(User.user_id_index.get(-3), public=True, meta_title='Mendokusaii')
-#
-# @app.route('/heylauren')
-# def heylauren_games():
-#     return render_games_list(User.user_id_index.get(-420), public=True, meta_title='heylauren')
-#
-# @app.route('/shroud')
-# def shroud_games():
-#     return render_games_list(User.user_id_index.get(-400), public=True, meta_title='Shroud')
-#
-# @app.route('/diegosaurs')
-# def diegosaurs_games():
-#     return render_games_list(User.user_id_index.get(-401), public=True, meta_title='Diegosaurs')
-#
-# @app.route('/a_seagull')
-# def a_seagull_games():
-#     return render_games_list(User.user_id_index.get(-402), public=True, meta_title='a_seagull')

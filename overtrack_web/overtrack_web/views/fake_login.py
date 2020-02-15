@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 fake_login_blueprint = Blueprint('fake_login', __name__)
 
 
-@fake_login_blueprint.route('/')
+@fake_login_blueprint.route('/login')
 def fake_login():
     from flask import request
     from urllib import parse
@@ -46,3 +46,8 @@ def fake_login():
                 return resp
         else:
             return 'Please specify a username to authenticate as. Use ?username=...', 400
+
+
+@fake_login_blueprint.route('/logout')
+def logout():
+    return redirect('root')

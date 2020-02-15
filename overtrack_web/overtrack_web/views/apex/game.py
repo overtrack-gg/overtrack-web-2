@@ -36,7 +36,7 @@ except:
     logger.exception('Failed to create AWS logs client - running without admin logs')
     logs = None
 
-game_blueprint = Blueprint('apex_game', __name__)
+game_blueprint = Blueprint('apex.game', __name__)
 
 
 @game_blueprint.context_processor

@@ -18,7 +18,7 @@
 {%- endmacro %}
 
 {% macro summary(game, clickable=True, show_time=True, show_player=False) -%}
-    <tr data-href={{url_for('apex_game.game', key=game.key)}}
+    <tr data-href={{url_for('apex.game.game', key=game.key)}}
         data-key="{{game.key}}"
         class="{{'make-clickable' if game.url and clickable else ''}} {{ 'win' if game.won else '' }} placed-{{game.placed}}">
         {% if show_player %}<th class="player">{{ game.player_name }}</th>{% endif %}
