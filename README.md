@@ -5,11 +5,16 @@
 ## Running Locally
 
 ### Dependencies
-Dependencies are installed through poetry
+Dependencies are installed through [poetry](https://python-poetry.org/docs/#installation)
 ```bash
 poetry install
 ```
-Note specifically the dependency on [overtrack-models](https://gitlab.com/OverTrack/overtrack-models)
+
+Poetry uses `pyproject.toml` to specify requirements as per [pep 518](https://www.python.org/dev/peps/pep-0518/).
+Requirements can be added with `poetry add <package>`, and the lock file can be updated with `poetry update`.
+
+Note overtrack-web depends on [overtrack-models](https://gitlab.com/OverTrack/overtrack-models) 
+(which is specified as a git dependency in pyproject.toml and should be installed automatically by poetry).
 
 #### Commands
 Use
@@ -24,7 +29,9 @@ FLASK_APP=overtrack_web.local_flask_app FLASK_DEBUG=1 flask run
 ```
 if you are managing your virtual environment yourself.
 
-### Local development mode
+The port can be changed by setting `FLASK_RUN_PORT`.
+
+### Local development mode notes
 `local_flask_app.py` exposes a flask app that matches much of the live version and mocks access to games so that games are
  populated from the OverTrack API using public share links.
 The source of the "mock" games can be changed by changing the environment variables `APEX_GAMES_SOURCE` and `OVERWATCH_GAMES_SOURCE`.
@@ -35,6 +42,14 @@ lists and update games.
 The local flask app does not run with the discord bot or subscribe pages active, and mocks login so that you are always logged in as a dummy user.
 
 `overtrack_web/flask_app.py` is the flask app used for hosting the actual site, and requires access to overtrack's AWS resources to run.
+
+### Using an IDE
+
+Once packages are installed with poetry, you can set your IDE to use the poetry created virtualenvironment.
+Use `poetry show -v` to get the virtualenvironment path.
+
+Use the environment variables from [commands](#commands) (i.e. FLASK_APP and FLASK_DEBUG) and if required set the interpreter to be the `python` executable in the virtualenvironment 
+created by poetry. In PyCharm, set the module to `flask` with the parameters `run`, in other IDE's you may just need to set the command to `flask run`.
 
 ## Structure
 
