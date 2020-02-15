@@ -31,7 +31,7 @@
                 <div class="player-names col-auto">
                     <div class="row" style="height: 20px;"></div>
                     {% for player in game.teams.all_players %}
-                    <b class="row text-right text-{{ 'blue' if player.blue_team else 'red' }}"
+                    <b class="row text-right text-{{ 'blue' if player.blue_team else 'red' }} player-name {{ 'player-name-long' if player.name | length > 16 else '' }}"
                        style="line-height: {{ 45 if player == game.teams.owner else 40 }}px;">
                         {{ player.name }}
                     </b>
