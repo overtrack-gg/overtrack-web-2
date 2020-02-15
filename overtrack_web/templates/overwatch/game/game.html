@@ -1,5 +1,3 @@
-{% import 'util.html' as util with context %}
-
 {% extends "base.html" %}
 {% block title %}Game{% endblock %}
 
@@ -9,17 +7,18 @@
 
     <div class="container">
         <div class="row">
-            {% include 'overwatch/game/timeline.html' %}
+            <div class="col-12">
+                {% include 'overwatch/game/timeline.html' %}
+            </div>
+            <div class="col-md-6 col-sm-12">
+                {% include 'overwatch/game/hero_stats.html' %}
+            </div>
         </div>
 
-        <div class="row">
-            {{ util.dict_to_card(all_stats, 'Stats') }}
-        </div>
+        {% if user.superuser %}
+        {% include 'overwatch/game/dev_info.html' %}
+        {% endif %}
 
-        <div class="row">
-            {{ util.dict_to_card(summary_dict, 'Summary') }}
-            {{ util.dict_to_card(game_dict, 'Game') }}
-        </div>
     </div>
 </div>
 <div class="report-footer">

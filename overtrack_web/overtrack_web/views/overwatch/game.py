@@ -2,6 +2,8 @@ import json
 import logging
 import string
 import warnings
+from itertools import chain
+from typing import Sequence, List, Optional
 from urllib.parse import urlparse
 
 import boto3
@@ -10,6 +12,7 @@ from dataclasses import asdict, fields, is_dataclass
 from flask import Blueprint, Request, render_template, request, url_for
 from overtrack_models.dataclasses.overwatch.basic_types import Map, Hero
 from overtrack_models.dataclasses.overwatch.overwatch_game import OverwatchGame
+from overtrack_models.dataclasses.overwatch.statistics import HeroStats
 
 from overtrack_models.dataclasses.typedload import referenced_typedload
 from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
@@ -42,14 +45,6 @@ game_blueprint = Blueprint('overwatch.game', __name__)
 
 @game_blueprint.context_processor
 def context_processor():
-    def map_jumbo_style(map_: Map):
-        map_name = map_.name.lower().replace(' ', '-')
-        map_name = ''.join(c for c in map_name if c in (string.digits + string.ascii_letters + '-'))
-        return (
-            f'background-image: linear-gradient(#222854 0px, rgba(0, 0, 0, 0.42) 100%), '
-            f'url({url_for("static", filename="images/overwatch/map_banners/" + map_name + ".jpg")}); '
-            f'background-color: #222854;'
-        )
 
     def ability_is_ult(ability) -> bool:
         if not ability:
@@ -64,14 +59,81 @@ def context_processor():
             return False
         return ability_name == hero.ult
 
+    def sort_stats(stats: Sequence[HeroStats]) -> List[HeroStats]:
+        stats = sorted(list(stats), key=lambda s: (s.hero != 'all heroes', s.hero))
+        all_heroes_duration = stats[0].time_played
+        stats = [s for s in stats if s.time_played / all_heroes_duration > 0.25]
+
+        heroes = [s.hero for s in stats]
+        if 'all heroes' in heroes and len(heroes) == 2:
+            # only 'all heroes' and one other
+            stats = [s for s in stats if s.hero != 'all heroes']
+
+        return stats
+
+    def get_stat_type(hero_name: str, stat_name: str) -> str:
+        if hero_name in overwatch_data.heroes:
+            hero = overwatch_data.heroes[hero_name]
+            stats_by_name = {
+                s.name: s
+                for s in chain(*hero.stats)
+            }
+            if stat_name in stats_by_name:
+                stat = stats_by_name[stat_name]
+                if stat.stat_type == 'maximum':
+                    return 'value'
+                if stat.stat_type == 'average':
+                    return 'average'
+                elif stat.stat_type == 'best':
+                    return 'best'
+                else:
+                    logger.error(f"Don't know how to handle stat type {stat.stat_type!r} for {hero_name}: {stat_name!r}")
+                    return 'value'
+
+        logger.error(f"Couldn't get stat type for {hero_name}: {stat_name!r}")
+        return 'value'
+
     return {
         'game_name': 'overwatch',
 
         'sr_change': sr_change,
-        'map_jumbo_style': map_jumbo_style,
+        'ability_is_ult': ability_is_ult,
+        'sort_stats': sort_stats,
+        'get_stat_type': get_stat_type,
 
-        'ability_is_ult': ability_is_ult
+        'asdict': asdict,
     }
+
+
+@game_blueprint.app_template_filter('map_jumbo_style')
+def map_jumbo_style(map_: Map):
+    map_name = map_.name.lower().replace(' ', '-')
+    map_name = ''.join(c for c in map_name if c in (string.digits + string.ascii_letters + '-'))
+    return (
+        f'background-image: linear-gradient(#222854 0px, rgba(0, 0, 0, 0.42) 100%), '
+        f'url({url_for("static", filename="images/overwatch/map_banners/" + map_name + ".jpg")}); '
+        f'background-color: #222854;'
+    )
+
+
+@game_blueprint.app_template_filter('format_number')
+def format_number(v: Optional[float], precision: Optional[float] = 1):
+    if v is None:
+        return v
+    if precision is None:
+        if v > 500:
+            precision = 0
+        else:
+            precision = 1
+    return f'{v:,.{precision}f}'
+
+
+@game_blueprint.app_template_filter('hero_name')
+def hero_name(h: str):
+    if h in overwatch_data.heroes:
+        return overwatch_data.heroes[h].name
+    else:
+        return h.title()
 
 
 @game_blueprint.route('/<path:key>')

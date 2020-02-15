@@ -1,0 +1,38 @@
+{%- macro dict_to_table(d) %}
+<table class="table table-dark table-borderless table-striped table-hover">
+    <tbody>
+    {% for e in d.items() %}
+    {% if e[0] != '_href' %}
+    <tr>
+        <th>{{ e[0] }}</th>
+        <td>
+            {% if e[1] is not string and e[1][1] is string and e[1][1].startswith('http') %}
+            <a href="{{ e[1][1] }}">{{ e[1][0] }}</a>
+            {% else %}
+            {{ e[1] }}
+            {% endif %}
+        </td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+    </tbody>
+</table>
+{% endmacro %}
+
+<div class="card">
+    <div class="card-header">
+        <h5>Dev Info</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-6">
+                <h4>Summary</h4>
+                {{ dict_to_table(summary_dict) }}
+            </div>
+            <div class="col-6">
+                <h4>Game</h4>
+                {{ dict_to_table(game_dict) }}
+            </div>
+        </div>
+    </div>
+</div>
