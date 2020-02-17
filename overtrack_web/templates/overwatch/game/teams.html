@@ -15,7 +15,7 @@
                         <tr>
                             <td><b>{{ player.name }}</b></td>
                             <td><img height="35" style="vertical-align: bottom"
-                                     src="{{ url_for('static', filename='images/overwatch/rank_icons/' + player.rank + '.png') }}"></td>
+                                     src="{{ url_for('static', filename='images/overwatch/rank_icons/' + (player.rank or 'unknown') + '.png') }}"></td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -31,7 +31,7 @@
                         {% for player in game.teams.red %}
                         <tr>
                             <td><img height="35" style="vertical-align: bottom"
-                                     src="{{ url_for('static', filename='images/overwatch/rank_icons/' + player.rank + '.png') }}"></td>
+                                     src="{{ url_for('static', filename='images/overwatch/rank_icons/' + (player.rank or 'unknown') + '.png') }}"></td>
                             <td><b>{{ player.name }}</b></td>
                         </tr>
                         {% endfor %}
