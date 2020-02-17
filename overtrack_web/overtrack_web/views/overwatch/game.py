@@ -50,7 +50,10 @@ game_blueprint = Blueprint('overwatch.game', __name__)
 
 @game_blueprint.route('/<path:key>')
 def game(key: str):
-    summary = OverwatchGameSummary.get(key)
+    try:
+        summary = OverwatchGameSummary.get(key)
+    except OverwatchGameSummary.DoesNotExist:
+        return 'Game does not exist', 404
 
     title = key
 
@@ -80,7 +83,11 @@ def game(key: str):
 
 @game_blueprint.route('<path:key>/card')
 def game_card(key: str):
-    game = OverwatchGameSummary.get(key)
+    try:
+        game = OverwatchGameSummary.get(key)
+    except OverwatchGameSummary.DoesNotExist:
+        return 'Game does not exist', 404
+
     return render_template_string(
         '''
             <!DOCTYPE html>

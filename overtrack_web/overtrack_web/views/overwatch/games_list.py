@@ -166,7 +166,7 @@ def games_list() -> FlaskResponse:
 def public_games_list(username: str) -> FlaskResponse:
     user = resolve_public_user(username)
     if not user:
-        return 'User does not exist of games not public', 404
+        return 'User does not exist or games not public', 404
     return render_games_list(user, username=username)
 
 
