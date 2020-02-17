@@ -1,16 +1,17 @@
+import collections
 import json
 import logging
 import string
 import warnings
-from itertools import chain
-from typing import Sequence, List, Optional
+from typing import List, Optional, Sequence
 from urllib.parse import urlparse
 
 import boto3
 import requests
 from dataclasses import asdict, fields, is_dataclass
 from flask import Blueprint, Request, render_template, request, url_for
-from overtrack_models.dataclasses.overwatch.basic_types import Map, Hero
+from itertools import chain
+from overtrack_models.dataclasses.overwatch.basic_types import Map
 from overtrack_models.dataclasses.overwatch.overwatch_game import OverwatchGame
 from overtrack_models.dataclasses.overwatch.statistics import HeroStats
 
@@ -154,28 +155,7 @@ def game(key: str):
     game = load_game(summary)
     game.timestamp = summary.time
 
-    summary_dict = summary.asdict()
-    summary_dict['key'] = (summary.key, f'https://overtrack-overwatch-games.s3.amazonaws.com/{summary.key}.json')
-
-    if check_authentication() is None and session.user.superuser:
-        try:
-            frames_url = urlparse(summary.frames_uri)
-            signed_url = s3.generate_presigned_url(
-                'get_object',
-                Params={
-                    'Bucket': frames_url.netloc,
-                    'Key': frames_url.path[1:]
-                }
-            )
-            summary_dict['frames_uri'] = (summary.frames_uri, signed_url)
-        except:
-            pass
-
-    game_dict = {}
-    for f in fields(game):
-        if not is_dataclass(getattr(game, f.name)):
-            game_dict[f.name] = getattr(game, f.name)
-    game_dict['key'] = (summary.key, f'https://overtrack-overwatch-games.s3.amazonaws.com/{summary.key}.json')
+    dev_info = get_dev_info(summary, game)
 
     return render_template(
         'overwatch/game/game.html',
@@ -183,13 +163,73 @@ def game(key: str):
         summary=summary,
         game=game,
 
-        summary_dict=summary_dict,
-        game_dict=game_dict,
-
-        all_stats=asdict(game.stats.stats['all heroes']) if 'all heroes' in game.stats.stats else {},
+        dev_info=dev_info,
 
         OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
     )
+
+
+def get_dev_info(summary, game):
+    if check_authentication() is not None or not session.user.superuser:
+        return None
+
+    summary_dict = summary.asdict()
+    summary_dict['key'] = (summary.key, f'https://overtrack-overwatch-games.s3.amazonaws.com/{summary.key}.json')
+    try:
+        frames_url = urlparse(summary.frames_uri)
+        # noinspection PyNoneFunctionAssignment
+        signed_url = s3.generate_presigned_url(
+            'get_object',
+            Params={
+                'Bucket': frames_url.netloc,
+                'Key': frames_url.path[1:]
+            }
+        )
+        summary_dict['frames_uri'] = (summary.frames_uri, signed_url)
+    except:
+        pass
+
+    def _quickdump(val):
+        if isinstance(val, (tuple, str)):
+            return val
+        elif isinstance(val, collections.Sequence):
+            return '...'
+        else:
+            rep = repr(val)
+            if len(rep) < 50:
+                return rep
+            else:
+                return rep[:50 - 3] + '...'
+
+    game_dict = {}
+    extras = {}
+    for f in fields(game):
+        if not is_dataclass(getattr(game, f.name)):
+            game_dict[f.name] = getattr(game, f.name)
+        else:
+            dc = getattr(game, f.name)
+            dc_data = []
+            extras[f'Game.{f.name}'] = dc_data
+            for ff in fields(dc):
+                val = getattr(getattr(game, f.name), ff.name)
+                if is_dataclass(val):
+                    dc_data.append((ff.name, ''))
+                    for fff in fields(val):
+                        dc_data.append(('\u00a0' * 6 + '.' + fff.name, _quickdump(getattr(val, fff.name))))
+                elif isinstance(val, list) and len(val) <= 6:
+                    dc_data.append((ff.name, ''))
+                    for i, v in enumerate(val):
+                        dc_data.append(('\u00a0' * 6 + '.' + str(i), _quickdump(v)))
+                else:
+                    dc_data.append((ff.name, _quickdump(val)))
+
+    game_dict['key'] = (summary.key, f'https://overtrack-overwatch-games.s3.amazonaws.com/{summary.key}.json')
+
+    return {
+        'Summary': list(summary_dict.items()),
+        'Game': list(game_dict.items()),
+        'Extras': extras,
+    }
 
 
 def load_game(summary: OverwatchGameSummary) -> OverwatchGame:
