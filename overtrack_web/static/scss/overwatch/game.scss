@@ -178,6 +178,18 @@
         tbody > tr > th {
             border: none !important;
         }
+    }
+
+    .teams {
+        .team-table {
+            tbody > tr > td,
+            tbody > tr > th {
+                padding: 1px;
+                padding-right: 10px;
+                border: none !important;
+            }
+        }
+    }
 
     .dev-info {
         tbody > tr > td,

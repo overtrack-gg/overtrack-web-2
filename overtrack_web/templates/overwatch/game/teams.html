@@ -1,0 +1,43 @@
+<div class="card teams">
+    <div class="card-header">
+        <h4>Teams:</h4>
+    </div>
+    <div class="card-body">
+        <div class="panel panel-default row">
+            <div class="col-6">
+                <table class="table table-hover text-blue text-right team-table">
+                    <tbody>
+                        <tr>
+                            <th></th>
+                            <th class="text-center"> &nbsp; </th>
+                        </tr>
+                        {% for player in game.teams.blue %}
+                        <tr>
+                            <td><b>{{ player.name }}</b></td>
+                            <td><img height="35" style="vertical-align: bottom"
+                                     src="{{ url_for('static', filename='images/overwatch/rank_icons/' + player.rank + '.png') }}"></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-6">
+                <table class="table table-hover text-red team-table">
+                    <tbody>
+                        <tr>
+                            <th class="text-center"> &nbsp; </th>
+                            <th></th>
+                        </tr>
+                        {% for player in game.teams.red %}
+                        <tr>
+                            <td><img height="35" style="vertical-align: bottom"
+                                     src="{{ url_for('static', filename='images/overwatch/rank_icons/' + player.rank + '.png') }}"></td>
+                            <td><b>{{ player.name }}</b></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
