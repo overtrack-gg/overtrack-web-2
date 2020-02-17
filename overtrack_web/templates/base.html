@@ -13,39 +13,41 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
     <title>{% block title %}OverTrack - Automatic Game Tracking{% endblock %}</title>
+
     {% if meta %}
-    <meta property="og:title" content="{{ meta.title }}">
-    <meta name="twitter:title" content="{{ meta.title }}">
-    {% if meta.colour %}
-    <meta name="theme-color" content="{{ meta.colour }}">
+        <meta property="og:title" content="{{ meta.title }}">
+        <meta name="twitter:title" content="{{ meta.title }}">
+        {% if meta.colour %}
+            <meta name="theme-color" content="{{ meta.colour }}">
+        {% endif %}
+        {% if meta.description %}
+            <meta property="og:description" content="{{ meta.description }}">
+            <meta name="description" content="{{ meta.description }}">
+            <meta property="twitter:description" content="{{ meta.description }}">
+        {% endif %}
+        {% if meta.image_url %}
+            <meta property="og:image" content="{{ meta.image_url }}">
+            <meta property="twitter:image" content="{{ meta.image_url }}">
+        {% endif %}
+        {% if meta.summary_large_image %}
+            <meta name="twitter:card" content="summary_large_image">
+        {% else %}
+            <meta name="twitter:card" content="summary">
+        {% endif %}
+        <meta property="og:site_name" content="OverTrack.gg"/>
+        <meta name="twitter:site" content="OverTrack.gg">
+        {% if meta.oembed %}
+            <link type="application/json+oembed" href="{{ meta.oembed }}"/>
+        {% else %}
+            {% if meta.summary_large_image and not meta.description %}
+                {# summary_large_image doesn't work without description, but oembed: type=photo does #}
+                <link type="application/json+oembed" href="{{ url_for('static', filename='oembed_photo.json') }}"/>
+            {% else %}
+                <link type="application/json+oembed" href="{{ url_for('static', filename='oembed.json') }}"/>
+            {% endif %}
+        {% endif %}
     {% endif %}
-    {% if meta.description %}
-    <meta property="og:description" content="{{ meta.description }}">
-    <meta name="description" content="{{ meta.description }}">
-    <meta property="twitter:description" content="{{ meta.description }}">
-    {% else %}
-    {% if meta.summary_large_image %}
-    {# must have a description set #}
-    <meta property="og:description" content="&nbsp;">
-    <meta name="description" content="&nbsp;">
-    <meta property="twitter:description" content="&nbsp;">
-    {% endif %}
-    {% endif %}
-    {% if meta.image_url %}
-    <meta property="og:image" content="{{ meta.image_url }}">
-    <meta property="twitter:image" content="{{ meta.image_url }}">
-    {% endif %}
-    {% if meta.summary_large_image %}
-    <meta name="twitter:card" content="summary_large_image">
-    {% else %}
-    <meta name="twitter:card" content="summary">
-    {% endif %}
-    <meta property="og:site_name" content="OverTrack"/>
-    <meta name="twitter:site" content="OverTrack">
-    {% if meta.oembed %}
-    <link type="application/json+oembed" href="{{ meta.oembed }}"/>
-    {% endif %}
-    {% endif %}
+
     {% if game_name %}
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/' + game_name + '.css') }}">
     {% else %}

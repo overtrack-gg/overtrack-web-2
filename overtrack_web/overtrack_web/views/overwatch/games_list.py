@@ -105,57 +105,6 @@ class Session:
         )
 
 
-def map_thumbnail_style(map_name: str):
-    map_name = map_name.lower().replace(' ', '-')
-    map_name = ''.join(c for c in map_name if c in (string.digits + string.ascii_letters + '-'))
-    return (
-        f'background-image: url({url_for("static", filename="images/overwatch/map_thumbnails/" + map_name + ".jpg")}); '
-        f'background-color: #222854;'
-        f'display: block;'
-        f'background-size: cover;'
-        f'background-repeat: no-repeat;'
-        f'background-position: center;'
-    )
-
-
-def rank(game: OverwatchGameSummary) -> str:
-    if game.rank:
-        return game.rank
-    elif game.end_sr:
-        return overwatch_data.sr_to_rank(game.end_sr)
-    elif game.start_sr:
-        return overwatch_data.sr_to_rank(game.start_sr)
-    else:
-        return 'unknown'
-
-
-@games_list_blueprint.context_processor
-def context_processor():
-    return {
-        'game_name': 'overwatch',
-
-        'sr_change': sr_change,
-        'map_thumbnail_style': map_thumbnail_style,
-        'rank': rank,
-    }
-
-
-@games_list_blueprint.app_template_filter('result')
-def result(s: str):
-    if s == 'UNKNOWN':
-        return 'UNK'
-    else:
-        return s
-
-
-@games_list_blueprint.app_template_filter('gamemode')
-def gamemode(s: str):
-    if s == 'quickplay':
-        return 'Quick Play'
-    else:
-        return s.title()
-
-
 @games_list_blueprint.route('')
 @require_login
 def games_list() -> FlaskResponse:
@@ -214,6 +163,57 @@ def games_next() -> FlaskResponse:
         next_from=next_from,
         OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
     )
+
+
+@games_list_blueprint.context_processor
+def context_processor():
+    return {
+        'game_name': 'overwatch',
+
+        'sr_change': sr_change,
+        'map_thumbnail_style': map_thumbnail_style,
+        'rank': rank,
+    }
+
+
+def map_thumbnail_style(map_name: str):
+    map_name = map_name.lower().replace(' ', '-')
+    map_name = ''.join(c for c in map_name if c in (string.digits + string.ascii_letters + '-'))
+    return (
+        f'background-image: url({url_for("static", filename="images/overwatch/map_thumbnails/" + map_name + ".jpg")}); '
+        f'background-color: #222854;'
+        f'display: block;'
+        f'background-size: cover;'
+        f'background-repeat: no-repeat;'
+        f'background-position: center;'
+    )
+
+
+def rank(game: OverwatchGameSummary) -> str:
+    if game.rank:
+        return game.rank
+    elif game.end_sr:
+        return overwatch_data.sr_to_rank(game.end_sr)
+    elif game.start_sr:
+        return overwatch_data.sr_to_rank(game.start_sr)
+    else:
+        return 'unknown'
+
+
+@games_list_blueprint.app_template_filter('result')
+def result(s: str):
+    if s == 'UNKNOWN':
+        return 'UNK'
+    else:
+        return s
+
+
+@games_list_blueprint.app_template_filter('gamemode')
+def gamemode(s: str):
+    if s == 'quickplay':
+        return 'Quick Play'
+    else:
+        return s.title()
 
 
 def resolve_public_user(username: str) -> Optional[User]:

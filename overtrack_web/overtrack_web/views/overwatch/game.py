@@ -27,7 +27,11 @@ from overtrack_web.views.overwatch import OLDEST_SUPPORTED_GAME_VERSION, sr_chan
 from overtrack_web.views.overwatch.games_list import map_thumbnail_style
 
 GAMES_BUCKET = 'overtrack-overwatch-games'
-
+COLOURS = {
+    'WIN': '#62c462',
+    'LOSS': '#ee5f5b',
+    'DRAW': '#f89406',
+}
 
 request: Request = request
 logger = logging.getLogger(__name__)
@@ -55,10 +59,15 @@ def game(key: str):
     except OverwatchGameSummary.DoesNotExist:
         return 'Game does not exist', 404
 
-    title = key
-
     game = load_game(summary)
     game.timestamp = summary.time
+
+    if game.teams.owner and game.result != 'UNKNOWN':
+        title = f'{game.teams.owner.name}\'s {game.result} on {game.map.name}'
+    elif game.teams.owner:
+        title = f'{game.teams.owner.name}\'s game on {game.map.name}'
+    else:
+        title = f'{key.split("/", 1)[0]}\'s game on {game.map.name}'
 
     dev_info = get_dev_info(summary, game)
 
@@ -70,6 +79,7 @@ def game(key: str):
             title=title,
             image_url=url_for('overwatch.game.game_card_png', key=key, _external=True),
             summary_large_image=True,
+            colour=COLOURS.get(game.result, 'gray')
         ),
 
         summary=summary,
@@ -253,6 +263,24 @@ def hero_name(h: str):
         return h.title()
 
 
+def load_game(summary: OverwatchGameSummary) -> OverwatchGame:
+    try:
+        game_object = s3.get_object(
+            Bucket=GAMES_BUCKET,
+            Key=summary.key + '.json'
+        )
+        game_data = json.loads(game_object['Body'].read())
+    except:
+        game_object = None
+        if s3:
+            logger.exception('Failed to fetch game data from S3 - trying HTTP')
+        r = requests.get(f'https://overtrack-overwatch-games.s3.amazonaws.com/{summary.key}.json')
+        r.raise_for_status()
+        game_data = r.json()
+
+    return referenced_typedload.load(game_data, OverwatchGame)
+
+
 def get_dev_info(summary, game):
     if check_authentication() is not None or not session.user.superuser:
         return None
@@ -314,21 +342,3 @@ def get_dev_info(summary, game):
         'Game': list(game_dict.items()),
         'Extras': extras,
     }
-
-
-def load_game(summary: OverwatchGameSummary) -> OverwatchGame:
-    try:
-        game_object = s3.get_object(
-            Bucket=GAMES_BUCKET,
-            Key=summary.key + '.json'
-        )
-        game_data = json.loads(game_object['Body'].read())
-    except:
-        game_object = None
-        if s3:
-            logger.exception('Failed to fetch game data from S3 - trying HTTP')
-        r = requests.get(f'https://overtrack-overwatch-games.s3.amazonaws.com/{summary.key}.json')
-        r.raise_for_status()
-        game_data = r.json()
-
-    return referenced_typedload.load(game_data, OverwatchGame)

@@ -12,7 +12,7 @@ $navbar-color: #222870 !default;
 
 
 .epoch-format-time, .epoch-format-date, .epoch-format-datetime {
-    display: none;
+    display: none !important;
 }
 
 a.make-clickable-target {
