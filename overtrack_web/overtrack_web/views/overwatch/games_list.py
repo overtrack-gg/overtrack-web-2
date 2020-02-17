@@ -223,6 +223,14 @@ def game_card(key: str):
                 <head>
                     <title>{{ title }}</title>
                     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/' + game_name + '.css') }}">
+                    <style>
+                        body {
+                            background-color: rgba(0, 0, 0, 0);
+                        }
+                        .game-summary {
+                            margin: 0 !important;
+                        }
+                    </style>
                 </head>
                 <body>
                     {% include 'overwatch/games_list/game_card.html' %}
