@@ -78,9 +78,9 @@
                                   y="35"
                                   height="10px"
                                   fill="#9FECFC"
-                                  data-source="{{ ult_period }}"
-                                  data-timestamp=""
-                                  data-duration=""
+                                  data-source="{{ ult }}"
+                                  data-timestamp="{{ ult.gained }}"
+                                  data-duration="{{ ult.held }}"
                             ></rect>
                             <image class="timeline-event ult-use-background"
                                    href="{{ url_for('static', filename='images/overwatch/timeline_icons/ult_background.png') }}"
@@ -91,12 +91,14 @@
                             >
                             </image>
                             <image class="timeline-event ult-use"
-                                   href="{{ url_for('static', filename='images/overwatch/ult_icons/' + ult.hero + '.png') }}"
+                                   href="{{ url_for('static', filename='images/overwatch/ability_icons/' + get_ult_ability(ult.hero) + '.png') }}"
                                    x="{{ (ult.lost - stage.start) / stage.duration * 100 }}%"
                                    y="15"
                                    width="30"
                                    transform="translate(-15)"
                                    filter="url(#invertColour)"
+                                   data-source="{{ ult }}"
+                                   data-timestamp="{{ ult.lost }}"
                             >
                             </image>
                             {% endif %}
@@ -125,7 +127,7 @@
                             {% for kill in player.kills if stage.start <= kill.timestamp <= stage.end %}
                             {% if ability_is_ult(kill.ability) %}
                             <image class="timeline-event timeline-event-{{ kill.index }} ult-kill"
-                                   href="{{ url_for('static', filename='images/overwatch/ult_icons/' + kill.left_hero + '.png') }}"
+                                   href="{{ url_for('static', filename='images/overwatch/ability_icons/' + kill.ability + '.png') }}"
                                    x="{{ (kill.timestamp - stage.start)  / stage.duration * 100 }}%"
                                    y="4"
                                    width="30"

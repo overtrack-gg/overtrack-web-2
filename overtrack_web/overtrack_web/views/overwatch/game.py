@@ -51,6 +51,10 @@ def context_processor():
             return False
         hero_name, ability_name = ability.split('.')
         hero = overwatch_data.heroes.get(hero_name)
+
+        if ability_name in ['high_noon', 'dragon_blade']:
+            # legacy ability names
+            return True
         if not hero:
             warnings.warn(f'Could not get hero data for {hero_name}', RuntimeWarning)
             return False
@@ -58,6 +62,11 @@ def context_processor():
             warnings.warn(f'Hero {hero_name} does not have ult defined', RuntimeWarning)
             return False
         return ability_name == hero.ult
+
+    def get_ult_ability(hero):
+        if not hero or hero not in overwatch_data.heroes:
+            return None
+        return f'{hero}.{overwatch_data.heroes.get(hero).ult}'
 
     def sort_stats(stats: Sequence[HeroStats]) -> List[HeroStats]:
         stats = sorted(list(stats), key=lambda s: (s.hero != 'all heroes', s.hero))
@@ -96,7 +105,10 @@ def context_processor():
         'game_name': 'overwatch',
 
         'sr_change': sr_change,
+
         'ability_is_ult': ability_is_ult,
+        'get_ult_ability': get_ult_ability,
+
         'sort_stats': sort_stats,
         'get_stat_type': get_stat_type,
 
