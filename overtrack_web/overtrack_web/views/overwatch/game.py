@@ -1,3 +1,5 @@
+import os
+
 import collections
 import json
 import logging
@@ -9,7 +11,7 @@ from urllib.parse import urlparse
 import boto3
 import requests
 from dataclasses import asdict, fields, is_dataclass
-from flask import Blueprint, Request, render_template, request, url_for
+from flask import Blueprint, Request, render_template, request, url_for, render_template_string, Response
 from itertools import chain
 from overtrack_models.dataclasses.overwatch.basic_types import Map
 from overtrack_models.dataclasses.overwatch.overwatch_game import OverwatchGame
@@ -19,8 +21,10 @@ from overtrack_models.dataclasses.typedload import referenced_typedload
 from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
 from overtrack_web.data import overwatch_data
 from overtrack_web.lib.authentication import check_authentication
+from overtrack_web.lib.opengraph import Meta
 from overtrack_web.lib.session import session
 from overtrack_web.views.overwatch import OLDEST_SUPPORTED_GAME_VERSION, sr_change
+from overtrack_web.views.overwatch.games_list import map_thumbnail_style
 
 GAMES_BUCKET = 'overtrack-overwatch-games'
 
@@ -44,64 +48,99 @@ except:
 game_blueprint = Blueprint('overwatch.game', __name__)
 
 
+@game_blueprint.route('/<path:key>')
+def game(key: str):
+    summary = OverwatchGameSummary.get(key)
+
+    title = key
+
+    game = load_game(summary)
+    game.timestamp = summary.time
+
+    dev_info = get_dev_info(summary, game)
+
+    return render_template(
+        'overwatch/game/game.html',
+
+        title=title,
+        meta=Meta(
+            title=title,
+            image_url=url_for('overwatch.game.game_card_png', key=key, _external=True),
+            summary_large_image=True,
+        ),
+
+        summary=summary,
+        game=game,
+
+        dev_info=dev_info,
+
+        OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
+    )
+
+
+@game_blueprint.route('<path:key>/card')
+def game_card(key: str):
+    game = OverwatchGameSummary.get(key)
+    return render_template_string(
+        '''
+            <!DOCTYPE html>
+            <html lang="en">
+                <head>
+                    <title>{{ title }}</title>
+                    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/' + game_name + '.css') }}">
+                    <style>
+                        body {
+                            background-color: rgba(0, 0, 0, 0);
+                        }
+                        .game-summary {
+                            margin: 0 !important;
+                        }
+                    </style>
+                </head>
+                <body>
+                    {% include 'overwatch/games_list/game_card.html' %}
+                </body>
+            </html>
+        ''',
+        title='Card',
+        game=game,
+        OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
+
+        map_thumbnail_style=map_thumbnail_style,
+    )
+
+
+@game_blueprint.route('/<path:key>/card.png')
+def game_card_png(key: str):
+    if 'RENDERTRON_URL' not in os.environ:
+        return 'Rendertron url not set on server', 500
+    try:
+        r = requests.get(
+            ''.join((
+                os.environ['RENDERTRON_URL'],
+                'screenshot/',
+                url_for('overwatch.game.game_card', key=key, _external=True),
+                '?width=356&height=80'
+            )),
+            timeout=15,
+        )
+    except:
+        logger.exception('Rendertron failed to respond within the timeout')
+        return 'Rendertron failed to respond within the timeout', 500
+    try:
+        r.raise_for_status()
+    except:
+        logger.exception('Rendertron encountered an error fetching screenshot')
+        return f'Rendertron encountered an error fetching screenshot: got status {r.status_code}', 500
+
+    return Response(
+        r.content,
+        headers=dict(r.headers)
+    )
+
+
 @game_blueprint.context_processor
 def context_processor():
-
-    def ability_is_ult(ability) -> bool:
-        if not ability:
-            return False
-        hero_name, ability_name = ability.split('.')
-        hero = overwatch_data.heroes.get(hero_name)
-
-        if ability_name in ['high_noon', 'dragon_blade']:
-            # legacy ability names
-            return True
-        if not hero:
-            warnings.warn(f'Could not get hero data for {hero_name}', RuntimeWarning)
-            return False
-        if not hero.ult:
-            warnings.warn(f'Hero {hero_name} does not have ult defined', RuntimeWarning)
-            return False
-        return ability_name == hero.ult
-
-    def get_ult_ability(hero):
-        if not hero or hero not in overwatch_data.heroes:
-            return None
-        return f'{hero}.{overwatch_data.heroes.get(hero).ult}'
-
-    def sort_stats(stats: Sequence[HeroStats]) -> List[HeroStats]:
-        stats = sorted(list(stats), key=lambda s: (s.hero != 'all heroes', s.hero))
-        heroes = [s.hero for s in stats]
-        if 'all heroes' in heroes and len(heroes) == 2:
-            # only 'all heroes' and one other
-            stats = [s for s in stats if s.hero != 'all heroes']
-        else:
-            stats = [s for s in stats if s.time_played > 60]
-
-        return stats
-
-    def get_stat_type(hero_name: str, stat_name: str) -> str:
-        if hero_name in overwatch_data.heroes:
-            hero = overwatch_data.heroes[hero_name]
-            stats_by_name = {
-                s.name: s
-                for s in chain(*hero.stats)
-            }
-            if stat_name in stats_by_name:
-                stat = stats_by_name[stat_name]
-                if stat.stat_type == 'maximum':
-                    return 'value'
-                if stat.stat_type == 'average':
-                    return 'average'
-                elif stat.stat_type == 'best':
-                    return 'best'
-                else:
-                    logger.error(f"Don't know how to handle stat type {stat.stat_type!r} for {hero_name}: {stat_name!r}")
-                    return 'value'
-
-        logger.error(f"Couldn't get stat type for {hero_name}: {stat_name!r}")
-        return 'value'
-
     return {
         'game_name': 'overwatch',
 
@@ -115,6 +154,65 @@ def context_processor():
 
         'asdict': asdict,
     }
+
+
+def ability_is_ult(ability) -> bool:
+    if not ability:
+        return False
+    hero_name, ability_name = ability.split('.')
+    hero = overwatch_data.heroes.get(hero_name)
+
+    if ability_name in ['high_noon', 'dragon_blade']:
+        # legacy ability names
+        return True
+    if not hero:
+        warnings.warn(f'Could not get hero data for {hero_name}', RuntimeWarning)
+        return False
+    if not hero.ult:
+        warnings.warn(f'Hero {hero_name} does not have ult defined', RuntimeWarning)
+        return False
+    return ability_name == hero.ult
+
+
+def get_ult_ability(hero):
+    if not hero or hero not in overwatch_data.heroes:
+        return None
+    return f'{hero}.{overwatch_data.heroes.get(hero).ult}'
+
+
+def sort_stats(stats: Sequence[HeroStats]) -> List[HeroStats]:
+    stats = sorted(list(stats), key=lambda s: (s.hero != 'all heroes', s.hero))
+    heroes = [s.hero for s in stats]
+    if 'all heroes' in heroes and len(heroes) == 2:
+        # only 'all heroes' and one other
+        stats = [s for s in stats if s.hero != 'all heroes']
+    else:
+        stats = [s for s in stats if s.time_played > 60]
+
+    return stats
+
+
+def get_stat_type(hero_name: str, stat_name: str) -> str:
+    if hero_name in overwatch_data.heroes:
+        hero = overwatch_data.heroes[hero_name]
+        stats_by_name = {
+            s.name: s
+            for s in chain(*hero.stats)
+        }
+        if stat_name in stats_by_name:
+            stat = stats_by_name[stat_name]
+            if stat.stat_type == 'maximum':
+                return 'value'
+            if stat.stat_type == 'average':
+                return 'average'
+            elif stat.stat_type == 'best':
+                return 'best'
+            else:
+                logger.error(f"Don't know how to handle stat type {stat.stat_type!r} for {hero_name}: {stat_name!r}")
+                return 'value'
+
+    logger.error(f"Couldn't get stat type for {hero_name}: {stat_name!r}")
+    return 'value'
 
 
 @game_blueprint.app_template_filter('map_jumbo_style')
@@ -146,27 +244,6 @@ def hero_name(h: str):
         return overwatch_data.heroes[h].name
     else:
         return h.title()
-
-
-@game_blueprint.route('/<path:key>')
-def game(key: str):
-    summary = OverwatchGameSummary.get(key)
-
-    game = load_game(summary)
-    game.timestamp = summary.time
-
-    dev_info = get_dev_info(summary, game)
-
-    return render_template(
-        'overwatch/game/game.html',
-
-        summary=summary,
-        game=game,
-
-        dev_info=dev_info,
-
-        OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
-    )
 
 
 def get_dev_info(summary, game):

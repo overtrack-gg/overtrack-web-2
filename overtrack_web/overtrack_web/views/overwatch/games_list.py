@@ -1,7 +1,10 @@
 import datetime
 import json
 import logging
+import os
 import string
+
+import requests
 from functools import lru_cache
 from typing import Dict, List, Optional, Tuple, Union
 from urllib.parse import parse_qs, urlparse
@@ -102,36 +105,36 @@ class Session:
         )
 
 
+def map_thumbnail_style(map_name: str):
+    map_name = map_name.lower().replace(' ', '-')
+    map_name = ''.join(c for c in map_name if c in (string.digits + string.ascii_letters + '-'))
+    return (
+        f'background-image: url({url_for("static", filename="images/overwatch/map_thumbnails/" + map_name + ".jpg")}); '
+        f'background-color: #222854;'
+        f'display: block;'
+        f'background-size: cover;'
+        f'background-repeat: no-repeat;'
+        f'background-position: center;'
+    )
+
+
+def rank(game: OverwatchGameSummary) -> str:
+    if game.rank:
+        return game.rank
+    elif game.end_sr:
+        return overwatch_data.sr_to_rank(game.end_sr)
+    elif game.start_sr:
+        return overwatch_data.sr_to_rank(game.start_sr)
+    else:
+        return 'unknown'
+
+
 @games_list_blueprint.context_processor
 def context_processor():
-
-    def map_thumbnail_style(map_name: str):
-        map_name = map_name.lower().replace(' ', '-')
-        map_name = ''.join(c for c in map_name if c in (string.digits + string.ascii_letters + '-'))
-        return (
-            f'background-image: url({url_for("static", filename="images/overwatch/map_thumbnails/" + map_name + ".jpg")}); '
-            f'background-color: #222854;'
-            f'display: block;'
-            f'background-size: cover;'
-            f'background-repeat: no-repeat;'
-            f'background-position: center;'
-        )
-
-    def rank(game: OverwatchGameSummary) -> str:
-        if game.rank:
-            return game.rank
-        elif game.end_sr:
-            return overwatch_data.sr_to_rank(game.end_sr)
-        elif game.start_sr:
-            return overwatch_data.sr_to_rank(game.start_sr)
-        else:
-            return 'unknown'
-
     return {
         'game_name': 'overwatch',
 
         'sr_change': sr_change,
-        # 'map_style': map_style,
         'map_thumbnail_style': map_thumbnail_style,
         'rank': rank,
     }
@@ -209,36 +212,6 @@ def games_next() -> FlaskResponse:
         'overwatch/games_list/sessions_page.html',
         sessions=sessions,
         next_from=next_from,
-        OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
-    )
-
-
-@games_list_blueprint.route('/card/<path:key>')
-def game_card(key: str):
-    game = OverwatchGameSummary.get(key)
-    return render_template_string(
-        '''
-            <!DOCTYPE html>
-            <html lang="en">
-                <head>
-                    <title>{{ title }}</title>
-                    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/' + game_name + '.css') }}">
-                    <style>
-                        body {
-                            background-color: rgba(0, 0, 0, 0);
-                        }
-                        .game-summary {
-                            margin: 0 !important;
-                        }
-                    </style>
-                </head>
-                <body>
-                    {% include 'overwatch/games_list/game_card.html' %}
-                </body>
-            </html>
-        ''',
-        title='Card',
-        game=game,
         OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
     )
 
