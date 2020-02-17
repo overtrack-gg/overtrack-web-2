@@ -71,7 +71,6 @@ try:
 except:
     logger.exception(f'Failed to fetch season IDs - using fallback')
 
-
 rank_rp = {
     'bronze': (0, 1200),
     'silver': (1200, 2800),

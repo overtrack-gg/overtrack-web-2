@@ -91,6 +91,11 @@ def render_games_list(user: User, public=False, meta_title: Optional[str] = None
     games_it, is_ranked, season = get_games(user, limit=PAGINATION_SIZE)
     games, next_from = paginate(games_it, username=user.username if public else None)
 
+    from pprint import pprint
+    pprint([
+        g.season for g in games
+    ])
+
     if not len(games):
         logger.info(f'User {user.username} has no games')
         if not public and 'season' not in request.args:

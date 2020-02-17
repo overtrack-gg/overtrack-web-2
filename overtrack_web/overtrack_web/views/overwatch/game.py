@@ -78,6 +78,7 @@ def game(key: str):
         meta=Meta(
             title=title,
             image_url=url_for('overwatch.game.game_card_png', key=key, _external=True),
+            twitter_image_url=url_for('overwatch.game.game_card_png', key=key, _external=True) + '?height=190',
             summary_large_image=True,
             colour=COLOURS.get(game.result, 'gray')
         ),
@@ -131,14 +132,16 @@ def game_card(key: str):
 def game_card_png(key: str):
     if 'RENDERTRON_URL' not in os.environ:
         return 'Rendertron url not set on server', 500
+
+    url = ''.join((
+        os.environ['RENDERTRON_URL'],
+        'screenshot/',
+        url_for('overwatch.game.game_card', key=key, _external=True),
+        f'?width={min(int(request.args.get("width", 356)), 512)}&height={min(int(request.args.get("height", 80)), 512)}'
+    ))
     try:
         r = requests.get(
-            ''.join((
-                os.environ['RENDERTRON_URL'],
-                'screenshot/',
-                url_for('overwatch.game.game_card', key=key, _external=True),
-                '?width=356&height=80'
-            )),
+            url,
             timeout=15,
         )
     except:
