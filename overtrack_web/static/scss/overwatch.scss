@@ -4,6 +4,7 @@ $body-color: #ebebeb;
 $body-bg: #222854;
 
 $card-bg: #0d1235;
+$card-cap-bg: rgba(0, 0, 0, 0.25);
 
 $table-dark-color: #f8f9fa;
 $table-dark-bg: #212529;
@@ -16,6 +17,23 @@ $table-hover-bg: #604499;
 
 body {
     font-family: 'Roboto', sans-serif;
+}
+
+.card-header {
+    padding-bottom: 0;
+    min-height: 55px;
+
+    li > b {
+        padding: 10px 15px;
+        top: 8px;
+        position: relative;
+    }
+
+    h4 {
+        font-size: 16px;
+        font-weight: 700;
+        padding-top: 8px;
+    }
 }
 
 .game-result-win > .colour-by-result {
