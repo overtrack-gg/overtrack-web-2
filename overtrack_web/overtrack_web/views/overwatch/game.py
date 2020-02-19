@@ -122,6 +122,7 @@ def game_card(key: str):
         ''',
         title='Card',
         game=game,
+        show_rank=True,
         OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
 
         map_thumbnail_style=map_thumbnail_style,

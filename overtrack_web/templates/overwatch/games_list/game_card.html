@@ -16,9 +16,16 @@
                 <h3 class="d-inline-block card-title game-result game-result-{{ game.result.lower() }}">
                     {{ game.result | result }}
                 </h3>
+                {% if not show_rank %}
                 <h6 class="d-inline-block card-subtitle text-muted float-right game-time epoch-format-time">
                     {{ game.time }}
                 </h6>
+                {% elif game.rank %}
+                <img class="rank float-right"
+                     height="35"
+                     style="vertical-align: bottom"
+                     src="{{ url_for('static', filename='images/overwatch/rank_icons/' + game.rank + '.png') }}">
+                {% endif %}
                 <div class="card-text">
                     <p class="card-text d-inline-block">
                         {% if not quickplay %}
