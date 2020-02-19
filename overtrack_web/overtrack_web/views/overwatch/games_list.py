@@ -1,18 +1,15 @@
 import datetime
 import json
 import logging
-import os
 import string
-
-import requests
-from functools import lru_cache
-from typing import Dict, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union
 from urllib.parse import parse_qs, urlparse
 
 import boto3
 import time
 from dataclasses import dataclass
-from flask import Blueprint, Request, Response, render_template, render_template_string, request, url_for
+from flask import Blueprint, Request, Response, render_template, request, url_for
+from functools import lru_cache
 from werkzeug.datastructures import MultiDict
 
 from overtrack_models.dataclasses import s2ts
@@ -24,14 +21,10 @@ from overtrack_web.data.overwatch_data import Season
 from overtrack_web.lib import b64_decode, b64_encode
 from overtrack_web.lib.authentication import check_authentication, require_login
 from overtrack_web.lib.session import session
+from overtrack_web.views.overwatch import OLDEST_SUPPORTED_GAME_VERSION, sr_change
 
-# Fetch at least 30 games per page
-from overtrack_web.views.overwatch import sr_change, OLDEST_SUPPORTED_GAME_VERSION
-
-PAGINATION_PAGE_MINIMUM_SIZE = 30
-# But with each session start counting as 2 games (due to element height)
+PAGINATION_PAGE_MINIMUM_SIZE = 40
 PAGINATION_SESSIONS_COUNT_AS = 2
-
 SESSION_MAX_TIME_BETWEEN_GAMES = 45
 
 
