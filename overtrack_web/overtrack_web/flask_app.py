@@ -60,6 +60,15 @@ if app.config['DEBUG']:
     from overtrack_web.views.fake_login import fake_login_blueprint
     app.register_blueprint(fake_login_blueprint, url_prefix='/fake_login')
 
+    # Force js to be unminified
+    orig_url_for = flask.url_for
+    def url_for(endpoint, **values):
+        if endpoint == 'static' and 'filename' in values and values['filename'].endswith('.min.js'):
+            values['filename'] = values['filename'][:-len('.min.js')] + '.js'
+        return orig_url_for(endpoint, **values)
+    app.jinja_env.globals['url_for'] = url_for
+    flask.url_for = url_for
+
 else:
     sentry_sdk.init(
         os.environ.get('SENTRY_DSN', 'https://077ec8ffb4404ce384ab84a5e6bc17ae@sentry.io/1450230'),

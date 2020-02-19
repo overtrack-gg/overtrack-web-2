@@ -101,7 +101,7 @@
                                 </tbody>
                             </table>
                         </a>
-                        <div id="indicator" class="d-flex justify-content-center" style="display: none !important;">
+                        <div id="indicator" style="justify-content: center !important;; display: none !important;">
                             <div class="spinner-border" role="status">
                             </div>
                         </div>
@@ -119,4 +119,5 @@
 <script defer src="{{ url_for('static', filename='js/apex/rank.js') }}"></script>
 {% endif %}
 <script defer src="{{ url_for('static', filename='js/apex/map.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/apex/dates.js') }}"></script>
 {% endblock %}
