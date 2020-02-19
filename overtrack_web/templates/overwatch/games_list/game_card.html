@@ -27,14 +27,28 @@
                      src="{{ url_for('static', filename='images/overwatch/rank_icons/' + game.rank + '.png') }}">
                 {% endif %}
                 <div class="card-text">
-                    <p class="card-text d-inline-block">
-                        {% if not quickplay %}
-                            {{ game.start_sr | ifnone('?') }}
-                            →
-                            {{ game.end_sr | ifnone('?') }}
-                            ({{ sr_change(game) }})
+                    {% if game.game_type == 'competitive' %}
+                        {% if game.rank == 'placement' and not game.end_sr %}
+                            <span class="details-text placement">
+                                Placement
+                            </span>
+                        {% else %}
+                            <span class="details-text sr-change {{ 'start-sr-known' if game.start_sr else '' }} {{ 'end-sr-known' if game.end_sr else '' }}">
+                                {{ game.start_sr | ifnone('?' if game.rank != 'placement' else '-') }}
+                                →
+                                {{ game.end_sr | ifnone('?') }}
+                                ({{ sr_change(game) }})
+                            </span>
                         {% endif %}
-                    </p>
+                    {% else %}
+                        {% if game.attacking is sameas true %}
+                            <span class="details-text attacking-defending">Attacking</span>
+                        {% elif game.attacking is sameas false %}
+                            <span class="details-text attacking-defending">Defending</span>
+                        {% elif game.rounds %}
+                            <span class="details-text rounds">{{ game.rounds }} rounds</span>
+                        {% endif %}
+                    {% endif %}
                     <h6 class="d-inline-block text-muted float-right">{{ game.duration // 60 }} min</h6>
                 </div>
             </div>
