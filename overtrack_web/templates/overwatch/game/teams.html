@@ -8,8 +8,9 @@
                 <table class="table table-hover text-blue text-right team-table">
                     <tbody>
                         <tr>
-                            <th></th>
-                            <th class="text-center"> &nbsp; </th>
+                            <th colspan="2">
+                                {{ game.teams.average_sr[0] | ifnone('\u00a0') }}
+                            </th>
                         </tr>
                         {% for player in game.teams.blue %}
                         <tr>
@@ -25,8 +26,7 @@
                 <table class="table table-hover text-red team-table">
                     <tbody>
                         <tr>
-                            <th class="text-center"> &nbsp; </th>
-                            <th></th>
+                            <th colspan="2">{{ game.teams.average_sr[1] | ifnone('\u00a0') }}</th>
                         </tr>
                         {% for player in game.teams.red %}
                         <tr>
