@@ -1,4 +1,5 @@
 $navbar-color: #222854;
+$navbar-dark-color: #9093A9;
 
 $body-color: #ebebeb;
 $body-bg: #222854;
@@ -12,8 +13,6 @@ $table-accent-bg: #2f214a;
 $table-hover-bg: #604499;
 
 @import "base";
-@import "bootstrap/jumbotron";
-@import "bootstrap/nav";
 
 body {
     font-family: 'Roboto', sans-serif;

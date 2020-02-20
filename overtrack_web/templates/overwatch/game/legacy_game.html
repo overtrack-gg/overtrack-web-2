@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+
+    <link rel="icon" type="image/x-icon" href="favicon.png">
+    <title>{{ title }}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% if meta %}
+    {% include 'opengraph.html' %}
+    {% endif %}
+    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}"/>
+
+    <link href="{{ legacy_base }}/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{legacy_base}}/{{ legacy_stylesheet }}" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/overwatch/legacy.css') }}">
+</head>
+
+<body>
+<div class="new-nav">
+    {% include 'navbar.html' %}
+</div>
+<overtrack class="overtrack-legacy"></overtrack>
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Roboto" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Roboto+Mono" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Overpass+Mono" rel="stylesheet">
+
+<script src="{{ legacy_base }}/assets/js/jquery.min.js"></script>
+<script src="{{ legacy_base }}/assets/js/bootstrap.min.js"></script>
+<script src="{{ legacy_base }}/assets/js/plotly-latest.min.js"></script>
+<script src="https://player.twitch.tv/js/embed/v1.js"></script>
+<script src="{{ legacy_base }}/{{ legacy_scripts['runtime'] }}"></script>
+<script src="{{ legacy_base }}/{{ legacy_scripts['polyfills-es5'] }}" nomodule></script>
+<script src="{{ legacy_base }}/{{ legacy_scripts['polyfills'] }}"></script>
+<script src="{{ legacy_base }}/{{ legacy_scripts['scripts'] }}"></script>
+<script src="{{ legacy_base }}/{{ legacy_scripts['vendor'] }}"></script>
+<script src="{{ legacy_base }}/{{ legacy_scripts['main'] }}"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-99105415-2"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-99105415-2');
+</script>
+</body>
+</html>

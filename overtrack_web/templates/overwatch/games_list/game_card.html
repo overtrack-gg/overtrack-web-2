@@ -53,11 +53,7 @@
                 </div>
             </div>
         </div>
-        {% if (
-            game.viewable and
-            game.game_version and
-            game.game_version >= OLDEST_SUPPORTED_GAME_VERSION
-        ) %}
+        {% if game.viewable or user.superuser %}
         <a href="{{ url_for('overwatch.game.game', key=game.key) }}" class="stretched-link"></a>
         {% endif %}
     </div>

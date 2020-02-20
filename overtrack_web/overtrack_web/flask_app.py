@@ -178,6 +178,19 @@ def apex_games_redirect():
     return redirect(url_for('apex.games_list.games_list'), code=308)
 
 
+@app.route('/assets/<path:path>')
+def legacy_assets(path):
+    return redirect('https://overtrack.gg/assets/' + path, code=308)
+
+@app.route('/assets/<string:key>.jpg')
+def legacy_assets_banner(key):
+    return redirect('https://overtrack.gg/' + key + '.jpg', code=308)
+
+@app.route('/favicon.png')
+def favicon():
+    return redirect(url_for('static', filename='images/favicon.png'), code=308)
+
+
 # ------ SUBSCRIBE  ------
 try:
     from overtrack_web.views.subscribe import subscribe_blueprint

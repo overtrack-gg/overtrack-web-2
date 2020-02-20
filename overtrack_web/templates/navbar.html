@@ -12,7 +12,6 @@
 {% endif %}
 {%- endmacro -%}
 
-{% macro navbar() -%}
 <nav class="navbar navbar-expand-lg navbar-dark">
     <a class="navbar-brand" href="/">OverTrack</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar">
@@ -22,10 +21,10 @@
         <ul class="navbar-nav">
             {% if game_name %}
             <li class="nav-item">
-                <b class="nav-link">
+                <a class="nav-link">
 <!--                TODO: icon and dropdown list etc.-->
                     {{ game_name }} &nbsp;&gt;
-                </b>
+                </a>
             </li>
             {{ navbar_elem('Games', game_name + '.games_list.games_list') }}
             {{ navbar_elem('Stats', game_name + '.stats.results') }}
@@ -62,8 +61,6 @@
             </a>
             {% endif %}
         </ul>
-
     </div>
 </nav>
-{%- endmacro -%}
 

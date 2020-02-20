@@ -1,11 +1,12 @@
 import os
 
+
 import collections
 import json
 import logging
 import string
 import warnings
-from typing import List, Optional, Sequence
+from typing import List, Optional, Sequence, Tuple, Dict
 from urllib.parse import urlparse
 
 import boto3
@@ -22,6 +23,7 @@ from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
 from overtrack_web.data import overwatch_data
 from overtrack_web.lib.authentication import check_authentication
 from overtrack_web.lib.opengraph import Meta
+from overtrack_web.lib.overwatch_legacy import get_legacy_paths
 from overtrack_web.lib.session import session
 from overtrack_web.views.overwatch import OLDEST_SUPPORTED_GAME_VERSION, sr_change
 from overtrack_web.views.overwatch.games_list import map_thumbnail_style
@@ -32,9 +34,12 @@ COLOURS = {
     'LOSS': '#ee5f5b',
     'DRAW': '#f89406',
 }
+LEGACY_URL = 'https://overtrack.gg'
 
 request: Request = request
+
 logger = logging.getLogger(__name__)
+
 try:
     s3 = boto3.client('s3')
     """ :type s3: mypy_boto3.s3.Client """
@@ -49,6 +54,12 @@ except:
     logger.exception('Failed to create AWS logs client - running without admin logs')
     logs = None
 
+try:
+    legacy_scripts, legacy_stylesheet = get_legacy_paths(LEGACY_URL)
+except:
+    logger.exception('Failed to get legacy script paths')
+    legacy_scripts, legacy_stylesheet = {}, None
+
 game_blueprint = Blueprint('overwatch.game', __name__)
 
 
@@ -59,6 +70,22 @@ def game(key: str):
     except OverwatchGameSummary.DoesNotExist:
         return 'Game does not exist', 404
 
+    if summary.player_name and summary.result != 'UNKNOWN':
+        title = f'{summary.player_name}\'s {summary.result} on {summary.map}'
+    elif summary.player_name:
+        title = f'{summary.player_name}\'s game on {summary.map}'
+    else:
+        title = f'{key.split("/", 1)[0]}\'s game on {summary.map}'
+
+    if not summary.game_version or summary.game_version < OLDEST_SUPPORTED_GAME_VERSION or 'legacy' in request.args:
+        return render_template(
+            'overwatch/game/legacy_game.html',
+            title=title,
+            legacy_base=LEGACY_URL,
+            legacy_scripts=legacy_scripts,
+            legacy_stylesheet=legacy_stylesheet,
+        )
+
     game = load_game(summary)
     game.timestamp = summary.time
 
@@ -66,8 +93,6 @@ def game(key: str):
         title = f'{game.teams.owner.name}\'s {game.result} on {game.map.name}'
     elif game.teams.owner:
         title = f'{game.teams.owner.name}\'s game on {game.map.name}'
-    else:
-        title = f'{key.split("/", 1)[0]}\'s game on {game.map.name}'
 
     dev_info = get_dev_info(summary, game)
 

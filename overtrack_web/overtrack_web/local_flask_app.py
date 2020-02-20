@@ -133,6 +133,18 @@ def game_redirect(key):
 def overwatch_share_link_redirect(key):
     return redirect(url_for('overwatch.games_list.shared_games_list', sharekey=key), code=308)
 
+@app.route('/assets/<path:path>')
+def legacy_assets(path):
+    return redirect('https://overtrack.gg/assets/' + path, code=308)
+
+@app.route('/assets/<string:key>.jpg')
+def legacy_assets_banner(key):
+    return redirect('https://overtrack.gg/' + key + '.jpg', code=308)
+
+@app.route('/favicon.png')
+def favicon():
+    return redirect(url_for('static', filename='images/favicon.png'), code=308)
+
 # redirect old apex.overtrack.gg/<streamer> shares
 for key, username in {
     'mendokusaii': 'mendokusaii',
