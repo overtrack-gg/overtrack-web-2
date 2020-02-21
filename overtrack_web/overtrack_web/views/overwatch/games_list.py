@@ -142,7 +142,7 @@ def games_next() -> FlaskResponse:
         else:
             return 'Not logged in', 403
 
-    sessions, season, last_evaluated = get_sessions(user, share_link=share_link)
+    sessions, season, include_quickplay, last_evaluated = get_sessions(user, share_link=share_link)
 
     if last_evaluated:
         next_args['last_evaluated'] = last_evaluated
@@ -242,7 +242,7 @@ def check_superuser() -> bool:
 
 def render_games_list(user: User, share_link: Optional[ShareLink] = None, **next_args: str) -> Response:
     user.refresh()
-    sessions, current_season, last_evaluated = get_sessions(user, share_link=share_link)
+    sessions, current_season, include_quickplay, last_evaluated = get_sessions(user, share_link=share_link)
 
     seasons = [
         s for i, s in overwatch_data.seasons.items() if i in user.overwatch_seasons
@@ -263,6 +263,9 @@ def render_games_list(user: User, share_link: Optional[ShareLink] = None, **next
 
         seasons=seasons,
         current_season=current_season,
+
+        include_quickplay=include_quickplay,
+
         OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
     )
 
@@ -272,7 +275,8 @@ def get_sessions(
     share_link: Optional[ShareLink] = None,
     page_minimum_size: int = PAGINATION_PAGE_MINIMUM_SIZE,
     sessions_count_as: int = PAGINATION_SESSIONS_COUNT_AS,
-) -> Tuple[List[Session], Optional[Season], Optional[str]]:
+) -> Tuple[List[Session], Optional[Season], bool, Optional[str]]:
+
     if hopeful_int(request.args.get('season')) in user.overwatch_seasons:
         # called from /games - parse season from ?season=N
         logger.info(f'Using season from request args: {request.args}')
@@ -288,6 +292,12 @@ def get_sessions(
         logger.info(f'Using season from current_season')
         season = overwatch_data.current_season
 
+    if 'quickplay' in request.args:
+        include_quickplay = bool(int(request.args['quickplay']))
+    else:
+        # TODO: from cookie (if not share?)
+        include_quickplay = True
+
     logger.info(f'Getting games for {user.username} => season={season}')
 
     season = overwatch_data.seasons[season.index]
@@ -298,9 +308,8 @@ def get_sessions(
         logger.info(f'Share link {share_link.share_key!r} has whitelisted accounts {share_link.player_name_filter}')
         filter_condition &= OverwatchGameSummary.player_name.is_in(*share_link.player_name_filter)
 
-    hide_quickplay = int(request.cookies.get('hide_quickplay', 0))
-    logger.info(f'hide_quickplay={hide_quickplay}')
-    if hide_quickplay:
+    logger.info(f'include_quickplay={include_quickplay}')
+    if not include_quickplay:
         filter_condition &= OverwatchGameSummary.game_type == 'competitive'
     else:
         filter_condition &= OverwatchGameSummary.game_type.is_in('quickplay', 'competitive')
@@ -360,10 +369,10 @@ def get_sessions(
 
     if last_evaluated_key is None:
         logger.info(f'Reached end of query - not providing a last_evaluated')
-        return sessions, season, None
+        return sessions, season, include_quickplay, None
     else:
         logger.info(f'Reached end of query with items remaining - returning last_evaluated={last_evaluated_key!r}')
-        return sessions, season, b64_encode(json.dumps(last_evaluated_key))
+        return sessions, season, include_quickplay, b64_encode(json.dumps(last_evaluated_key))
 
 
 def hopeful_int(s: Optional[str]) -> Optional[int]:
