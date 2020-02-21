@@ -1,11 +1,22 @@
-$navbar-color: #222854;
-$navbar-dark-color: #9093A9;
+@import "bootswatch/superhero/variables";
 
 $body-color: #ebebeb;
 $body-bg: #222854;
 
 $card-bg: #0d1235;
 $card-cap-bg: rgba(0, 0, 0, 0.25);
+
+$navbar-color: $card-bg;
+$navbar-dark-color: #7e5abf;
+$navbar-dark-hover-color: #9093A9;
+$navbar-dark-active-color: white;
+
+$primary: #a991d4;
+
+$dropdown-bg: $body-color;
+$dropdown-link-color: black;
+$dropdown-link-hover-color: $dropdown-link-color;
+$dropdown-link-hover-bg: $primary;
 
 $table-dark-color: #f8f9fa;
 $table-dark-bg: #212529;
@@ -33,6 +44,10 @@ body {
         font-weight: 700;
         padding-top: 8px;
     }
+}
+
+.card {
+    border: unset;
 }
 
 .game-result-win > .colour-by-result {

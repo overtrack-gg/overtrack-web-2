@@ -1,4 +1,4 @@
-$summary-bg: #c1c1c1;
+$summary-bg: #BFBFBF;
 $summary-fg: black;
 
 $summary-height: 80px;
@@ -6,8 +6,63 @@ $summary-width: 290px;
 
 $thumbnail-width: 110px;
 
+.games-selector {
+    margin-left: -20px;
+    margin-right: -20px;
+
+    .dropdown-menu {
+        width: 100%;
+    }
+
+    .custom-switch {
+        padding-left: 2.25rem;
+        padding-bottom: 1rem;
+    }
+    .custom-control-label {
+        padding-top: 0.5rem;
+        padding-left: 2rem;
+        padding-bottom: 0.1rem;
+        user-select: none;
+    }
+    .custom-switch .custom-control-label::before {
+        left: -2.25rem;
+        height: 2rem;
+        width: 3.5rem;    // it was 1.75rem before. Sliding way is longer than before.
+        pointer-events: all;
+        border-radius: 1rem;
+    }
+    .custom-switch .custom-control-label::after {
+        top: calc(0.25rem + 2px);
+        left: calc(-2.25rem + 2px);
+        width: calc(2rem - 4px);
+        height: calc(2rem - 4px);
+        background-color: #adb5bd;
+        border-radius: 2rem;
+        transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, -webkit-transform 0.15s ease-in-out;
+        transition: transform 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        transition: transform 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, -webkit-transform 0.15s ease-in-out;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .custom-switch .custom-control-label::after {
+            transition: none;
+        }
+    }
+    .custom-switch .custom-control-input:checked ~ .custom-control-label::after {
+        background-color: #fff;
+        -webkit-transform: translateX(1.5rem); //translateX(0.75rem);
+        transform: translateX(1.5rem); //translateX(0.75rem);
+    }
+
+}
+
 .session {
+    margin-top: 10px;
     min-width: 340px;
+
+    .card-header {
+        background-color: #5d518e;
+        min-height: 45px;
+    }
     .card-body {
         padding: 5px;
     }
@@ -116,17 +171,21 @@ $thumbnail-width: 110px;
         padding-left: 20px;
 
         .game-result-win {
-            color: #90ff90;
+            color: #027800;
         }
         .game-result-loss {
-            color: #ff6e6e;
+            color: #c62723;
         }
         .game-result-draw {
-            color: #f0ad4e;
+            color: #f89406;
         }
         .game-result-unknown {
             color: #e305f8;
         }
+    }
+
+    .text-muted {
+        color: #6c757d !important;
     }
 }
 

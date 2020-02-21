@@ -266,9 +266,9 @@ def map_jumbo_style(map_: Map):
     map_name = map_.name.lower().replace(' ', '-')
     map_name = ''.join(c for c in map_name if c in (string.digits + string.ascii_letters + '-'))
     return (
-        f'background-image: linear-gradient(#222854 0px, rgba(0, 0, 0, 0.42) 100%), '
+        f'background-image: linear-gradient(#0d1235 0px, rgba(0, 0, 0, 0.42) 100%), '
         f'url({url_for("static", filename="images/overwatch/map_banners/" + map_name + ".jpg")}); '
-        f'background-color: #222854;'
+        f'background-color: #0d1235;'
     )
 
 

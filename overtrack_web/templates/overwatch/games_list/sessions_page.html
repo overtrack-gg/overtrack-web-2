@@ -1,8 +1,8 @@
 {% for session in sessions %}
-<div class="row">
+<div class="row session">
     <div class="col-sm-12">
-        <div class="card session">
-            <div class="card-header" style="background-color: #58859F; ">
+        <div class="card">
+            <div class="card-header">
                 <h5><span class="epoch-format-date">{{ session.start }}</span> - {{ session.account }} - {{ session.game_mode | gamemode }}</h5>
             </div>
             <div class="card-body">
