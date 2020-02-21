@@ -258,6 +258,8 @@ def render_games_list(user: User, share_link: Optional[ShareLink] = None, **next
 
     return render_template(
         'overwatch/games_list/games_list.html',
+        title=user.username + "'s Overwatach Games",
+
         sessions=sessions,
         next_from=next_from,
 
