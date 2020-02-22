@@ -9,7 +9,6 @@ import boto3
 import time
 from dataclasses import dataclass
 from flask import Blueprint, Request, Response, render_template, request, url_for, make_response
-from functools import lru_cache
 from werkzeug.datastructures import MultiDict
 
 from overtrack_models.dataclasses import s2ts
@@ -285,6 +284,7 @@ def get_sessions(
     logger.info(f'Fetching games for user={user.user_id}: {user.username!r}')
 
     # merge actual args with parent page args from intercooler (for when this is a paginatoon fetch)
+    logger.info(f'request.args={request.args}')
     args = parse_args(request.args.get('ic-current-url'))
     args.update(request.args)
     logger.info(f'Got args={args}')
@@ -300,6 +300,7 @@ def get_sessions(
         season = overwatch_data.current_season
         logger.info(f'Using season={season.index} from current_season')
 
+    print(hopeful_int(args.get('quickplay')) )
     if hopeful_int(args.get('quickplay')) in [0, 1]:
         include_quickplay = bool(int(args['quickplay']))
         logger.info(f'Using include_quickplay={include_quickplay} from request')
@@ -348,7 +349,7 @@ def get_sessions(
     for game in query:
         if sessions and sessions[-1].add_game(game):
             total_games += 1
-            logger.info(
+            logger.debug(
                 f'    '
                 f'Added game to last session, '
                 f'offset={s2ts(sessions[-1].games[-2].time - (game.time + game.duration))}, '
@@ -357,7 +358,7 @@ def get_sessions(
         elif total_games + len(sessions) * sessions_count_as <= page_minimum_size:
             sessions.append(Session(game))
             total_games += 1
-            logger.info(f'Added new session {sessions[-1]}, game={game}')
+            logger.debug(f'Added new session {sessions[-1]}, game={game}')
         else:
             logger.info(f'Got {total_games} games over {len(sessions)} sessions - pagination limit reached')
             break
@@ -391,7 +392,6 @@ def hopeful_int(s: Optional[str]) -> Optional[int]:
         return None
 
 
-@lru_cache()
 def parse_args(url: Optional[str]) -> MultiDict:
     if not url:
         return MultiDict()
