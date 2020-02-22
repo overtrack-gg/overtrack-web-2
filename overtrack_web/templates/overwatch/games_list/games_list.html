@@ -2,53 +2,51 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<section>
-    <div class="container">
-        {% if show_sub_request %}
-        {% include 'sub_request.html' %}
-        {% endif %}
+<div class="container">
+    {% if show_sub_request %}
+    {% include 'sub_request.html' %}
+    {% endif %}
 
-        <div class="card games-selector">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-lg-4 col-sm-12">
-                        <div class="dropdown season">
-                            <button class="btn btn-primary btn-block dropdown-toggle"
-                                    type="button"
-                                    id="dropdownMenuButton"
-                                    data-toggle="dropdown"
-                                    aria-haspopup="true"
-                                    aria-expanded="false">
-                                {{ current_season.name }}
-                            </button>
-                            <div class="dropdown-menu"
-                                 aria-labelledby="dropdownMenuButton"
-                                 x-placement="bottom-start"
-                                 style="position: absolute; transform: translate3d(0px, 38px, 0px); top: 0px; left: 0px; will-change: transform;">
-                                {% for s in seasons %}
-                                <a class="dropdown-item" href="?season={{ s.index }}&quickplay={{ '1' if include_quickplay else '0' }}">{{ s.name }}</a>
-                                {% endfor %}
-                            </div>
+    <div class="card games-selector">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-4 col-sm-12">
+                    <div class="dropdown season">
+                        <button class="btn btn-primary btn-block dropdown-toggle"
+                                type="button"
+                                id="dropdownMenuButton"
+                                data-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false">
+                            {{ current_season.name }}
+                        </button>
+                        <div class="dropdown-menu"
+                             aria-labelledby="dropdownMenuButton"
+                             x-placement="bottom-start"
+                             style="position: absolute; transform: translate3d(0px, 38px, 0px); top: 0px; left: 0px; will-change: transform;">
+                            {% for s in seasons %}
+                            <a class="dropdown-item" href="?season={{ s.index }}&quickplay={{ '1' if include_quickplay else '0' }}">{{ s.name }}</a>
+                            {% endfor %}
                         </div>
                     </div>
-                    <div class="col-lg-4 col-sm-6">
-                        <div class="custom-control custom-switch custom-switch-lg quickplay">
-                            {% if include_quickplay %}
-                            <input type="checkbox" checked class="custom-control-input" id="quickplaySwitch">
-                            {% else %}
-                            <input type="checkbox" class="custom-control-input" id="quickplaySwitch">
-                            {% endif %}
-                            <label class="custom-control-label" for="quickplaySwitch">Include Quickplay</label>
-                            <a class="stretched-link"
-                               href="?season={{ current_season.index }}&quickplay={{ '0' if include_quickplay else '1' }}"></a>
-                        </div>
+                </div>
+                <div class="col-lg-4 col-sm-6">
+                    <div class="custom-control custom-switch custom-switch-lg quickplay">
+                        {% if include_quickplay %}
+                        <input type="checkbox" checked class="custom-control-input" id="quickplaySwitch">
+                        {% else %}
+                        <input type="checkbox" class="custom-control-input" id="quickplaySwitch">
+                        {% endif %}
+                        <label class="custom-control-label" for="quickplaySwitch">Include Quickplay</label>
+                        <a class="stretched-link"
+                           href="?season={{ current_season.index }}&quickplay={{ '0' if include_quickplay else '1' }}"></a>
                     </div>
                 </div>
             </div>
         </div>
-        <div id="sessions-list">
-            {% include 'overwatch/games_list/sessions_page.html' %}
-        </div>
     </div>
-</section>
+    <div id="sessions-list">
+        {% include 'overwatch/games_list/sessions_page.html' %}
+    </div>
+</div>
 {% endblock %}

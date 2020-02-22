@@ -13,19 +13,37 @@
 {%- endmacro -%}
 
 <nav class="navbar navbar-expand-lg navbar-dark">
-    <a class="navbar-brand" href="/">OverTrack</a>
+    <a class="navbar-brand" href="/">
+        <img src="{{ url_for('static', filename='images/favicon.png') }}">
+        OverTrack
+    </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse justify-content-between" id="navbar">
         <ul class="navbar-nav">
-            {% if game_name %}
-            <li class="nav-item">
-                <a class="nav-link">
-<!--                TODO: icon and dropdown list etc.-->
-                    {{ game_name }} &nbsp;&gt;
+             <li class="nav-item dropdown game-selector" style="font-weight: bold;">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button">
+                    {% if game_name %}
+                    {{ game_name | game_name }}
+                    <img src="{{ url_for('static', filename='images/' + game_name + '.png') }}">
+                    {% else %}
+                    Select Game
+                    {% endif %}
                 </a>
+                <div class="dropdown-menu dropdown-menu-right text-right">
+                    {% for game in ['overwatch', 'apex'] %}
+                    <a class="dropdown-item {{ 'active' if game == game_name else '' }}" href="{{ url_for(game + '.games_list.games_list') }}">
+                        {{ game | game_name }}
+                        <img src="{{ url_for('static', filename='images/' + game + '-dark.png') }}">
+                    </a>
+                    {% endfor %}
+                </div>
             </li>
+            <div class="dropdown-divider"></div>
+            <li class="divider-vertical"></li>
+            {% if game_name %}
+
             {{ navbar_elem('Games', game_name + '.games_list.games_list') }}
             {{ navbar_elem('Stats', game_name + '.stats.results') }}
             <div class="dropdown-divider"></div>

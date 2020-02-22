@@ -43,10 +43,34 @@ body {
     background-color: $navbar-color;
     padding-top: 0;
     padding-bottom: 0;
-}
-.navbar .divider-vertical {
-    height: 7px;
-    margin: 0 9px;
+
+    .navbar-brand img{
+        width: 30px;
+        height: 30px;
+    }
+
+    .divider-vertical {
+        height: 7px;
+        margin: 0 9px;
+    }
+
+    .dropdown-toggle {
+        color: white !important;  
+    }
+    .dropdown-toggle:hover {
+        background-color: lighten($navbar-color, 10%);
+        height: 100%;
+    }
+    .game-selector .dropdown-menu{
+        padding: 0;
+        margin-top: -2px;
+        border-radius: 0;
+    }
+    a.dropdown-item img, a.nav-link img{
+        width: 25px;
+        height: 25px;
+        margin-left: 10px;
+    }
 }
 
 

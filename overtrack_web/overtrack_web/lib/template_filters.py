@@ -16,8 +16,16 @@ def strip(s, lowercase=False):
     return ''.join(c for c in s if c in (string.digits + string.ascii_letters))
 
 
+def game_name(n: str) -> str:
+    return {
+        'apex': 'Apex Legends',
+        'overwatch': 'Overwatch',
+    }[n]
+
+
 filters = {
     'ifnone': ifnone,
     's2ts': s2ts,
-    'strip': strip
+    'strip': strip,
+    'game_name': game_name,
 }

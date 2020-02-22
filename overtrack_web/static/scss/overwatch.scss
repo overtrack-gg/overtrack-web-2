@@ -9,14 +9,17 @@ $card-cap-bg: rgba(0, 0, 0, 0.25);
 $navbar-color: $card-bg;
 $navbar-dark-color: #7e5abf;
 $navbar-dark-hover-color: #9093A9;
+$navbar-dark-hover: #9093A9;
 $navbar-dark-active-color: white;
+$navbar-brand-padding-y: 0;
+$navbar-brand-padding-x: 0;
 
 $primary: #a991d4;
 
 $dropdown-bg: $body-color;
 $dropdown-link-color: black;
 $dropdown-link-hover-color: $dropdown-link-color;
-$dropdown-link-hover-bg: $primary;
+$dropdown-link-hover-bg: lighten($primary, 10%);
 
 $table-dark-color: #f8f9fa;
 $table-dark-bg: #212529;
@@ -25,6 +28,7 @@ $table-hover-bg: #604499;
 
 @import "base";
 
+@import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
 body {
     font-family: 'Roboto', sans-serif;
 }
