@@ -71,19 +71,18 @@ $navbar-dark-color: #9093A9;
         line-height: unset;
     }
 
-    @import "../bootstrap/bootstrap";
+    @import "../overwatch";
 
     .navbar {
-        background-color: $navbar-color;
+        z-index: 1;
+        height: 40px;
         padding-top: 0;
         padding-bottom: 0;
     }
-    .navbar-brand {
-        height: 40px !important;
-    }
-    .navbar .divider-vertical {
-        height: 7px;
-        margin: 0 9px;
+
+    // was called 'open' instead of 'show' in the v3 js
+    .open .dropdown-menu {
+        display: block !important;
     }
 }
 
