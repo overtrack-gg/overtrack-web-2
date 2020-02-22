@@ -24,14 +24,15 @@
 {% endfor %}
 {% if next_from %}
 <div id="nextSessions"
-    ic-append-from='{{ next_from | safe }}'
-    ic-trigger-on='scrolled-into-view'
-    ic-target='#nextSessions'
-    ic-indicator='#indicator'
-    ic-on-complete='update_elements'
-    ic-replace-target='true'
+     style="padding-bottom: 30px;"
+     ic-append-from='{{ next_from | safe }}'
+     ic-trigger-on='scrolled-into-view'
+     ic-target='#nextSessions'
+     ic-on-complete='update_elements'
+     ic-replace-target='true'
+
 >
-    <div id="indicator" class="d-flex justify-content-center" style="display: none !important;">
+    <div id="indicator" class="d-flex justify-content-center">
         <div class="spinner-border" role="status">
         </div>
     </div>

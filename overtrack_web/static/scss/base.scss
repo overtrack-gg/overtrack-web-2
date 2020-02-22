@@ -32,7 +32,8 @@ a.nostyle:hover {
 
 /* Main */
 body {
-  min-height: 100vh;
+    min-height: 100vh;
+    min-width: 340px;
 }
 .card {
   border: 1px solid rgba(255,255,255,.125);

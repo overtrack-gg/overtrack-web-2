@@ -16,6 +16,23 @@ $thumbnail-width: 110px;
 
 }
 
+@media (max-width: 576px){
+    .container {
+        padding-left: 0;
+        padding-right: 0;
+    }
+    .session .col-sm-12 {
+        padding-right: 0;
+    }
+    .row {
+        margin-right: 0;
+    }
+    .games-selector {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
 .session {
     margin-top: 10px;
     min-width: 340px;
