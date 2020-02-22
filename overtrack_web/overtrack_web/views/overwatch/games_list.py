@@ -8,7 +8,7 @@ from urllib.parse import parse_qs, urlparse
 import boto3
 import time
 from dataclasses import dataclass
-from flask import Blueprint, Request, Response, render_template, request, url_for
+from flask import Blueprint, Request, Response, render_template, request, url_for, make_response
 from functools import lru_cache
 from werkzeug.datastructures import MultiDict
 
@@ -256,20 +256,24 @@ def render_games_list(user: User, share_link: Optional[ShareLink] = None, **next
     else:
         next_from = None
 
-    return render_template(
-        'overwatch/games_list/games_list.html',
-        title=user.username + "'s Overwatach Games",
+    response = make_response(
+        render_template(
+            'overwatch/games_list/games_list.html',
+            title=user.username + "'s Overwatach Games",
 
-        sessions=sessions,
-        next_from=next_from,
+            sessions=sessions,
+            next_from=next_from,
 
-        seasons=seasons,
-        current_season=current_season,
+            seasons=seasons,
+            current_season=current_season,
 
-        include_quickplay=include_quickplay,
+            include_quickplay=include_quickplay,
 
-        OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
+            OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
+        )
     )
+    response.set_cookie('include_quickplay', str(int(include_quickplay)))
+    return response
 
 
 def get_sessions(
@@ -278,39 +282,40 @@ def get_sessions(
     page_minimum_size: int = PAGINATION_PAGE_MINIMUM_SIZE,
     sessions_count_as: int = PAGINATION_SESSIONS_COUNT_AS,
 ) -> Tuple[List[Session], Optional[Season], bool, Optional[str]]:
+    logger.info(f'Fetching games for user={user.user_id}: {user.username!r}')
 
-    if hopeful_int(request.args.get('season')) in user.overwatch_seasons:
+    # merge actual args with parent page args from intercooler (for when this is a paginatoon fetch)
+    args = parse_args(request.args.get('ic-current-url'))
+    args.update(request.args)
+    logger.info(f'Got args={args}')
+
+    if hopeful_int(args.get('season')) in user.overwatch_seasons:
         # called from /games - parse season from ?season=N
-        logger.info(f'Using season from request args: {request.args}')
-        season = overwatch_data.seasons[int(request.args['season'])]
-    elif hopeful_int(parse_args(request.args.get('ic-current-url')).get('season')) in user.overwatch_seasons:
-        # called from intercooler pagination - parse season from ?ic-current-url='/overtwatch/games?season=N'
-        logger.info(f'Using season from ic-current-url args: {parse_args(request.args["ic-current-url"])}')
-        season = overwatch_data.seasons[int(parse_args(request.args['ic-current-url'])['season'])]
+        season = overwatch_data.seasons[int(args['season'])]
+        logger.info(f'Using season={season.index} from args')
     elif user.overwatch_last_season:
-        logger.info(f'Using season from user.overwatch_last_season: {user.overwatch_last_season}')
         season = overwatch_data.seasons[user.overwatch_last_season]
+        logger.info(f'Using season={season.index} from user.overwatch_last_season')
     else:
-        logger.info(f'Using season from current_season')
         season = overwatch_data.current_season
+        logger.info(f'Using season={season.index} from current_season')
 
-    if 'quickplay' in request.args:
-        include_quickplay = bool(int(request.args['quickplay']))
+    if hopeful_int(args.get('quickplay')) in [0, 1]:
+        include_quickplay = bool(int(args['quickplay']))
+        logger.info(f'Using include_quickplay={include_quickplay} from request')
     else:
-        # TODO: from cookie (if not share?)
-        include_quickplay = True
-
-    logger.info(f'Getting games for {user.username} => season={season}')
+        include_quickplay = int(request.cookies.get('include_quickplay', 1))
+        logger.info(f'Using include_quickplay={include_quickplay} from cookie')
 
     season = overwatch_data.seasons[season.index]
     range_key_condition = OverwatchGameSummary.time.between(season.start, season.end)
     filter_condition = OverwatchGameSummary.season == season.index
+    filter_condition &= OverwatchGameSummary.game_type != 'ctf'
 
     if share_link:
         logger.info(f'Share link {share_link.share_key!r} has whitelisted accounts {share_link.player_name_filter}')
         filter_condition &= OverwatchGameSummary.player_name.is_in(*share_link.player_name_filter)
 
-    logger.info(f'include_quickplay={include_quickplay}')
     if not include_quickplay:
         filter_condition &= OverwatchGameSummary.game_type == 'competitive'
     else:
@@ -318,17 +323,15 @@ def get_sessions(
 
     if 'last_evaluated' in request.args:
         last_evaluated = json.loads(b64_decode(request.args['last_evaluated']))
+        logger.info(f'Using last_evaluated={last_evaluated}')
     else:
         last_evaluated = None
+        logger.info(f'Using last_evaluated={last_evaluated}')
 
-    # Set the limit past the minimum games by the 95percentile of session lengths.
-    # This means we can (usually) load the full session that puts the total game count over
-    # minimum_required_games without incurring another fetch
-    page_size = page_minimum_size + 20
-
+    page_size = page_minimum_size + 5
     logger.info(
-        f'Getting games for {user.username}: {user.user_id}, {range_key_condition}, {filter_condition} '
-        f'with last_evaluated={last_evaluated} and page_size={page_size}'
+        f'Getting games for user_id={user.user_id}, range_key_condition={range_key_condition}, filter_condition={filter_condition}, '
+        f'last_evaluated={last_evaluated}, page_size={page_size}'
     )
     t0 = time.perf_counter()
     sessions: List[Session] = []
@@ -363,7 +366,9 @@ def get_sessions(
         last_evaluated_key = None
 
     t1 = time.perf_counter()
-    logger.info(f'Building sessions list took {(t1 - t0)*1000:.2f}ms - took {total_games / page_size + 0.5:.0f} result pages')
+    logger.info(
+        f'Building sessions list took {(t1 - t0)*1000:.2f}ms - '
+        f'took {total_games / page_size + 0.5:.0f} result pages ({(total_games / page_size)*100:.0f}% of page used)')
 
     logger.info(f'Got {len(sessions)} sessions:')
     for s in sessions:
