@@ -21,12 +21,13 @@ STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY', 'pk_test_F567NgBmv1HXb8G
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY', 'sk_test_boLthxW5ni28yjidrmDHmNH3')
 stripe.api_version = os.environ.get('STRIPE_API_VERSION', '2019-08-14')
 
-PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID', 'AbtR1E2mVIg_kXSpY071A798VVlgcIndAz5Hxm8PzWBAcsDykfm7SStIlJfS10b15pQVoOzTfKkvCsq8')
-PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_SECRET', 'EFPCvY4tYpaOIQKci8cJEpD4mwv9DESmqpcJpAeU590_ASpyhMeJ0JNQToTrHIriqJLCt9kksm54xNsb')
-
 STRIPE_1_MONTHLY_PLAN = os.environ.get('STRIPE_MONTHLY_PLAN', 'plan_FhKrKMGDf5sb7Z')
 STRIPE_6_MONTHLY_PLAN = os.environ.get('STRIPE_SIX_MONTHLY_PLAN', 'plan_FhKx6524k81dlz')
 STRIPE_12_MONTHLY_PLAN = os.environ.get('STRIPE_YEARLY_PLAN', 'plan_FhKxcDNk8BbEGy')
+
+PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID', 'AbtR1E2mVIg_kXSpY071A798VVlgcIndAz5Hxm8PzWBAcsDykfm7SStIlJfS10b15pQVoOzTfKkvCsq8')
+PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_SECRET', 'EFPCvY4tYpaOIQKci8cJEpD4mwv9DESmqpcJpAeU590_ASpyhMeJ0JNQToTrHIriqJLCt9kksm54xNsb')
+PAYPAL_OLD_UNSUB_LINK = os.environ.get('PAYPAL_OLD_UNSUB_LINK', 'https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias=M6LFV3XCTA2X6')
 
 if os.environ.get('PAYPAL_STRIPE_LIVE', 'false').lower() != 'true':
     # sandbox plans
@@ -41,6 +42,7 @@ else:
     PAYPAL_12_MONTHLY_PLAN = os.environ.get('PAYPAL_YEARLY_PLAN', 'P-4HK16427P0184862NLVSQCLQ')
 
     paypal_client = PayPal(PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET, sandbox=False)
+
 
 logger = logging.getLogger(__name__)
 
@@ -85,13 +87,20 @@ def subscribe():
             show_sub_buttons, unsub_button, status_text = check_paypal_subscription()
         elif session.user.subscription_type in ['stripe', 'v2.stripe']:
             show_sub_buttons, unsub_button, status_text = check_stripe_subscription()
+        elif session.user.subscription_type == 'paypal':
+            show_sub_buttons = False
+            unsub_button = PAYPAL_OLD_UNSUB_LINK
+            status_text = '''
+            <p>
+                You are currently subscribed through PayPal, which will bill you <code>$5.00</code> every month.
+            </p>
+            '''
         else:
             show_sub_buttons = False
             unsub_button = None
             status_text = '''
             <p>
-                You appear to be subscribed to OverTrack through the Overwatch site.
-                You can manage your subscription <a href="https://overtrack.gg/subscribe">there</a>.
+                Your subscription is in an error state. Please contact support@overtrack.gg.
             </p>
             '''
 
@@ -234,7 +243,7 @@ def check_stripe_subscription() -> Tuple[bool, Optional[str], str]:
         if sub.cancel_at_period_end:
             return True, None, f'''
             <p>
-                Your subscription has been canceled, and all sub-features will end at the end of the next billing period.
+                Your subscription has been canceled, and all subsciption features will end at the end of the next billing period.
             </p>
             '''
         else:
@@ -248,8 +257,8 @@ def check_stripe_subscription() -> Tuple[bool, Optional[str], str]:
     elif sub.status in ['past_due', 'unpaid']:
         return False, unsub_link, f'''
         <p>
-            Your subscription is currently failing to complete - 
-            please ensure that funds are available or cancel and recreate the subscription with a new billing method.
+            Your subscription is currently failing to pay - 
+            please ensure that funds are available or cancel and recreate the subscription again.
         </p>
         '''
     else:
