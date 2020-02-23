@@ -10,6 +10,7 @@ import requests
 import time
 from dataclasses import dataclass
 from flask import Blueprint, Request, render_template, request
+from overtrack_models.dataclasses.typedload import referenced_typedload
 
 from overtrack_models.dataclasses import typedload
 from overtrack_models.dataclasses.apex.apex_game import ApexGame
@@ -76,7 +77,7 @@ def game(key: str):
         game_data = r.json()
 
     game_data = compat_game_data(game_data)
-    game = typedload.load(game_data, ApexGame)
+    game = referenced_typedload.load(game_data, ApexGame)
 
     # used for link previews
     og_description = make_game_description(summary, divider='\n')
