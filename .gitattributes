@@ -1,0 +1,2 @@
+overtrack_web/static/js/lib/* linguist-vendored -text -diff
+overtrack_web/static/scss/lib/* linguist-vendored -text -diff
