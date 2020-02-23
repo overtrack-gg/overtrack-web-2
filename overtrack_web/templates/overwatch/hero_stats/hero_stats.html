@@ -1,0 +1,89 @@
+{% extends "base.html" %}{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <section>
+        <div class="container">
+            <div class="card mb-4" style="margin-left: -20px; margin-right: -20px;">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg col-sm">
+                            <div class="dropdown">
+                                <button class="btn btn-primary btn-block dropdown-toggle"
+                                        type="button"
+                                        id="season-dropdown"
+                                        data-toggle="dropdown"
+                                        aria-haspopup="true"
+                                        aria-expanded="false">
+                                    {{ current_season.name }}
+                                </button>
+                                <div class="dropdown-menu"
+                                     aria-labelledby="season-dropdown"
+                                     x-placement="bottom-start"
+                                     style="position: absolute; transform: translate3d(0px, 38px, 0px); top: 0px; left: 0px; will-change: transform;">
+                                    {% for s in seasons %}
+                                        <a class="dropdown-item"
+                                           href="{{ change_func['season'](s.index) }}">{{ s.name }}</a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg col-sm">
+                            <div class="dropdown">
+                                <button class="btn btn-primary btn-block dropdown-toggle"
+                                        type="button"
+                                        id="account-dropdown"
+                                        data-toggle="dropdown"
+                                        aria-haspopup="true"
+                                        aria-expanded="false">
+                                    {{ current_account }}
+                                </button>
+                                <div class="dropdown-menu"
+                                     aria-labelledby="account-dropdown"
+                                     x-placement="bottom-start"
+                                     style="position: absolute; transform: translate3d(0px, 38px, 0px); top: 0px; left: 0px; will-change: transform;">
+                                    {% for a in accounts %}
+                                        <a class="dropdown-item" href="{{ change_func['account'](a) }}">{{ a }}</a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg col-sm">
+                            <div class="dropdown">
+                                <button class="btn btn-primary btn-block dropdown-toggle"
+                                        type="button"
+                                        id="mode-dropdown"
+                                        data-toggle="dropdown"
+                                        aria-haspopup="true"
+                                        aria-expanded="false">
+                                    {{ current_mode }}
+                                </button>
+                                <div class="dropdown-menu"
+                                     aria-labelledby="mode-dropdown"
+                                     x-placement="bottom-start"
+                                     style="position: absolute; transform: translate3d(0px, 38px, 0px); top: 0px; left: 0px; will-change: transform;">
+                                    {% for m in modes %}
+                                        <a class="dropdown-item" href="{{ change_func['mode'](m) }}">{{ m }}</a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg col-sm">
+                            <div class="custom-control custom-switch custom-switch-lg">
+                                <input type="checkbox"
+                                       class="custom-control-input"
+                                       {% if complete_only %}checked{% endif %}
+                                       id="complete-checkbox"> <label class="custom-control-label"
+                                                                      for="complete-checkbox">Only use complete
+                                games</label> <a class="stretched-link"
+                                                 href="{{ change_func['complete'](complete_only) }}"></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="sessions-list">
+                {% include 'overwatch/hero_stats/stats_page.html' %}
+            </div>
+        </div>
+    </section>
+{% endblock %}

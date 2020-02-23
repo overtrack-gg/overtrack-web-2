@@ -143,6 +143,9 @@ app.register_blueprint(overwatch_games_list_blueprint, url_prefix='/overwatch/ga
 from overtrack_web.views.overwatch.game import game_blueprint as overwatch_game_blueprint
 app.register_blueprint(overwatch_game_blueprint, url_prefix='/overwatch/games')
 
+from overtrack_web.views.overwatch.hero_stats import hero_stats_blueprint
+app.register_blueprint(hero_stats_blueprint, url_prefix='/overwatch/hero_stats')
+
 
 # ------ LEGACY PAGE REDIRECTS ------
 @app.route('/game/<path:key>')
