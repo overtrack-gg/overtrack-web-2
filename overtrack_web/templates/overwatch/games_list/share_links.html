@@ -1,0 +1,57 @@
+<div class="row">
+    <div class="col-12 form-group" >
+        <input type="text"
+               class="form-control"
+               id="shareLinkURL"
+               placeholder="{{ share_link }} LOLOL"
+               onclick="copy_share_link()"
+               value="{{ share_link }}"
+               readonly="readonly">
+        <small class="form-text text-muted">Click to copy</small>
+    </div>
+</div>
+<div class="row no-gutters">
+    <div class="col-12 form-group">
+        <div class="custom-control custom-switch custom-switch-lg">
+            <input type="checkbox"
+                   {% if share_settings.enabled %}checked{% endif %}
+                   class="custom-control-input"
+                   id="shareLinkEnabled"
+                    name="enabled">
+            <label class="custom-control-label"
+                   for="shareLinkEnabled">
+                Enabled
+            </label>
+        </div>
+    </div>
+</div>
+<div class="row no-gutters">
+    <div class="col-8 form-group">
+        <label for="accountSelector">Visible accounts</label>
+        <select class="selectpicker form-control"
+                id="accountSelector"
+                name="accounts"
+                data-style="btn-primary btn-block"
+                data-none-selected-text="All Accounts"
+                data-width="100%"
+                multiple>
+            {% for account in account_names %}
+            <option {% if account in (share_settings.accounts or []) %}selected{% endif %}>{{ account }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-4 form-group" style="padding-left: 15px;">
+        <label>Include Quickplay</label>
+        <div class="custom-control custom-switch custom-switch-lg">
+            <input type="checkbox"
+                   {% if share_settings.include_quickplay %}checked{% endif %}
+                   class="custom-control-input"
+                   id="shareLinkIncludeQuickplay"
+                   name="include_quickplay">
+            <label for="shareLinkIncludeQuickplay"
+                   class="custom-control-label"
+                   style="width: 100%; height: 30px;">
+            </label>
+        </div>
+    </div>
+</div>

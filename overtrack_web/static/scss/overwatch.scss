@@ -1,4 +1,4 @@
-@import "bootswatch/superhero/variables";
+@import "lib/bootswatch/superhero/variables";
 
 $body-color: #ebebeb;
 $body-bg: #222854;
@@ -17,9 +17,12 @@ $navbar-brand-padding-x: 0;
 $primary: #a991d4;
 
 $dropdown-bg: $body-color;
+$dropdown-color: black;
 $dropdown-link-color: black;
 $dropdown-link-hover-color: $dropdown-link-color;
 $dropdown-link-hover-bg: lighten($primary, 10%);
+
+//$modal-content-bg: #bfbfbf;
 
 $table-dark-color: #f8f9fa;
 $table-dark-bg: #212529;
@@ -28,10 +31,14 @@ $table-hover-bg: #604499;
 
 @import "base";
 
+@import "lib/bootstrap-select/variables";
+@import "lib/bootstrap-select/bootstrap-select";
+
 @import url('https://fonts.googleapis.com/css?family=Roboto&display=swap');
 body {
     font-family: 'Roboto', sans-serif;
 }
+
 
 .card-header {
     padding-bottom: 0;
@@ -80,9 +87,12 @@ body {
     .custom-control-label::before {
         left: -2.25rem;
         height: 2rem;
-        width: 3.5rem;    // it was 1.75rem before. Sliding way is longer than before.
+        width: 3.5rem;
         pointer-events: all;
         border-radius: 1rem;
+    }
+    &.disabled .custom-control-label::before {
+        background-color: rgb(95, 95, 95);
     }
     .custom-control-label::after {
         top: calc(0.25rem + 2px);
@@ -100,6 +110,7 @@ body {
         -webkit-transform: translateX(1.5rem);
         transform: translateX(1.5rem)
     }
+
 }
 
 @import "overwatch/games_list";

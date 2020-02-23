@@ -1,8 +1,12 @@
 import datetime
 import json
 import logging
+import random
 import string
-from typing import List, Optional, Tuple, Union
+from functools import lru_cache
+
+from itertools import permutations
+from typing import List, Optional, Tuple, Union, Generator
 from urllib.parse import parse_qs, urlparse
 
 import boto3
@@ -14,11 +18,12 @@ from werkzeug.datastructures import MultiDict
 from overtrack_models.dataclasses import s2ts
 from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
 from overtrack_models.orm.share_link import ShareLink
-from overtrack_models.orm.user import User
+from overtrack_models.orm.user import User, OverwatchShareSettings
 from overtrack_web.data import overwatch_data
 from overtrack_web.data.overwatch_data import Season
 from overtrack_web.lib import b64_decode, b64_encode
 from overtrack_web.lib.authentication import check_authentication, require_login
+from overtrack_web.lib.decorators import restrict_origin
 from overtrack_web.lib.session import session
 from overtrack_web.views.overwatch import OLDEST_SUPPORTED_GAME_VERSION, sr_change
 
@@ -28,7 +33,7 @@ SESSION_MAX_TIME_BETWEEN_GAMES = 45
 
 
 request: Request = request
-FlaskResponse = Union[Response, Tuple[str, int]]
+FlaskResponse = Union[Response, Tuple[str, int], str]
 logger = logging.getLogger(__name__)
 try:
     s3 = boto3.client('s3')
@@ -105,34 +110,34 @@ def games_list() -> FlaskResponse:
 
 @games_list_blueprint.route('/<string:username>')
 def public_games_list(username: str) -> FlaskResponse:
-    user = resolve_public_user(username)
+    user, share_settings = resolve_public_user(username)
     if not user:
         return 'User does not exist or games not public', 404
-    return render_games_list(user, username=username)
+    return render_games_list(user, share_settings=share_settings, username=username)
 
 
 @games_list_blueprint.route('/share/<string:sharekey>')
 def shared_games_list(sharekey: str) -> FlaskResponse:
-    user, share_link = resolve_share_key(sharekey)
+    user, share_settings = resolve_share_key(sharekey)
     if not user:
         return 'Share link not found', 404
-    return render_games_list(user, share_link=share_link, sharekey=sharekey)
+    return render_games_list(user, share_settings=share_settings, sharekey=sharekey)
 
 
 @games_list_blueprint.route('/next')
 def games_next() -> FlaskResponse:
     next_args = {}
-    share_link = None
+    share_settings = None
     if 'username' in request.args:
         username = request.args['username']
         next_args['username'] = username
-        user = resolve_public_user(username)
+        user, share_settings = resolve_public_user(username)
         if not user:
             return 'Share link not found', 404
     elif 'sharekey' in request.args:
         sharekey = request.args['sharekey']
         next_args['sharekey'] = request.args['sharekey']
-        user, share_link = resolve_share_key(sharekey)
+        user, share_settings = resolve_share_key(sharekey)
         if not user:
             return 'Share link not found', 404
     else:
@@ -141,7 +146,7 @@ def games_next() -> FlaskResponse:
         else:
             return 'Not logged in', 403
 
-    sessions, season, include_quickplay, last_evaluated = get_sessions(user, share_link=share_link)
+    sessions, season, include_quickplay, last_evaluated = get_sessions(user, share_settings=share_settings)
 
     if last_evaluated:
         next_args['last_evaluated'] = last_evaluated
@@ -153,7 +158,37 @@ def games_next() -> FlaskResponse:
         'overwatch/games_list/sessions_page.html',
         sessions=sessions,
         next_from=next_from,
-        OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
+    )
+
+
+@games_list_blueprint.route('/share_links', methods=['GET', 'POST'])
+@require_login
+@restrict_origin(restrict_for=['POST'])
+def share_links() -> FlaskResponse:
+    if request.method == 'POST':
+        logger.info(f'Got new share settings {request.form}')
+
+        new_settings = OverwatchShareSettings(
+            enabled=request.form.get('enabled', 'off') == 'on',
+            accounts=request.form.getlist('accounts') or None,
+            include_quickplay=request.form.get('include_quickplay', 'off') == 'on'
+        )
+        logger.info(f'Created {new_settings}')
+        session.user.refresh()
+        session.user.overwatch_games_public = new_settings
+        session.user.save()
+
+    account_names = list(session.user.overwatch_games_public.accounts or [])
+    for name in get_all_account_names(session.user):
+        if name not in account_names:
+            account_names.append(name)
+
+    return render_template(
+        'overwatch/games_list/share_links.html',
+
+        share_link='https://overtrack.gg/overwatch/games/' + session.user.username,
+        share_settings=session.user.overwatch_games_public or OverwatchShareSettings(),
+        account_names=account_names,
     )
 
 
@@ -208,19 +243,22 @@ def gamemode(s: str):
         return s.title()
 
 
-def resolve_public_user(username: str) -> Optional[User]:
+def resolve_public_user(username: str) -> Tuple[Optional[User], Optional[OverwatchShareSettings]]:
     try:
         user = User.username_index.get(username)  # TODO: make all usernames lower
     except User.DoesNotExist:
-        return None
-    if user.overwatch_games_public:
-        return user
-    elif check_superuser():
-        return user
-    return None
+        return None, None
+    else:
+        if check_superuser():
+            logger.info(f'Overriding OverwatchShareSettings for superuser')
+            return user, OverwatchShareSettings(enabled=True)
+        elif user.overwatch_games_public and user.overwatch_games_public.enabled:
+            return user, user.overwatch_games_public
+        else:
+            return None, None
 
 
-def resolve_share_key(sharekey: str) -> Tuple[Optional[User], Optional[ShareLink]]:
+def resolve_share_key(sharekey: str) -> Tuple[Optional[User], Optional[OverwatchShareSettings]]:
     try:
         share_link = ShareLink.get(sharekey)
     except ShareLink.DoesNotExist:
@@ -229,7 +267,13 @@ def resolve_share_key(sharekey: str) -> Tuple[Optional[User], Optional[ShareLink
         user = User.user_id_index.get(share_link.user_id)
     except User.DoesNotExist:
         return None, None
-    return user, share_link
+    share_settings = OverwatchShareSettings(
+        enabled=True,
+        accounts=share_link.player_name_filter,
+        include_quickplay=share_link.player_name_filter is None,
+    )
+    logger.info(f'Generating {share_settings} from {share_link}')
+    return user, share_settings
 
 
 def check_superuser() -> bool:
@@ -239,9 +283,9 @@ def check_superuser() -> bool:
         return False
 
 
-def render_games_list(user: User, share_link: Optional[ShareLink] = None, **next_args: str) -> Response:
+def render_games_list(user: User, share_settings: Optional[OverwatchShareSettings] = None, **next_args: str) -> Response:
     user.refresh()
-    sessions, current_season, include_quickplay, last_evaluated = get_sessions(user, share_link=share_link)
+    sessions, current_season, include_quickplay, last_evaluated = get_sessions(user, share_settings=share_settings)
 
     seasons = [
         s for i, s in overwatch_data.seasons.items() if i in user.overwatch_seasons
@@ -266,31 +310,40 @@ def render_games_list(user: User, share_link: Optional[ShareLink] = None, **next
             seasons=seasons,
             current_season=current_season,
 
+            allow_toggle_quickplay=not share_settings or share_settings.include_quickplay,
             include_quickplay=include_quickplay,
 
-            OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
+            show_share_links_edit=share_settings is None,
         )
     )
-    response.set_cookie('include_quickplay', str(int(include_quickplay)))
+    if not share_settings or share_settings.include_quickplay:
+        logger.info(f'Setting cookie include_quickplay={include_quickplay}')
+        response.set_cookie('include_quickplay', str(int(include_quickplay)))
     return response
 
 
 def get_sessions(
     user: User,
-    share_link: Optional[ShareLink] = None,
+    share_settings: Optional[OverwatchShareSettings] = None,
     page_minimum_size: int = PAGINATION_PAGE_MINIMUM_SIZE,
     sessions_count_as: int = PAGINATION_SESSIONS_COUNT_AS,
 ) -> Tuple[List[Session], Optional[Season], bool, Optional[str]]:
     logger.info(f'Fetching games for user={user.user_id}: {user.username!r}')
 
-    # merge actual args with parent page args from intercooler (for when this is a paginatoon fetch)
-    logger.info(f'request.args={request.args}')
+    # merge actual args with parent page args from intercooler (for when this is a pagination fetch)
+    logger.info(f'Request args={request.args}')
     args = parse_args(request.args.get('ic-current-url'))
+    logger.info(f'Intercooler args={args}')
     args.update(request.args)
-    logger.info(f'Got args={args}')
+    logger.info(f'Merged args={args}')
 
+    logger.info(f'Share settings={share_settings}')
+
+    # Use season as {specified season, user's last season, current season} in that order
+    # Note: when getting sessions for a share link, where the user has played in a new season, but has no visible games will generage an
+    # empty page with no way of the viewer knowing which seasons have games. This could be detected, and we could compute the valid seasons
+    # for a share link, but...
     if hopeful_int(args.get('season')) in user.overwatch_seasons:
-        # called from /games - parse season from ?season=N
         season = overwatch_data.seasons[int(args['season'])]
         logger.info(f'Using season={season.index} from args')
     elif user.overwatch_last_season:
@@ -300,36 +353,41 @@ def get_sessions(
         season = overwatch_data.current_season
         logger.info(f'Using season={season.index} from current_season')
 
-    print(hopeful_int(args.get('quickplay')) )
-    if hopeful_int(args.get('quickplay')) in [0, 1]:
+    # Use include_quickplay from {share settings, specified season, cookie} in that order, defaulting to True if not set in any
+    if share_settings and not share_settings.include_quickplay:
+        logger.info(f'Using include_quickplay=False from share settings')
+        include_quickplay = False
+    elif hopeful_int(args.get('quickplay')) in [0, 1]:
         include_quickplay = bool(int(args['quickplay']))
         logger.info(f'Using include_quickplay={include_quickplay} from request')
     else:
         include_quickplay = int(request.cookies.get('include_quickplay', 1))
         logger.info(f'Using include_quickplay={include_quickplay} from cookie')
 
-    season = overwatch_data.seasons[season.index]
+    # Use a range key filter for the season
     range_key_condition = OverwatchGameSummary.time.between(season.start, season.end)
+
+    # Construct the filter condition combining season, share accounts, show quickplay
     filter_condition = OverwatchGameSummary.season == season.index
-    filter_condition &= OverwatchGameSummary.game_type != 'ctf'
-
-    if share_link:
-        logger.info(f'Share link {share_link.share_key!r} has whitelisted accounts {share_link.player_name_filter}')
-        filter_condition &= OverwatchGameSummary.player_name.is_in(*share_link.player_name_filter)
-
+    if share_settings and share_settings.accounts:
+        logger.info(f'Share settings has whitelisted accounts {share_settings.accounts}')
+        filter_condition &= OverwatchGameSummary.player_name.is_in(*share_settings.accounts)
     if not include_quickplay:
         filter_condition &= OverwatchGameSummary.game_type == 'competitive'
     else:
         filter_condition &= OverwatchGameSummary.game_type.is_in('quickplay', 'competitive')
 
-    if 'last_evaluated' in request.args:
+    # Use last_evaluated from args
+    if 'last_evaluated' in args:
         last_evaluated = json.loads(b64_decode(request.args['last_evaluated']))
         logger.info(f'Using last_evaluated={last_evaluated}')
     else:
         last_evaluated = None
         logger.info(f'Using last_evaluated={last_evaluated}')
 
-    page_size = page_minimum_size + 5
+    # Use a page size that is slightly larger than the minimum number of elements we want, to avoid having to use 2 pages
+    page_size = page_minimum_size + 15
+
     logger.info(
         f'Getting games for user_id={user.user_id}, range_key_condition={range_key_condition}, filter_condition={filter_condition}, '
         f'last_evaluated={last_evaluated}, page_size={page_size}'
@@ -396,3 +454,62 @@ def parse_args(url: Optional[str]) -> MultiDict:
     if not url:
         return MultiDict()
     return MultiDict(parse_qs(urlparse(url).query))
+
+
+def get_all_account_names(user: User, minimum_games=5, _cache={}) -> List[str]:
+    try:
+        latest_game = OverwatchGameSummary.user_id_time_index.get(
+            user.user_id,
+            scan_index_forward=False,
+            page_size=1,
+            limit=1,
+        )
+    except OverwatchGameSummary.DoesNotExist:
+        return []
+
+    # if the first game is the same as the last time we checked, then no new accounts could have been added
+    if _cache.get(user.user_id, (None, None))[0] == latest_game.key:
+        logger.info(f'Got accounts from cache where user={user.user_id}, latest_game={latest_game.key!r}')
+        return _cache[user.user_id][1]
+
+    # Automatically include the latest game for new users
+    account_names_with_minimum_games = [latest_game.player_name]
+    account_names = []
+    for _ in range(64):
+        filter_condition = (OverwatchGameSummary.player_name > account_names[-1]) if account_names else None
+        query = OverwatchGameSummary.user_id_player_name_index.query(
+            user.user_id,
+            filter_condition,
+            scan_index_forward=True,
+            page_size=minimum_games + 1,
+            limit=minimum_games + 1,
+        )
+        logger.info(f'    Checking for games with filter_condition={filter_condition}')
+
+        new_account = None
+        count = 0
+        for game_with_new_account in query:
+            if not new_account:
+                new_account = game_with_new_account.player_name
+            elif game_with_new_account.player_name != new_account:
+                # this query found 2 accounts - stop counting here, and don't add this account so we can count it next
+                break
+            count += 1
+        if new_account:
+            if count >= minimum_games:
+                logger.info(f'    Got account {new_account!r} with {count} games')
+                if new_account not in account_names_with_minimum_games:
+                    account_names_with_minimum_games.append(new_account)
+            else:
+                logger.info(f'    Ignoring account {new_account!r} with {count} games')
+            account_names.append(new_account)
+        else:
+            logger.info(f'Reached end of games')
+            break
+    else:
+        logger.error(f'Stopping account name search early - limit reached')
+
+    logger.info(f'Caching account names for  user={user.user_id}, latest_game={latest_game.key!r}')
+    _cache[user.user_id] = (latest_game.key, account_names_with_minimum_games)
+
+    return account_names_with_minimum_games

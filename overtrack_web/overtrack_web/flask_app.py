@@ -16,14 +16,11 @@ from overtrack_web.lib.authentication import check_authentication
 from overtrack_web.lib import dataclasses_asdict_namedtuple_patch
 dataclasses_asdict_namedtuple_patch.patch()
 
-request: Request = request
+LOG_FORMAT = '[%(asctime)16s | %(levelname)8s | %(filename)s:%(lineno)s %(funcName)s() ] %(message)s'
 
-try:
-    # Fancy logging when possible
-    from overtrack.util.logging_config import config_logger
-    config_logger(__name__, logging.INFO, False)
-except ImportError:
-    logging.basicConfig(level=logging.INFO)
+
+request: Request = request
+logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
 
 
 # ------ FLASK SETUP AND CONFIG ------

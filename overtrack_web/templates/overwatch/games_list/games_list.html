@@ -31,16 +31,28 @@
                     </div>
                 </div>
                 <div class="col-lg-4 col-sm-6">
-                    <div class="custom-control custom-switch custom-switch-lg quickplay">
-                        {% if include_quickplay %}
-                        <input type="checkbox" checked class="custom-control-input" id="quickplaySwitch">
-                        {% else %}
-                        <input type="checkbox" class="custom-control-input" id="quickplaySwitch">
-                        {% endif %}
+                    <div class="custom-control custom-switch custom-switch-lg quickplay {{ 'disabled' if not allow_toggle_quickplay else '' }}">
+                        <input type="checkbox" {% if include_quickplay %}checked{% endif %} {% if not allow_toggle_quickplay%} disabled{% endif %} class="custom-control-input" id="quickplaySwitch">
                         <label class="custom-control-label" for="quickplaySwitch">Include Quickplay</label>
+                        {% if allow_toggle_quickplay %}
                         <a class="stretched-link"
                            href="?season={{ current_season.index }}&quickplay={{ '0' if include_quickplay else '1' }}"></a>
+                        {% endif %}
                     </div>
+                </div>
+
+                <div class="offset-lg-1 col-lg-3 offset-sm-2 col-sm-4">
+                    {% if show_share_links_edit %}
+                    <a class="btn btn-primary btn-block"
+                       data-toggle="modal"
+                       data-target="#publicShareLinks"
+                       ic-get-from="{{ url_for('overwatch.games_list.share_links') }}"
+                       ic-target="#shareLinksContent"
+                       ic-on-complete="on_share_links_loaded"
+                       ic-trigger-on="click once">
+                        Edit Share Link
+                    </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -49,4 +61,58 @@
         {% include 'overwatch/games_list/sessions_page.html' %}
     </div>
 </div>
+
+<div class="modal fade" id="publicShareLinks" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form ic-post-to="{{ url_for('overwatch.games_list.share_links') }}"
+              ic-verb="POST"
+              ic-target="#shareLinksContent"
+              ic-on-complete="on_links_saved">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Share Links</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body container" id="shareLinksContent">
+                    <div class="text-center">
+                        <i class="fa fa-spinner fa-spin fa-2x"></i> Loading...
+                    </div>
+                </div>
+                    <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script defer src="{{ url_for('static', filename='js/lib/bootstrap-select-1.13.2.min.js') }}"></script>
+<script>
+function on_share_links_loaded(){
+    window.setTimeout(() => {
+        $('.selectpicker').selectpicker('refresh');
+        $('#shareLinkURL').tooltip({'trigger':'manual', 'title': 'Copied', 'delay': { "show": 500, "hide": 100 }});
+    });
+}
+function on_links_saved(){
+    window.setTimeout(() => {
+        on_share_links_loaded()
+        $('#publicShareLinks').modal('hide');
+    });
+}
+function copy_share_link(){
+    var shareLinkURL = document.getElementById('shareLinkURL');
+    shareLinkURL.select();
+    shareLinkURL.setSelectionRange(0, 99999);
+    document.execCommand('copy');
+
+    $('#shareLinkURL').tooltip('show');
+    window.setTimeout(() => $('#shareLinkURL').tooltip('hide'), 1500);
+}
+</script>
 {% endblock %}

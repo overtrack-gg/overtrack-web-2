@@ -41,7 +41,7 @@ def cache_control(hours=1, seconds: int = None):
     return fwrap
 
 
-def restrict_origin(_endpoint=None, *, whitelist: Optional[List[str]] = None, allow_localhost: bool = True):
+def restrict_origin(_endpoint=None, *, whitelist: Optional[List[str]] = None, allow_localhost: bool = True, restrict_for: Optional[List[str]] = None):
     """
     Decorator for requiring the request's origin to match a specified or default whitelist.
     """
@@ -49,6 +49,9 @@ def restrict_origin(_endpoint=None, *, whitelist: Optional[List[str]] = None, al
     def wrap(endpoint):
         @wraps(endpoint)
         def check_origin(*args, **kwargs):
+            if restrict_for and request.method not in restrict_for:
+                return endpoint(*args, **kwargs)
+
             hostname = None
             if 'origin' in request.headers:
                 logger.info(f'Got origin: ' + request.headers['origin'])

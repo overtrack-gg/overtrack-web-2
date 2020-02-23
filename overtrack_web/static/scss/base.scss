@@ -8,7 +8,7 @@ $table-dark-bg: #212529 !default;
 
 $navbar-color: #222870 !default;
 
-@import "bootstrap/bootstrap";
+@import "lib/bootstrap/bootstrap";
 
 .epoch-format-time, .epoch-format-date, .epoch-format-datetime {
     display: none !important;
