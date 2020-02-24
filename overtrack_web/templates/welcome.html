@@ -1,40 +1,90 @@
 {% extends "base.html" %}
-{% block title %}Apex Legends Automatic Match History{% endblock %}
+{% block title %}Match History for Overwatch and Apex Legends{% endblock %}
 
 {% block content %}
 <div class="container">
-    <div class="row justify-content-md-center">
+    <div class="row justify-content-md-center no-gutters">
         <div class="card card-main col-main">
             <div class="card-body">
-                <h2 class="card-title" style="padding-bottom: 20pt;">Apex Legends Automatic Match History</h2>
+                <h2 class="card-title" style="padding-bottom: 20pt;">Match History for Overwatch and Apex Legends</h2>
                 <p>
-                    <a href="/games" class="btn btn-primary" style="display: flow-root;">
-                        I already have an account. Take me to my games!
-                    </a>
-                </p>
-                <h3 style="padding-top: 20pt">How it works</h3>
-                <p>
-                    Using Computer Vision, OverTrack records and processes a screenshot every second.
-                    By extracting relevant information from each screenshot, it can keep track of your Apex games for you.
+                    Using Computer Vision, OverTrack records your games in the background generates full match history and game
+                    details of every match.
                 </p>
                 <p>
-                    To track your games, download and install the OverTrack Client.
+                    Get full details on everything that happened over the course of your games; kills, deaths, statistics,
+                    composition, map route & circles (Apex Legends), ults (Overwatch). Share and analyse your match history or inidividual
+                    games through the site, or using the Discord and Twitch integrations. Keep track of your overall stats and winrates and
+                    watch your progress
                 </p>
-                <a href="/client" class="btn btn-success">Client Download</a>
+                <hr>
 
-                <h3 style="padding-top: 20pt">Games History</h3>
-                <p>
-                    OverTrack will record a list of each of your games including placement, downs, kills, etc.
-                </p>
-                <img class="img-fluid" src="{{ url_for('static', filename='images/apex/games_list.jpg') }}">
+                <div class="row">
+                    <div class="col-6">
+                        <a href="/client" class="btn btn-success btn-block" style="display: flow-root;">
+                            I'm in! Download the client.
+                        </a>
+                    </div>
+                    <div class="col-6">
+                        <a href="/games" class="btn btn-primary btn-block" style="display: flow-root;">
+                            I already have an account. Take me to my games!
+                        </a>
+                    </div>
+                </div>
+                <hr>
 
-                <h3 style="padding-top: 20pt">Full Game Details</h3>
-                <p>
-                    Each game recorded contains the route taken including all recorded downs and eliminations, and each ring.
-                    Weapon stats and assists are also recorded and provided.
-                    Endgame statistics are also recorded and displayed (provided you didn't skip those screens).
-                </p>
-                <img class="img-fluid" src="{{ url_for('static', filename='images/apex/game_details.jpg') }}">
+                <div class="row">
+                    <div class="col-6 card" style="padding-left: 5px;padding-right: 5px;">
+                        <div class="card-header">
+                            <h5>Overwatch Tracking</h5>
+                        </div>
+                        <div class="card-body" style="background-color: #3d2962; padding: 7px;">
+                            <h4>Overwatch Match History</h4>
+                            <p>
+                                OverTrack will record your Competitive and Quick Play matches, giving you a summary of each session.
+                                Track your results, heroes, maps, and SR.
+                            </p>
+                            <img class="img-fluid" src="{{ url_for('static', filename='images/overwatch/demo/games_list.jpg') }}">
+                            <hr>
+
+                            <h4 class="d-inline-block">
+                                Overwatch Game Details
+                            </h4>
+                            <h6 class="d-inline-block text-muted float-right ">
+                                Requires Subscription
+                            </h6>
+                            <p>
+                                OverTrack records the killfeed, allowing for tracking every kill, death, assist, and fight.
+                                Team compositions and swaps are tracked through the tab screen and from kills.
+                                Your ult usage and hero statistics are also recorded over the course of a game for better analysing your
+                                personal performance.
+                            </p>
+                            <img class="img-fluid" src="{{ url_for('static', filename='images/overwatch/demo/game_details.jpg') }}">
+                        </div>
+                    </div>
+                    <div class="col-6 card" style="padding-right: 5px;padding-left: 5px;">
+                        <div class="card-header">
+                            <h5>Apex Legends Tracking</h5>
+                        </div>
+                        <div class="card-body" style="background-color: #622929; padding: 7px;">
+                            <h4>Apex Legends Match History</h4>
+                            <p>
+                                OverTrack will record every game you play, giving you a summary a list of each of your games including placement, downs, kills, etc.
+                            </p>
+                            <img class="img-fluid" src="{{ url_for('static', filename='images/apex/games_list.jpg') }}">
+                            <hr>
+
+                            <h4>Apex Legends Game Details</h4>
+                            <p>
+                                Each game recorded contains the route taken including all recorded downs and eliminations, and each ring.
+                                Weapon stats and assists are also recorded and provided.
+                                Endgame statistics are also recorded and displayed (provided you didn't skip those screens).
+                            </p>
+                            <img class="img-fluid" src="{{ url_for('static', filename='images/apex/game_details.jpg') }}">
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

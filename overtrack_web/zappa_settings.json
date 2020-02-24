@@ -16,6 +16,8 @@
     "main": {
         "extends": "base",
         "apigateway_description": "OverTrack Website",
+        "debug": false,
+        "log_level": "INFO",
 
         "keep_warm": true
     }

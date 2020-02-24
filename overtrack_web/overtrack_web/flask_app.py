@@ -170,7 +170,6 @@ for key, username in {
     )
 
 @app.route('/apex')
-@app.route('/games')
 def apex_games_redirect():
     return redirect(url_for('apex.games_list.games_list'), code=308)
 
@@ -206,14 +205,20 @@ def root():
         return welcome()
 
 
+@app.route('/games')
+def games():
+    # this one wants a login
+    return redirect(url_for('apex.games_list.games_list'), code=307)
+
+
 # ------ SIMPLE INFO PAGES  ------
 @app.route('/client')
 def client():
-    return render_template('client.html', meta=WELCOME_META)
+    return render_template('client.html', meta=WELCOME_META, style_name='overwatch')
 
 @app.route('/welcome')
 def welcome():
-    return render_template('welcome.html', meta=WELCOME_META)
+    return render_template('welcome.html', meta=WELCOME_META, style_name='overwatch')
 
 @app.route('/discord')
 def discord_redirect():

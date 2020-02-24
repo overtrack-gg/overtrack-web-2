@@ -169,11 +169,11 @@ def root():
 from overtrack_web.data import WELCOME_META
 @app.route('/client')
 def client():
-    return render_template('client.html', meta=WELCOME_META)
+    return render_template('client.html', meta=WELCOME_META, style_name='overwatch')
 
 @app.route('/welcome')
 def welcome():
-    return render_template('welcome.html', meta=WELCOME_META)
+    return render_template('welcome.html', meta=WELCOME_META, style_name='overwatch')
 
 @app.route('/discord')
 def discord_redirect():
