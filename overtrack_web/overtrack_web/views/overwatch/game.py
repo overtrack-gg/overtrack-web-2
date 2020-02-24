@@ -36,6 +36,7 @@ COLOURS = {
 }
 LEGACY_URL = 'https://overtrack.gg'
 
+
 request: Request = request
 
 logger = logging.getLogger(__name__)
@@ -334,7 +335,7 @@ def get_dev_info(summary, game):
         if isinstance(val, (tuple, str)):
             return val
         elif isinstance(val, collections.Sequence):
-            return '...'
+            return f'... {len(val)} items'
         else:
             rep = repr(val)
             if len(rep) < 50:
@@ -345,7 +346,11 @@ def get_dev_info(summary, game):
     game_dict = {}
     extras = {}
     for f in fields(game):
-        if not is_dataclass(getattr(game, f.name)):
+        if f.name == 'images':
+            game_dict['images'] = ''
+            for image in game.images:
+                game_dict['\u00a0' * 6 + '.' + image] = (game.images[image].rsplit('/', 1)[-1], game.images[image])
+        elif not is_dataclass(getattr(game, f.name)):
             game_dict[f.name] = getattr(game, f.name)
         else:
             dc = getattr(game, f.name)
