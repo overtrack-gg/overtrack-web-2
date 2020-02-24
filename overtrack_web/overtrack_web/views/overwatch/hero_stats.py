@@ -66,7 +66,7 @@ class OverwatchCollectedHeroStats:
             ("PLAYTIME", s2ts(self.time_played)),
             ("PLAYRATE", f"{self.time_played / self.time_played_total:.0%}"),
             ("WINRATE", f"{self.wins / self.games:.0%}"),
-            ("GAMES", f"{wins:,}-{losses:,}"),
+            ("RECORD", f"{wins:,}-{losses:,}"),
         ]
 
     def general_stats(self) -> List[Tuple[str, str, str]]:
@@ -321,7 +321,8 @@ def render_results(user: User):
 
     role_stats = sorted(
         role_stats.values(),
-        key=lambda r: 0 if r.name == 'tank' else (1 if r.name == 'damage' else 2),
+        key=lambda r: r.time_played,
+        reverse=True,
     )
     role_playtime_total = sum(x.time_played for x in role_stats)
     for x in role_stats:

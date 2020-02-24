@@ -3,7 +3,7 @@
 {% block content %}
     <section>
         <div class="container">
-            <div class="card mb-4" style="margin-left: -20px; margin-right: -20px;">
+            <div class="card mb-3" style="margin-left: -20px; margin-right: -20px;">
                 <div class="card-body">
                     <div class="row">
                         <div class="col-lg col-sm">
@@ -49,7 +49,7 @@
                         </div>
                         <div class="col-lg col-sm">
                             <div class="dropdown">
-                                <button class="btn btn-primary btn-block dropdown-toggle"
+                                <button class="btn btn-primary btn-block dropdown-toggle text-capitalize"
                                         type="button"
                                         id="mode-dropdown"
                                         data-toggle="dropdown"
@@ -57,7 +57,7 @@
                                         aria-expanded="false">
                                     {{ current_mode }}
                                 </button>
-                                <div class="dropdown-menu"
+                                <div class="dropdown-menu text-capitalize"
                                      aria-labelledby="mode-dropdown"
                                      x-placement="bottom-start"
                                      style="position: absolute; transform: translate3d(0px, 38px, 0px); top: 0px; left: 0px; will-change: transform;">
@@ -82,7 +82,7 @@
                 </div>
             </div>
             <div id="sessions-list">
-                {% include 'overwatch/hero_stats/stats_page.html' %}
+                {% include 'overwatch/hero_stats/stats_section.html' %}
             </div>
         </div>
     </section>

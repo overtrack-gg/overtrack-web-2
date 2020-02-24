@@ -1,0 +1,54 @@
+.stat-card {
+    .hero-icon {
+        float: left;
+        /*right: 10px;*/
+        left: 0;
+        position: absolute;
+        top: -30px;
+
+        width: 75px;
+        height: 75px;
+    }
+
+    .hero-name {
+        /*position: absolute;*/
+        /*left: -75px;*/
+    }
+
+    .hero-icon-background {
+        z-index: 0;
+        transform: skewX(-20deg);
+        border-color: rgba(255, 255, 255, 0.5);
+        border-style: solid;
+        border-width: thick;
+
+        height: 100%;
+        width: 100%;
+    }
+
+    .role-tank .hero-icon-background {
+        background-color: #e1af41;
+    }
+
+    .role-damage .hero-icon-background {
+        background-color: #e164aa;
+    }
+
+    .role-support .hero-icon-background {
+        background-color: #4ba5c8;
+    }
+
+    .role-unknown .hero-icon-background {
+        background-color: gray;
+    }
+
+    .hero-icon-image {
+        position: absolute;
+        left: -5px;
+        top: 5%;
+        z-index: 1;
+        height: 90%;
+        transform: scaleX(-1);
+        clip-path: polygon(-20% 0, 70% 0, 100% 100%, 12% 100%);
+    }
+}
