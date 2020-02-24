@@ -11,8 +11,7 @@ WELCOME_META = Meta(
     description=(
         'Automatically track your Overwatch and Apex Legends games with computer vision.\n '
         'Get full match history with details on everything that happened over the course of your games; '
-        'kills, deaths, statistics, composition, map route & circles (Apex Legends), ults (Overwatch).\n '
-        'Keep track of your overall stats and winrates and watch your progress.'
+        'kills, deaths, statistics, composition, map route & circles (Apex Legends), ults (Overwatch).'
     ),
     image_url=f'{CDN_URL}/images/teaser.png',
     summary_large_image=True,
