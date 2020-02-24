@@ -10,6 +10,11 @@ $navbar-color: #222870 !default;
 
 @import "lib/bootstrap/bootstrap";
 
+@import "lib/featherlight";
+.featherlight .featherlight-content {
+    background: $body-bg;
+}
+
 .epoch-format-time, .epoch-format-date, .epoch-format-datetime {
     display: none !important;
 }
@@ -36,7 +41,12 @@ body {
     min-width: 340px;
 }
 .card {
-  border: 1px solid rgba(255,255,255,.125);
+    border: 1px solid rgba(255,255,255,.125);
+}
+@media (min-width: 576px) and (max-width: 992px){
+    .container-sm, .container {
+        max-width: 100vw;
+    }
 }
 
 /* Navbar */
