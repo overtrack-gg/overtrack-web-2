@@ -1,8 +1,8 @@
-<div class="row">
+<div class="row justify-content-center no-gutters">
     {% for stat in roles %}
-        <div class="col mb-3">
-            <div class="card">
-                <div class="card-header font-weight-bold" style="background-color: {{ stat.color }}; font-size: x-large;">
+        <div class="col">
+            <div class="card mx-0 mx-sm-2 my-2">
+                <div class="card-header font-weight-bold" style="background-color: {{ stat.color }}; color: {{ stat.text_color }}; font-size: x-large;">
                     {{ stat.name.upper() }}
                 </div>
                 <div class="card-body">
@@ -24,16 +24,12 @@
     {% endfor %}
 </div>
 {% for stat in heroes %}
-    <div class="row">
-        <div class="col mb-3">
-            <div class="card stat-card" style="border-bottom: thick solid {{ stat.color }}; border-top: thick solid {{ stat.color }};">
-{#                <div class="card-header font-weight-bold"#}
-{#                     style="background-color: {{ stat.color }}; color: {{ stat.text_color }}; background-image: url({{ url_for('static', filename=stat.image) }}); background-repeat: no-repeat; -webkit-background-size: contain;background-size: contain; background-origin: border-box; background-position: right;">#}
-{#                    {{ stat.name.upper() }}#}
-{#                </div>#}
+    <div class="row no-gutters justify-content-center">
+        <div class="col">
+            <div class="card mx-0 mx-sm-2 my-2 stat-card" style="border-bottom: thick solid {{ stat.color }}; border-top: thick solid {{ stat.color }};">
                 <div class="card-body">
-                    <div class="row row-cols-2 row-cols-md-6" style="font-size: large; color: lightgrey;">
-                        <div class="col col-4 col-lg-2 p-0">
+                    <div class="row row-cols-2 row-cols-md-6 justify-content-start pr-2 pr-sm-4" style="font-size: large; color: lightgrey;">
+                        <div class="col p-0 hero-icon-container">
                             <div class="hero-icon">
                                 <div class="hero-icon-background" style="background-color: {{ stat.color }}"></div>
                                 <img class="hero-icon-image"
@@ -42,19 +38,19 @@
                             </div>
                             <br/>
                         </div>
-                        <div class="col col-8 col-lg-2 p-0 font-weight-bold text-white text-truncate" style="font-size: x-large">
+                        <div class="col p-0 font-weight-bold text-white text-truncate text-right {# text-center text-sm-left #} text-md-center" style="font-size: x-large">
                             {{ stat.name.upper() }}
                         </div>
                         {% for n, s in stat.base_stats() %}
-                            <div class="col">
+                            <div class="col p-0">
                                 <div class="row">
                                     <div class="col text-right font-weight-bold">
                                         {{ s }}
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col text-right">
-                                        {{ n }}
+                                    <div class="col text-right" style="font-size: small;">
+                                        <nobr>{{ n }}</nobr>
                                     </div>
                                 </div>
                             </div>
@@ -62,7 +58,7 @@
                     </div>
                     {% for stat_group in [stat.general_stats(), stat.specific_stats()] %}
                         <hr style="border-color: {{ stat.color }}; border-style: dashed;" />
-                        <div class="row justify-content-start pr-4" style="color: lightgrey; font-size: small;">
+                        <div class="row row-cols-2 row-cols-md-6 justify-content-start pr-2 pr-sm-4" style="color: lightgrey; font-size: small;">
                             {% for name, val, small in stat_group %}
                                 <div class="col-6 col-md-2 p-0">
                                     <div class="row">
