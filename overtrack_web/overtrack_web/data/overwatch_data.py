@@ -62,6 +62,40 @@ try:
 except:
     logger.exception(f'Failed to fetch overwatch hero data')
 
+hero_colors = {
+    "ana": "#718ab3",
+    "ashe": "#666769",
+    "baptiste": "#57b2cb",
+    "bastion": "#7c8f7b",
+    "brigitte": "#be736e",
+    "doomfist": "#815049",
+    "dva": "#ed93c7",
+    "genji": "#97ef43",
+    "hammond": "#db9342",
+    "hanzo": "#b9b48a",
+    "junkrat": "#ecbd53",
+    "lucio": "#85c952",
+    "mccree": "#ae595c",
+    "mei": "#6faced",
+    "mercy": "#ebe8bb",
+    "moira": "#803c51",
+    "orisa": "#468c43",
+    "pharah": "#3e7dca",
+    "reaper": "#7d3e51",
+    "reinhardt": "#929da3",
+    "roadhog": "#b68c52",
+    "sigma": "#94a1a6",
+    "soldier": "#697794",
+    "sombra": "#7359ba",
+    "symmetra": "#8ebccc",
+    "torbjorn": "#c0726e",
+    "tracer": "#d79342",
+    "widowmaker": "#9e6aa8",
+    "winston": "#a2a6bf",
+    "zarya": "#e77eb6",
+    "zenyatta": "#ede582",
+}
+
 
 def sr_to_rank(sr: int) -> str:
     if sr < 1500:

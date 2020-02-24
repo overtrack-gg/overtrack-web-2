@@ -10,6 +10,7 @@ from overtrack_models.orm.overwatch_hero_stats import OverwatchHeroStats
 from overtrack_models.orm.user import User
 
 from overtrack_web.data import overwatch_data
+from overtrack_web.data.overwatch_data import hero_colors
 from overtrack_web.lib.authentication import require_login
 from overtrack_web.lib.context_processors import s2ts
 from overtrack_web.lib.session import session
@@ -110,44 +111,15 @@ class OverwatchCollectedHeroStats:
 
     @property
     def color(self) -> str:
+        colors = {
+            "support": "#42735a",
+            "damage": "#8e5155",
+            "tank": "#515d8e",
+        }
+        colors.update(hero_colors)
+
         try:
-            return {
-                "support": "#518e6e",
-                "damage": "#8e5155",
-                "tank": "#515d8e",
-                #
-                "ana": "#718ab3",
-                # "ashe": "",
-                # "baptiste": "",
-                "bastion": "#7c8f7b",
-                "brigitte": "#be736e",
-                "doomfist": "#815049",
-                "dva": "#ed93c7",
-                "genji": "#97ef43",
-                # "hammond": "",
-                "hanzo": "#b9b48a",
-                "junkrat": "#ecbd53",
-                "lucio": "#85c952",
-                "mccree": "#ae595c",
-                "mei": "#6faced",
-                "mercy": "#ebe8bb",
-                "moira": "#803c51",
-                "orisa": "#468c43",
-                "pharah": "#3e7dca",
-                "reaper": "#7d3e51",
-                "reinhardt": "#929da3",
-                "roadhog": "#b68c52",
-                # "sigma": "",
-                "soldier": "#697794",
-                "sombra": "#7359ba",
-                "symmetra": "#8ebccc",
-                "torbjorn": "#c0726e",
-                "tracer": "#d79342",
-                "widowmaker": "#9e6aa8",
-                "winston": "#a2a6bf",
-                "zarya": "#e77eb6",
-                "zenyatta": "#ede582",
-            }[self.name]
+            return colors[self.name]
         except KeyError:
             return "#5d518e"
 
