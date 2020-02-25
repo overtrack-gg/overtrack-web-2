@@ -94,10 +94,10 @@ class OverwatchCollectedHeroStats:
 
         for stat, value in self.hero_specific_stats.items():
             if "best" in stat:
-                small = "AVG PER GAME"
+                small = "(AVG / GAME)"
                 output.append((stat.upper(), format_num(value / self.games), small))
-            elif "accuracy" in stat or "percentage" in stat:
-                small = "% AVG PER GAME"
+            elif "accuracy" in stat or "percentage" in stat or "average" in stat:
+                small = "%"
                 output.append((stat.upper(), format_num(value / self.games), small))
             else:
                 small = "/10min"
