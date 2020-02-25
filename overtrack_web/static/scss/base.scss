@@ -108,29 +108,35 @@ body {
     background-color: #002650;
 }
 
-.discord-notifications li {
-  height: 65px;
-}
-.discord-notifications span {
-  font-size: 20pt;
-}
-.discord-notifications .channel {
-   color: gray;
-   padding-left: 20pt;
-   font-weight: bold;
-}
-.discord-notifications .channel-hash::before {
-     content: "#";
-     font-size: 25pt;
-     color: gray;
-     position: absolute;
-     font-weight: bold;
-     margin-left: 3pt;
-}
-.discord-notifications a {
-    margin-top: -10px;
-    height: 30px;
-    padding-top: 0;
+.discord-notifications {
+    li {
+        height: 65px;
+    }
+    span {
+        font-size: 20pt;
+    }
+    .channel {
+        color: gray;
+        padding-left: 20pt;
+        font-weight: bold;
+    }
+    .channel-hash::before {
+         content: "#";
+         font-size: 25pt;
+         color: gray;
+         position: absolute;
+         font-weight: bold;
+         margin-left: 3pt;
+    }
+    a {
+        margin-top: -10px;
+        height: 30px;
+        padding-top: 0;
+    }
+    .list-group-item {
+        background-color: $body-bg;
+        max-width: 500px;
+    }
 }
 
 .report-footer {

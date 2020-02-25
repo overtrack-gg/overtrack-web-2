@@ -31,14 +31,9 @@
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col mx-lg-3 p-3">
-                            <div class="custom-control custom-checkbox">
-                                <input class="custom-control-input" type="checkbox" name="only_top_3" id="top_3_check">
-                                <label class="custom-control-label" for="top_3_check">
-                                    Only post top 3 finishes
-                                </label>
-                            </div>
-                        </div>
+                        {% for option in bot_options %}
+                            {{ option.render() | safe }}
+                        {% endfor %}
                     </div>
                 </div>
             </div>
@@ -48,7 +43,7 @@
                 <h5 class="mb-lg-3">Add to existing channel</h5>
                 {% if channels %}
                 <div class="form-group">
-                    <select name="existing_args" class="custom-select text-white">
+                    <select name="existing_args" class="custom-select">
                         <option selected disabled>Choose a channel</option>
                         {% for channel in channels %}
                         <option value="{{ channel['args'] }}">{{ channel['name'] }}</option>
@@ -111,4 +106,7 @@
         </div>
     </form>
 </div>
+{% endblock %}
+{% block scripts %}
+<script defer src="{{ url_for('static', filename='js/lib/bootstrap-select-1.13.2.min.js') }}"></script>
 {% endblock %}
