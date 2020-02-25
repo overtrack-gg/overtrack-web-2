@@ -144,7 +144,7 @@ def create_discord_pages(game_name: str, game_title: str, bot_options: List[BotO
                     'guild_name': n.guild_name,
                     'channel_name': n.channel_name,
                     'args': _make_signed_payload(
-                        type="delete",
+                        type='delete',
                         key=n.key,
                     )
                 })
@@ -415,12 +415,13 @@ def create_discord_pages(game_name: str, game_title: str, bot_options: List[BotO
 
         metrics.event(
             'Discord Bot Added',
-            '\n'.join(
+            f'User: {session.username} ({session.user_id})\n' + '\n'.join(
                 f'{k}: {v}' for k, v in notification.asdict().items()
             ),
             tags={
+                'module': 'discord_bot',
+                'function': 'add_to_channel',
                 'game': game_name,
-                'event': 'discord_bot'
             }
         )
 
@@ -489,12 +490,13 @@ def create_discord_pages(game_name: str, game_title: str, bot_options: List[BotO
 
         metrics.event(
             'Discord Bot Removed',
-            '\n'.join(
+            f'User: {session.username} ({session.user_id})\n' + '\n'.join(
                 f'{k}: {v}' for k, v in notification.asdict().items()
             ),
             tags={
+                'module': 'discord_bot',
+                'function': 'delete_integration',
                 'game': game_name,
-                'event': 'discord_bot'
             }
         )
 
