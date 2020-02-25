@@ -1,14 +1,13 @@
 import logging
-import time
 from collections import Counter, defaultdict
 from typing import Optional, Dict, List, Tuple
 
-import dataclasses
+import time
 from dataclasses import dataclass
 from flask import Blueprint, render_template, request
+
 from overtrack_models.orm.overwatch_hero_stats import OverwatchHeroStats
 from overtrack_models.orm.user import User
-
 from overtrack_web.data import overwatch_data
 from overtrack_web.data.overwatch_data import hero_colors
 from overtrack_web.lib.authentication import require_login
@@ -21,12 +20,12 @@ hero_stats_blueprint = Blueprint('overwatch.hero_stats', __name__)
 
 
 def format_num(num: float) -> str:
-    string = f"{int(num):,}"
+    string = f'{int(num):,}'
 
-    if "," in string:
+    if ',' in string:
         return string
     else:
-        return f"{num:.1f}"
+        return f'{num:.1f}'
 
 
 @hero_stats_blueprint.context_processor
@@ -64,25 +63,25 @@ class OverwatchCollectedHeroStats:
         wins = self.wins
         losses = self.games - self.wins
         return [
-            ("PLAYTIME", s2ts(self.time_played)),
-            ("PLAYRATE", f"{self.time_played / self.time_played_total:.0%}"),
-            ("WINRATE", f"{self.wins / self.games:.0%}"),
-            ("RECORD", f"{wins:,}-{losses:,}"),
+            ('PLAYTIME', s2ts(self.time_played)),
+            ('PLAYRATE', f'{self.time_played / self.time_played_total:.0%}'),
+            ('WINRATE', f'{self.wins / self.games:.0%}'),
+            ('RECORD', f'{wins:,}-{losses:,}'),
         ]
 
     def general_stats(self) -> List[Tuple[str, str, str]]:
         num_10_mins = self.time_played / 600
         supp_line = [
-            ("HEALING DONE", format_num(self.healing_done / num_10_mins), "/10min"),
+            ('HEALING DONE', format_num(self.healing_done / num_10_mins), '/10min'),
         ] if self.healing_done > 0 else []
         return [
-            ("ELIMINATIONS", format_num(self.eliminations / num_10_mins), "/10min"),
-            ("OBJECTIVE KILLS", format_num(self.objective_kills / num_10_mins), "/10min"),
-            ("OBJECTIVE TIME", format_num(self.objective_time / num_10_mins), "/10min"),
-            ("HERO DAMAGE DONE", format_num(self.hero_damage_done / num_10_mins),
-             "/10min"),
+            ('ELIMINATIONS', format_num(self.eliminations / num_10_mins), '/10min'),
+            ('OBJECTIVE KILLS', format_num(self.objective_kills / num_10_mins), '/10min'),
+            ('OBJECTIVE TIME', format_num(self.objective_time / num_10_mins), '/10min'),
+            ('HERO DAMAGE DONE', format_num(self.hero_damage_done / num_10_mins),
+             '/10min'),
             *supp_line,
-            ("DEATHS", format_num(self.deaths / num_10_mins), "/10min"),
+            ('DEATHS', format_num(self.deaths / num_10_mins), '/10min'),
         ]
 
     def specific_stats(self) -> List[Tuple[str, str, str]]:
@@ -93,35 +92,35 @@ class OverwatchCollectedHeroStats:
             return output
 
         for stat, value in self.hero_specific_stats.items():
-            if "best" in stat:
-                small = "(AVG / GAME)"
+            if 'best' in stat:
+                small = '(AVG / GAME)'
                 output.append((stat.upper(), format_num(value / self.games), small))
-            elif "accuracy" in stat or "percentage" in stat or "average" in stat:
-                small = "%"
+            elif 'accuracy' in stat or 'percentage' in stat or 'average' in stat:
+                small = '%'
                 output.append((stat.upper(), format_num(value / self.games), small))
             else:
-                small = "/10min"
+                small = '/10min'
                 output.append((stat.upper(), format_num(value / num_10_mins), small))
 
         return sorted(output)
 
     @property
     def image(self) -> str:
-        return f"images/overwatch/hero_icons/{self.name}.png"
+        return f'images/overwatch/hero_icons/{self.name}.png'
 
     @property
     def color(self) -> str:
         colors = {
-            "support": "#42735a",
-            "damage": "#8e5155",
-            "tank": "#515d8e",
+            'support': '#42735a',
+            'damage': '#8e5155',
+            'tank': '#515d8e',
         }
         colors.update(hero_colors)
 
         try:
             return colors[self.name]
         except KeyError:
-            return "#5d518e"
+            return '#5d518e'
 
     @property
     def text_color(self) -> str:
@@ -140,7 +139,7 @@ class OverwatchCollectedHeroStats:
 
         r, g, b = rgb
         l = 0.2126 * r + 0.7152 * g + 0.0722 * b
-        return "#000000" if l > 0.179 else "#ffffff"
+        return '#000000' if l > 0.179 else '#ffffff'
 
     @classmethod
     def from_db_stat(cls, stat: OverwatchHeroStats, include_hero_stats: bool, endgame_only: bool) -> 'OverwatchCollectedHeroStats':
@@ -300,14 +299,14 @@ def render_results(user: User):
     for x in role_stats:
         x.time_played_total = role_playtime_total
 
-    href_season = f"season={season_id}" if has_season else ""
-    href_account = f"account={account}" if has_account else ""
-    href_mode = f"mode={mode}" if has_mode else ""
-    href_complete_only = f"complete_only={str(complete_only).lower()}" if has_complete_only else ""
+    href_season = f'season={season_id}' if has_season else ''
+    href_account = f'account={account}' if has_account else ''
+    href_mode = f'mode={mode}' if has_mode else ''
+    href_complete_only = f'complete_only={str(complete_only).lower()}' if has_complete_only else ''
 
     def href_change_season(new_season):
-        return "?" + "&".join(x for x in [
-            f"season={new_season}",
+        return '?' + '&'.join(x for x in [
+            f'season={new_season}',
             href_account,
             href_mode,
             href_complete_only
@@ -317,9 +316,9 @@ def render_results(user: User):
         if new_account == 'All Accounts':
             account_line = ''
         else:
-            account_line = f"account={new_account}"
+            account_line = f'account={new_account}'
 
-        return "?" + "&".join(x for x in [
+        return '?' + '&'.join(x for x in [
             href_season,
             account_line,
             href_mode,
@@ -327,20 +326,20 @@ def render_results(user: User):
         ] if x)
 
     def href_change_mode(new_mode):
-        return "?" + "&".join(x for x in [
+        return '?' + '&'.join(x for x in [
             href_season,
             href_account,
-            f"mode={new_mode.lower()}",
+            f'mode={new_mode.lower()}',
             href_complete_only
         ] if x)
 
     def href_change_complete_only(old_complete_only):
         new_complete_only = not old_complete_only
-        return "?" + "&".join(x for x in [
+        return '?' + '&'.join(x for x in [
             href_season,
             href_account,
             href_mode,
-            f"complete_only={str(new_complete_only).lower()}",
+            f'complete_only={str(new_complete_only).lower()}',
         ] if x)
 
     accounts_list = ['All Accounts', *accounts.keys()]
@@ -350,15 +349,15 @@ def render_results(user: User):
         seasons=seasons,
         current_season=overwatch_data.seasons[season_id],
         accounts=accounts_list,
-        current_account=account or "All Accounts",
+        current_account=account or 'All Accounts',
         modes=['All', 'Competitive', 'Quickplay'],
         current_mode=mode,
         complete_only=complete_only,
         change_func={
-            "season": href_change_season,
-            "account": href_change_account,
-            "mode": href_change_mode,
-            "complete": href_change_complete_only
+            'season': href_change_season,
+            'account': href_change_account,
+            'mode': href_change_mode,
+            'complete': href_change_complete_only
         },
         stats=all_stats,
         roles=role_stats,
