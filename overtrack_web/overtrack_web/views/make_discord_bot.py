@@ -15,6 +15,7 @@ from jwt import InvalidTokenError
 from oauthlib.oauth2 import OAuth2Error
 
 from overtrack_models.orm.notifications import DiscordBotNotification
+from overtrack_web.lib import metrics
 from overtrack_web.lib.authentication import require_authentication, require_login
 from overtrack_web.lib.decorators import restrict_origin
 from overtrack_web.lib.session import session
@@ -118,6 +119,7 @@ def create_discord_pages(game_name: str, game_title: str, bot_options: List[BotO
     def root():
         notifications = []
         n: DiscordBotNotification
+        logger.info(f'Fetching existing DiscordBotNotifications')
         for n in DiscordBotNotification.user_id_index.query(session.user_id, DiscordBotNotification.game == game_name):
             # update cache
             try:
@@ -132,22 +134,20 @@ def create_discord_pages(game_name: str, game_title: str, bot_options: List[BotO
 
             channel_info, guild_info = _get_channel_and_guild_info(n.channel_id)
             if not channel_info or not guild_info:
-                logger.info(f'Could not get channel info for {n} - ignoring')
-                continue
-            if n.announce_message_id:
-                if not check_message_exists(n.channel_id, n.announce_message_id):
-                    logger.info(f'Could not get announce message for {n} - ignoring')
-                    continue
-
-            update_notification(n, guild_info, channel_info)
-            notifications.append({
-                'guild_name': n.guild_name,
-                'channel_name': n.channel_name,
-                'args': _make_signed_payload(
-                    type="delete",
-                    key=n.key,
-                )
-            })
+                logger.warning(f'Could not get channel info for {n} - ignoring')
+            elif n.announce_message_id and not check_message_exists(n.channel_id, n.announce_message_id):
+                logger.warning(f'Could not get announce message for {n} - ignoring')
+            else:
+                update_notification(n, guild_info, channel_info)
+                logger.info(f'Got {n}')
+                notifications.append({
+                    'guild_name': n.guild_name,
+                    'channel_name': n.channel_name,
+                    'args': _make_signed_payload(
+                        type="delete",
+                        key=n.key,
+                    )
+                })
 
         return render_template(
             'discord_bot/discord_bot.html',
@@ -413,6 +413,17 @@ def create_discord_pages(game_name: str, game_title: str, bot_options: List[BotO
         notification_cache[notification.guild_id].append(notification)
         notification.save()
 
+        metrics.event(
+            'Discord Bot Added',
+            '\n'.join(
+                f'{k}: {v}' for k, v in notification.asdict().items()
+            ),
+            tags={
+                'game': game_name,
+                'event': 'discord_bot'
+            }
+        )
+
         return redirect(url_for(blueprint.name + '.root'))
 
 
@@ -475,6 +486,17 @@ def create_discord_pages(game_name: str, game_title: str, bot_options: List[BotO
             update_message_r.raise_for_status()
         except Exception as e:
             logger.warning(f'Failed to update announce message: {e}')
+
+        metrics.event(
+            'Discord Bot Removed',
+            '\n'.join(
+                f'{k}: {v}' for k, v in notification.asdict().items()
+            ),
+            tags={
+                'game': game_name,
+                'event': 'discord_bot'
+            }
+        )
 
         return redirect(url_for(blueprint.name + '.root'))
 
