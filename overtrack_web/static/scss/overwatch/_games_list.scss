@@ -6,30 +6,22 @@ $summary-width: 290px;
 
 $thumbnail-width: 110px;
 
-.games-selector {
-    margin-left: -20px;
-    margin-right: -20px;
-
-    .dropdown-menu {
-        width: 100%;
-    }
-
-}
-
 @media (max-width: 576px){
-    .container {
-        padding-left: 0;
-        padding-right: 0;
-    }
     .session .col-sm-12 {
         padding-right: 0;
-    }
-    .row {
-        margin-right: 0;
     }
     .games-selector {
         margin-left: 0;
         margin-right: 0;
+    }
+    .row {
+        margin-right: 0;
+    }
+}
+
+.games-selector {
+    .dropdown-menu {
+        width: 100%;
     }
 }
 
