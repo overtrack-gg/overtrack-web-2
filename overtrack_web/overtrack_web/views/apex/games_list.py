@@ -8,10 +8,10 @@ import requests
 import time
 from flask import Blueprint, Request, Response, render_template, render_template_string, request, url_for
 from itertools import islice
+from overtrack_models.dataclasses.apex.apex_game import ApexGame
 from werkzeug.datastructures import MultiDict
 
-from overtrack_models.dataclasses import typedload
-from overtrack_models.dataclasses.apex.apex_game import ApexGame
+from overtrack_models.dataclasses.typedload import referenced_typedload
 from overtrack_models.orm.apex_game_summary import ApexGameSummary
 from overtrack_models.orm.common import ResultIteratorExt
 from overtrack_models.orm.user import User
@@ -125,7 +125,7 @@ def render_games_list(user: User, public=False, meta_title: Optional[str] = None
             r.raise_for_status()
             latest_game_data = r.json()
         latest_game_data = compat_game_data(latest_game_data)
-        latest_game = typedload.load(latest_game_data, ApexGame)
+        latest_game = referenced_typedload.load(latest_game_data, ApexGame)
     else:
         latest_game = None
     t1 = time.perf_counter()
