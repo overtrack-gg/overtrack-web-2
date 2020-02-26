@@ -302,7 +302,7 @@ def render_games_list(user: User, share_settings: Optional[OverwatchShareSetting
     response = make_response(
         render_template(
             'overwatch/games_list/games_list.html',
-            title=user.username + "'s Overwatach Games",
+            title=user.username + "'s Overwatch Games",
 
             sessions=sessions,
             next_from=next_from,
