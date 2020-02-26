@@ -1,11 +1,13 @@
 import logging
 from collections import Counter, defaultdict
+from pprint import pprint
 from typing import Optional, Dict, List, Tuple
 
 import time
 from dataclasses import dataclass
 from flask import Blueprint, render_template, request
 
+from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
 from overtrack_models.orm.overwatch_hero_stats import OverwatchHeroStats
 from overtrack_models.orm.user import User
 from overtrack_web.data import overwatch_data
@@ -42,11 +44,13 @@ class OverwatchCollectedHeroStats:
 
     name: str = None
 
-    time_played: int = 0
+    games: float = 0
+    wins: float = 0
+    time_selected: float = 0
 
-    games: int = 0
-    wins: int = 0
-
+    games_with_stats: int = 0
+    wins_with_stats: int = 0
+    time_active: float = 0
     eliminations: int = 0
     objective_kills: int = 0
     objective_time: int = 0
@@ -57,20 +61,21 @@ class OverwatchCollectedHeroStats:
 
     hero_specific_stats: Optional[Dict[str, int]] = None
 
-    time_played_total: int = 0
+    time_active_total: int = 0
 
     def base_stats(self) -> List[Tuple[str, str]]:
         wins = self.wins
         losses = self.games - self.wins
         return [
-            ('PLAYTIME', s2ts(self.time_played)),
-            ('PLAYRATE', f'{self.time_played / self.time_played_total:.0%}'),
+            ('PLAYTIME', s2ts(self.time_selected)),
+            ('PLAYRATE', f'{self.time_selected / self.time_active_total:.0%}'),
             ('WINRATE', f'{self.wins / self.games:.0%}'),
-            ('RECORD', f'{wins:,}-{losses:,}'),
+            ('RECORD', f'{int(wins):,}-{int(losses):,}'),
         ]
 
     def general_stats(self) -> List[Tuple[str, str, str]]:
-        num_10_mins = self.time_played / 600
+        print(self)
+        num_10_mins = self.time_active / 600
         supp_line = [
             ('HEALING DONE', format_num(self.healing_done / num_10_mins), '/10min'),
         ] if self.healing_done > 0 else []
@@ -85,7 +90,7 @@ class OverwatchCollectedHeroStats:
         ]
 
     def specific_stats(self) -> List[Tuple[str, str, str]]:
-        num_10_mins = self.time_played / 600
+        num_10_mins = self.time_active / 600
         output = []
 
         if self.hero_specific_stats is None:
@@ -111,9 +116,9 @@ class OverwatchCollectedHeroStats:
     @property
     def color(self) -> str:
         colors = {
-            'support': '#42735a',
-            'damage': '#8e5155',
-            'tank': '#515d8e',
+            'support': '#36778f',
+            'damage': '#8f406d',
+            'tank': '#8f6f29',
         }
         colors.update(hero_colors)
 
@@ -149,11 +154,9 @@ class OverwatchCollectedHeroStats:
             include_hero_stats=include_hero_stats,
             endgame_only=endgame_only,
 
-            time_played=int(stat.time_played),
-
-            games=1,
-            wins=stat.game_result in ['VICTORY', 'WIN'],
-
+            time_active=stat.time_played,
+            games_with_stats=1,
+            wins_with_stats=stat.game_result in ['WIN', 'VICTORY'],
             eliminations=stat.eliminations,
             objective_kills=stat.objective_kills,
             objective_time=stat.objective_time,
@@ -188,11 +191,9 @@ class OverwatchCollectedHeroStats:
 
             name=self.name or other.name,
 
-            time_played=self.time_played + other.time_played,
-
-            games=self.games + other.games,
-            wins=self.wins + other.wins,
-
+            time_active=self.time_active + other.time_active,
+            games_with_stats=self.games_with_stats + other.games_with_stats,
+            wins_with_stats=self.wins_with_stats + other.wins_with_stats,
             eliminations=self.eliminations + other.eliminations,
             objective_kills=self.objective_kills + other.objective_kills,
             objective_time=self.objective_time + other.objective_time,
@@ -203,6 +204,17 @@ class OverwatchCollectedHeroStats:
 
             hero_specific_stats=hero_specific_stats,
         )
+
+    def add_base_stats(self, game: OverwatchGameSummary, role: bool = False, hero: str = None):
+        if role:
+            duration = game.duration
+            self.wins += int(game.result in ['WIN', 'VICTORY'])
+            self.games += 1
+        else:
+            self.wins += int(game.result in ['WIN', 'VICTORY']) * dict(game.heroes_played)[hero]
+            self.games += dict(game.heroes_played)[hero]
+            duration = game.duration * dict(game.heroes_played)[hero]
+        self.time_selected += duration
 
 
 def render_results(user: User):
@@ -217,63 +229,86 @@ def render_results(user: User):
     season_id = int(request.args.get('season', user.overwatch_last_season))
     account = request.args.get('account', None)
     mode = request.args.get('mode', 'competitive')
-    complete_only = request.args.get('complete_only', 'false') == 'true'
+    complete_only = request.args.get('complete_only', 'true') == 'true'
 
-    condition = OverwatchHeroStats.season == season_id
+    games_condition = (OverwatchGameSummary.season == season_id) & (OverwatchGameSummary.role.is_in('tank', 'damage', 'support'))
+    stats_condition = (OverwatchHeroStats.season == season_id) & (OverwatchHeroStats.hero != 'all heroes')
 
     if account:
-        condition &= OverwatchHeroStats.account == account
+        # Don't filter games_condition, since we need it to know the player names
+        stats_condition &= OverwatchHeroStats.account == account
 
     # Only include custom stats if mode is explicitly custom
     if mode == 'custom':
-        condition &= OverwatchHeroStats.custom_game == True
+        games_condition &= OverwatchGameSummary.game_type.is_in('quickplay', 'competitive')
+        stats_condition &= OverwatchHeroStats.custom_game == True
     else:
-        condition &= OverwatchHeroStats.custom_game == False
+        stats_condition &= OverwatchHeroStats.custom_game == False
         if mode == 'all':
             pass
         elif mode == 'competitive':
-            condition &= OverwatchHeroStats.competitive == True
+            games_condition &= OverwatchGameSummary.game_type == 'competitive'
+            stats_condition &= OverwatchHeroStats.competitive == True
         elif mode == 'quickplay':
-            condition &= OverwatchHeroStats.competitive == False
+            games_condition &= OverwatchGameSummary.game_type == 'quickplay'
+            stats_condition &= OverwatchHeroStats.competitive == False
         else:
             return 'Unknown mode', 400
 
     if complete_only:
-        condition &= OverwatchHeroStats.from_endgame == True
+        stats_condition &= OverwatchHeroStats.from_endgame == True
 
     seasons = [
         s for i, s in overwatch_data.seasons.items() if i in user.overwatch_seasons
     ]
     seasons.sort(key=lambda s: s.start, reverse=True)
 
-    accounts = Counter()  # FIXME: account lists will not be populated when viewing a single account
+    hero_stats = defaultdict(lambda: OverwatchCollectedHeroStats(include_hero_stats=True, endgame_only=complete_only))
 
-    all_stats = OverwatchCollectedHeroStats(include_hero_stats=False,
-                                            endgame_only=complete_only)
-    hero_stats = defaultdict(lambda: OverwatchCollectedHeroStats(include_hero_stats=True,
-                                                                 endgame_only=complete_only))
-    role_stats = defaultdict(lambda: OverwatchCollectedHeroStats(include_hero_stats=False,
-                                                                 endgame_only=complete_only))
-
-    logger.info(
-        f'Fetching hero stats for user_id {user.user_id} for season {season_id} with filter {condition}')
+    logger.info(f'Fetching hero stats for user_id {user.user_id} for season {season_id} with filter {stats_condition}')
     query = OverwatchHeroStats.user_id_timestamp_index.query(
         user.user_id,
-        OverwatchHeroStats.timestamp.between(overwatch_data.seasons[season_id].start,
-                                             overwatch_data.seasons[season_id].end),
-        condition,
+        OverwatchHeroStats.timestamp.between(
+            overwatch_data.seasons[season_id].start,
+            overwatch_data.seasons[season_id].end
+        ),
+        stats_condition,
     )
     t0 = time.perf_counter()
     for stat in query:
-        if stat.hero == 'all heroes':
-            all_stats += stat
-        else:
-            hero_stats[stat.hero] += stat
-            role_stats[overwatch_data.heroes[stat.hero].role] += stat
+        hero_stats[stat.hero] += stat
+    logger.info(f'Fetched {query.total_count} items in {(time.perf_counter() - t0) * 1000:.2f}ms')
+    pprint(hero_stats)
 
-        accounts[stat.account] += 1
-    logger.info(
-        f'Fetched {query.total_count} items in {(time.perf_counter() - t0) * 1000:.2f}ms')
+    accounts = Counter()  # FIXME: account lists will not be populated when viewing a single account
+    role_stats = defaultdict(lambda: OverwatchCollectedHeroStats(include_hero_stats=False, endgame_only=complete_only))
+
+    logger.info(f'Fetching games for user_id {user.user_id} for season {season_id} with filter {games_condition}')
+    t0 = time.perf_counter()
+    query = OverwatchGameSummary.user_id_time_index.query(
+        user.user_id,
+        OverwatchGameSummary.time.between(
+            overwatch_data.seasons[season_id].start,
+            overwatch_data.seasons[season_id].end
+        ),
+        games_condition,
+        attributes_to_get=[
+            OverwatchGameSummary.role,
+            OverwatchGameSummary.result,
+            OverwatchGameSummary.duration,
+            OverwatchGameSummary.heroes_played,
+            OverwatchGameSummary.player_name,
+        ]
+    )
+    for g in query:
+        if not account or g.player_name == account:
+            role_stats[g.role].add_base_stats(g, role=True)
+            for h, f in g.heroes_played:
+                if f > 0.25:
+                    hero_stats[h].add_base_stats(g, hero=h)
+        accounts[g.player_name] += 1
+    logger.info(f'Fetched {query.total_count} items in {(time.perf_counter() - t0) * 1000:.2f}ms')
+    pprint(role_stats)
 
     for name, stat in hero_stats.items():
         stat.name = name
@@ -283,21 +318,21 @@ def render_results(user: User):
 
     hero_stats_by_playtime = sorted(
         hero_stats.values(),
-        key=lambda h: h.time_played,
+        key=lambda h: h.time_selected,
         reverse=True,
     )
-    hero_playtime_total = sum(x.time_played for x in hero_stats_by_playtime)
+    time_in_game_total = sum(x.time_selected for x in hero_stats_by_playtime)
     for x in hero_stats_by_playtime:
-        x.time_played_total = hero_playtime_total
+        x.time_active_total = time_in_game_total
 
     role_stats = sorted(
         role_stats.values(),
-        key=lambda r: r.time_played,
+        key=lambda r: r.time_selected,
         reverse=True,
     )
-    role_playtime_total = sum(x.time_played for x in role_stats)
+    role_time_in_game_total = sum(x.time_selected for x in role_stats)
     for x in role_stats:
-        x.time_played_total = role_playtime_total
+        x.time_active_total = role_time_in_game_total
 
     href_season = f'season={season_id}' if has_season else ''
     href_account = f'account={account}' if has_account else ''
@@ -359,7 +394,6 @@ def render_results(user: User):
             'mode': href_change_mode,
             'complete': href_change_complete_only
         },
-        stats=all_stats,
         roles=role_stats,
         heroes=hero_stats_by_playtime
     )

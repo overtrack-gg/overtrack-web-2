@@ -23,7 +23,7 @@
         </div>
     {% endfor %}
 </div>
-{% for stat in heroes %}
+{% for stat in heroes if stat.games >= 5 %}
     <div class="row no-gutters justify-content-center">
         <div class="col">
             <div class="card mx-0 mx-sm-2 my-2 stat-card" style="border-bottom: thick solid {{ stat.color }}; border-top: thick solid {{ stat.color }};">
@@ -56,27 +56,33 @@
                             </div>
                         {% endfor %}
                     </div>
-                    {% for stat_group in [stat.general_stats(), stat.specific_stats()] %}
-                        <hr style="border-color: {{ stat.color }}; border-style: dashed;" />
-                        <div class="row row-cols-2 row-cols-md-6 justify-content-start pr-2 pr-sm-4" style="color: lightgrey; font-size: small;">
-                            {% for name, val, small in stat_group %}
-                                <div class="col-6 col-md-2 p-0">
-                                    <div class="row">
-                                        <div class="col text-right">
-                                    <span style="font-weight: bold; color: white; font-size: large;">
-                                        {{ val }}
-                                    </span> <span style="margin: 5px 0 0 5px">
-                                        {{ small }}
-                                    </span>
+                    {% if stat.games_with_stats >= 3 %}
+                        {% for stat_group in [stat.general_stats(), stat.specific_stats()] %}
+                            <hr style="border-color: {{ stat.color }}; border-style: dashed;" />
+                            <div class="row row-cols-2 row-cols-md-6 justify-content-start pr-2 pr-sm-4" style="color: lightgrey; font-size: small;">
+                                {% for name, val, small in stat_group %}
+                                    <div class="col-6 col-md-2 p-0">
+                                        <div class="row">
+                                            <div class="col text-right">
+                                        <span style="font-weight: bold; color: white; font-size: large;">
+                                            {{ val }}
+                                        </span> <span style="margin: 5px 0 0 5px">
+                                            {{ small }}
+                                        </span>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col text-right">{{ name }}</div>
                                         </div>
                                     </div>
-                                    <div class="row">
-                                        <div class="col text-right">{{ name }}</div>
-                                    </div>
-                                </div>
-                            {% endfor %}
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center" style="color: lightgrey; font-size: small;">
+                            Not enough stats to display.
                         </div>
-                    {% endfor %}
+                    {% endif %}
                 </div>
             </div>
         </div>
