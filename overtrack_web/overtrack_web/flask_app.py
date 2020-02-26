@@ -4,7 +4,7 @@ import os
 
 import flask
 import sentry_sdk
-from flask import Flask, Request, render_template, request, url_for
+from flask import Flask, Request, render_template, request, url_for, render_template_string
 from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
 from werkzeug.utils import redirect
 
@@ -20,7 +20,6 @@ LOG_FORMAT = '[%(asctime)16s | %(levelname)8s | %(filename)s:%(lineno)s %(funcNa
 
 
 request: Request = request
-logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
 
 
 # ------ FLASK SETUP AND CONFIG ------
@@ -82,6 +81,7 @@ else:
         sentry_sdk.capture_exception(e)
         return orig_handle_exception(e)
     app.handle_exception = handle_exception
+
     def unhandled_exceptions(e, event, context):
         sentry_sdk.capture_exception(e)
         return True
@@ -234,3 +234,10 @@ def welcome():
 @app.route('/discord')
 def discord_redirect():
     return redirect('https://discord.gg/JywstAB')
+
+
+@app.route('/test', methods=['GET', 'POST'])
+def test():
+    if 'exception' in request.args:
+        return '1/0=' + str(1/0)
+    return render_template_string('<pre>{{ form }}</pre><pre>{{ args }}</pre>', form=request.form, args=request.args)

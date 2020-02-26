@@ -412,6 +412,14 @@ version = "0.5"
 
 [[package]]
 category = "main"
+description = "Return the first true value of an iterable."
+name = "first"
+optional = false
+python-versions = "*"
+version = "2.0.2"
+
+[[package]]
+category = "main"
 description = "A simple framework for building complex web applications."
 name = "flask"
 optional = false
@@ -512,14 +520,6 @@ PyYAML = ">=3.11"
 boto3 = ">=1.2.3"
 click = ">=5.1"
 placebo = ">=0.8.1"
-
-[[package]]
-category = "main"
-description = "AWS Lambda Packages"
-name = "lambda-packages"
-optional = false
-python-versions = "*"
-version = "0.20.0"
 
 [[package]]
 category = "dev"
@@ -630,7 +630,7 @@ version = "0.1.0"
 pynamodb = "^4.0"
 
 [package.source]
-reference = "e19f7b5e9243ca416242b65391b317678efdda6c"
+reference = "b12914edb8bbeb76add7a33eb2630e001c752906"
 type = "git"
 url = "https://gitlab.com/OverTrack/overtrack-models.git"
 [[package]]
@@ -640,6 +640,19 @@ name = "pathtools"
 optional = false
 python-versions = "*"
 version = "0.1.2"
+
+[[package]]
+category = "main"
+description = ""
+name = "pip-tools"
+optional = false
+python-versions = "*"
+version = "1.2.0"
+
+[package.dependencies]
+click = "*"
+first = "*"
+six = "*"
 
 [[package]]
 category = "main"
@@ -953,32 +966,32 @@ description = "Server-less Python Web Services for AWS Lambda and API Gateway"
 name = "zappa"
 optional = false
 python-versions = "*"
-version = "0.48.2"
+version = "0.50.0"
 
 [package.dependencies]
-PyYAML = ">=3.13"
-Werkzeug = ">=0.14"
-argcomplete = ">=1.9.3"
-boto3 = ">=1.4.7"
-durationpy = ">=0.5"
-future = ">=0.16.0"
-hjson = ">=3.0.1"
-jmespath = ">=0.9.3"
+PyYAML = "*"
+Werkzeug = "*"
+argcomplete = "*"
+boto3 = "*"
+durationpy = "*"
+future = "*"
+hjson = "*"
+jmespath = "*"
 kappa = "0.6.0"
-lambda-packages = ">=0.20.0"
 pip = ">=9.0.1"
-python-dateutil = ">=2.6.1,<2.7.0"
-python-slugify = ">=1.2.4"
+pip-tools = "*"
+python-dateutil = "<2.7.0"
+python-slugify = "*"
 requests = ">=2.20.0"
-six = ">=1.11.0"
-toml = ">=0.9.4"
-tqdm = ">=4.19.1"
-troposphere = ">=1.9.0"
-wheel = ">=0.30.0"
-wsgi-request-logger = ">=0.4.6"
+six = "*"
+toml = "*"
+tqdm = "*"
+troposphere = "*"
+wheel = "*"
+wsgi-request-logger = "*"
 
 [package.source]
-reference = "dc5b7ba64d830b03ca7e110ccbf70a0ba0259a4d"
+reference = "e5c83567f35d69127b8463ddb8a0b090e8aa6afe"
 type = "git"
 url = "https://github.com/overtrack-gg/Zappa.git"
 [[package]]
@@ -1060,6 +1073,10 @@ docutils = [
 durationpy = [
     {file = "durationpy-0.5.tar.gz", hash = "sha256:5ef9416b527b50d722f34655becfb75e49228eb82f87b855ed1911b3314b5408"},
 ]
+first = [
+    {file = "first-2.0.2-py2.py3-none-any.whl", hash = "sha256:8d8e46e115ea8ac652c76123c0865e3ff18372aef6f03c22809ceefcea9dec86"},
+    {file = "first-2.0.2.tar.gz", hash = "sha256:ff285b08c55f8c97ce4ea7012743af2495c9f1291785f163722bd36f6af6d3bf"},
+]
 flask = [
     {file = "Flask-1.1.1-py2.py3-none-any.whl", hash = "sha256:45eb5a6fd193d6cf7e0cf5d8a5b31f83d5faae0293695626f539a823e93b13f6"},
     {file = "Flask-1.1.1.tar.gz", hash = "sha256:13f9f196f330c7c2c5d7a5cf91af894110ca0215ac051b5844701f2bfd934d52"},
@@ -1093,9 +1110,6 @@ jmespath = [
 kappa = [
     {file = "kappa-0.6.0-py2-none-any.whl", hash = "sha256:4d6b7b3accce4a0aaaac92b36237a6304f0f2fffbbe3caea3f7c9f52d12c9989"},
     {file = "kappa-0.6.0.tar.gz", hash = "sha256:4b5b372872f25d619e427e04282551048dc975a107385b076b3ffc6406a15833"},
-]
-lambda-packages = [
-    {file = "lambda_packages-0.20.0.tar.gz", hash = "sha256:b5e3b81ecef5f7c1b0903b5c40813536ba2343a33868a567e4e4ff1e26243406"},
 ]
 libsass = [
     {file = "libsass-0.19.4-cp27-cp27m-macosx_10_14_intel.whl", hash = "sha256:74acd9adf506142699dfa292f0e569fdccbd9e7cf619e8226f7117de73566e32"},
@@ -1181,6 +1195,10 @@ oauthlib = [
 overtrack-models = []
 pathtools = [
     {file = "pathtools-0.1.2.tar.gz", hash = "sha256:7c35c5421a39bb82e58018febd90e3b6e5db34c5443aaaf742b3f33d4655f1c0"},
+]
+pip-tools = [
+    {file = "pip-tools-1.2.0.tar.gz", hash = "sha256:ab486cd6111c6275db81fcd7fe73c7223bd1cc628f704e099c1cc1d9feca6763"},
+    {file = "pip_tools-1.2.0-py2.py3-none-any.whl", hash = "sha256:f4f5a3850ddbcd70fc2739cc21685c97a3c39843ede7ede5379f9dd9344c681b"},
 ]
 placebo = [
     {file = "placebo-0.9.0.tar.gz", hash = "sha256:03157f8527bbc2965b71b88f4a139ef8038618b346787f20d63e3c5da541b047"},
