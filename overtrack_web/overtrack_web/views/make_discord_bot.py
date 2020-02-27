@@ -3,7 +3,7 @@ import json
 import logging
 import os
 from collections import defaultdict
-from typing import Optional, Union, Tuple, Dict, List
+from typing import Optional, Union, Tuple, Dict, List, Callable
 
 import jwt
 import requests
@@ -12,6 +12,7 @@ import time
 from dataclasses import dataclass
 from flask import Blueprint, Response, redirect, render_template, request, url_for, Request, render_template_string
 from jwt import InvalidTokenError
+from markupsafe import Markup
 from oauthlib.oauth2 import OAuth2Error
 
 from overtrack_models.orm.notifications import DiscordBotNotification
@@ -104,7 +105,13 @@ class Checkbox:
 BotOption = Union[Checkbox]
 
 
-def create_discord_pages(game_name: str, game_title: str, bot_options: List[BotOption], blueprint: Blueprint) -> None:
+def create_discord_pages(
+    game_name: str,
+    game_title: str,
+    bot_options: List[BotOption],
+    blueprint: Blueprint,
+    legacy_webhooks_fragment_generator: Optional[Callable[[], Optional[Markup]]] = None,
+) -> None:
     logger = logging.getLogger(__name__ + '.' + game_name)
     logger.info(f'Creating discord pages for {game_name}')
 
@@ -154,6 +161,8 @@ def create_discord_pages(game_name: str, game_title: str, bot_options: List[BotO
 
             notifications=notifications,
             delete_integration=url_for(blueprint.name + '.delete_integration'),
+
+            legacy_webhooks_fragment=legacy_webhooks_fragment_generator() if legacy_webhooks_fragment_generator else None,
 
             authorize_bot=url_for(blueprint.name + '.authorize_bot'),
             authorize_list_servers=url_for(blueprint.name + '.authorize_list_servers'),

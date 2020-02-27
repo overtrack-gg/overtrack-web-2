@@ -9,7 +9,7 @@
             <div class="card-body">
                 <h2 class="card-title">Discord Bot</h2>
 
-                {% if notifications %}
+                {% if notifications or legacy_webhooks_fragment%}
                     <form action="{{ delete_integration }}" method="post" class="shadow p-3 rounded">
                         <h5 class="card-subtitle mb-2 text-muted">Enabled Channels</h5>
                         <ul class="list-group discord-notifications">
@@ -18,7 +18,7 @@
                                 <span class="guild">{{ notification['guild_name'] }}</span>
                                 <span class="channel-hash"></span>
                                 <span class="channel">{{ notification['channel_name'] }}</span>
-                                <button type="submit" class="btn btn-danger float-right" name="args" value="{{ notification['args'] }}">x</button>
+                                <button type="submit" class="btn btn-danger float-right delete-button" name="args" value="{{ notification['args'] }}">x</button>
                             </li>
                             {% endfor %}
                         </ul>
@@ -27,6 +27,9 @@
                     <p class="card-text">
                         OverTrack can post your games to a discord channel.<br/>
                     </p>
+                {% endif %}
+                {% if legacy_webhooks_fragment %}
+                {{ legacy_webhooks_fragment }}
                 {% endif %}
 
                 <br/>
