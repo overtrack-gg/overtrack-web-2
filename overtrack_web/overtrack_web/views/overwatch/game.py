@@ -1,12 +1,11 @@
-import os
-
-
 import collections
+import hashlib
 import json
 import logging
+import os
 import string
 import warnings
-from typing import List, Optional, Sequence, Tuple, Dict
+from typing import List, Optional, Sequence
 from urllib.parse import urlparse
 
 import boto3
@@ -14,10 +13,10 @@ import requests
 from dataclasses import asdict, fields, is_dataclass
 from flask import Blueprint, Request, render_template, request, url_for, render_template_string, Response
 from itertools import chain
+
 from overtrack_models.dataclasses.overwatch.basic_types import Map
 from overtrack_models.dataclasses.overwatch.overwatch_game import OverwatchGame
 from overtrack_models.dataclasses.overwatch.statistics import HeroStats
-
 from overtrack_models.dataclasses.typedload import referenced_typedload
 from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
 from overtrack_web.data import overwatch_data
