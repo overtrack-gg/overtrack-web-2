@@ -97,14 +97,15 @@ def game(key: str):
 
     dev_info = get_dev_info(summary, game)
 
+    imagehash = hashlib.md5(str((game.result, game.start_sr, game.end_sr)).encode()).hexdigest()
     return render_template(
         'overwatch/game/game.html',
 
         title=title,
         meta=Meta(
             title=title,
-            image_url=url_for('overwatch.game.game_card_png', key=key, _external=True),
-            twitter_image_url=url_for('overwatch.game.game_card_png', key=key, _external=True) + '?height=190',
+            image_url=url_for('overwatch.game.game_card_png', key=key, _external=True) + f'?_cachebust={imagehash}',
+            twitter_image_url=url_for('overwatch.game.game_card_png', key=key, _external=True) + f'?height=190&_cachebust={imagehash}',
             summary_large_image=True,
             colour=COLOURS.get(game.result, 'gray')
         ),
