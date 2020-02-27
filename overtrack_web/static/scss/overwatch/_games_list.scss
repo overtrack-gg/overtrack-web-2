@@ -157,3 +157,33 @@ $thumbnail-width: 110px;
     }
 }
 
+.session-sr-row {
+    .role-tank {
+        color: #e1af41;
+        img {
+            height: 1.5em;
+        }
+    }
+    .role-damage {
+        color: #e164aa;
+        img {
+            height: 1.5em;
+        }
+    }
+    .role-support {
+        color: #4ba5c8;
+        img {
+            height: 1.5em;
+        }
+    }
+    .role-unknown {
+        color: gray;
+    }
+    .role-role {
+        filter: brightness(0) invert(1.0);
+    }
+
+    img {
+        height: 1.5em;
+    }
+}
