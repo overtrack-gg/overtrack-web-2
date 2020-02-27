@@ -317,6 +317,16 @@ def get_dev_info(summary, game):
 
     summary_dict = summary.asdict()
     summary_dict['key'] = (summary.key, f'https://overtrack-overwatch-games.s3.amazonaws.com/{summary.key}.json')
+    log_id = summary_dict['log_id']
+    summary_dict['log_id'] = (
+        ' '.join(log_id),
+        (
+            f'https://us-west-2.console.aws.amazon.com/cloudwatch/home?region=us-west-2#logEventViewer:'
+            f'group={log_id[0]};'
+            f'stream={log_id[1]};'
+            f'start={log_id[2]}'
+        )
+    )
     try:
         frames_url = urlparse(summary.frames_uri)
         # noinspection PyNoneFunctionAssignment
