@@ -463,8 +463,6 @@ def get_all_account_names(user: User, minimum_games=5, _cache={}) -> List[str]:
         latest_game = OverwatchGameSummary.user_id_time_index.get(
             user.user_id,
             scan_index_forward=False,
-            page_size=1,
-            limit=1,
         )
     except OverwatchGameSummary.DoesNotExist:
         return []

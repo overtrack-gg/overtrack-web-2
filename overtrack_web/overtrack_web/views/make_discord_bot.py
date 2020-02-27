@@ -77,6 +77,10 @@ class Checkbox:
     default: bool
 
     def parse(self, val):
+        if isinstance(val, list):
+            if len(val) == 0:
+                return False
+            val = val[0]
         return val == 'on'
 
     def render(self) -> str:
@@ -411,7 +415,7 @@ def create_discord_pages(
             channel_name=channel_info['name'],
 
             notification_data={
-                o.name: o.parse(request.args.get(o.name)) for o in bot_options
+                o.name: o.parse(request.form.getlist(o.name)) for o in bot_options
             },
 
             is_parent=is_parent,
