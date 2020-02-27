@@ -13,6 +13,7 @@ class MockResultIteratorExt:
         self.iter = iter(items)
         self.last_evaluated = last_evaluated
         self.limit = limit
+        self.total_count = len(items)
 
     def __iter__(self):
         return self
@@ -53,6 +54,7 @@ class MockIndex:
             limit=None,
             last_evaluated_key=None,
             page_size=None,
+            attributes_to_get=None,
     ) -> MockResultIteratorExt:
         merged_filter = range_key_condition
         if merged_filter is None:
