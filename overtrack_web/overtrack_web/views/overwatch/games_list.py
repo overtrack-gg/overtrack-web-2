@@ -1,18 +1,14 @@
 import datetime
 import json
 import logging
-import random
 import string
-from functools import lru_cache
-
-from itertools import permutations
-from typing import List, Optional, Tuple, Union, Generator
+from typing import List, Optional, Tuple, Dict, Any
 from urllib.parse import parse_qs, urlparse
 
 import boto3
 import time
 from dataclasses import dataclass
-from flask import Blueprint, Request, Response, render_template, request, url_for, make_response
+from flask import Blueprint, Request, render_template, request, url_for, make_response
 from werkzeug.datastructures import MultiDict
 
 from overtrack_models.dataclasses import s2ts
@@ -21,11 +17,11 @@ from overtrack_models.orm.share_link import ShareLink
 from overtrack_models.orm.user import User, OverwatchShareSettings
 from overtrack_web.data import overwatch_data, WELCOME_META
 from overtrack_web.data.overwatch_data import Season
-from overtrack_web.lib import b64_decode, b64_encode
+from overtrack_web.lib import b64_decode, b64_encode, FlaskResponse
 from overtrack_web.lib.authentication import check_authentication, require_login
 from overtrack_web.lib.decorators import restrict_origin
 from overtrack_web.lib.session import session
-from overtrack_web.views.overwatch import OLDEST_SUPPORTED_GAME_VERSION, sr_change
+from overtrack_web.views.overwatch import sr_change
 
 PAGINATION_PAGE_MINIMUM_SIZE = 40
 PAGINATION_SESSIONS_COUNT_AS = 2
@@ -33,7 +29,6 @@ SESSION_MAX_TIME_BETWEEN_GAMES = 45
 
 
 request: Request = request
-FlaskResponse = Union[Response, Tuple[str, int], str]
 logger = logging.getLogger(__name__)
 try:
     s3 = boto3.client('s3')
@@ -193,7 +188,7 @@ def share_links() -> FlaskResponse:
 
 
 @games_list_blueprint.context_processor
-def context_processor():
+def context_processor() -> Dict[str, Any]:
     return {
         'game_name': 'overwatch',
 
@@ -203,7 +198,7 @@ def context_processor():
     }
 
 
-def map_thumbnail_style(map_name: str):
+def map_thumbnail_style(map_name: str) -> str:
     map_name = map_name.lower().replace(' ', '-')
     map_name = ''.join(c for c in map_name if c in (string.digits + string.ascii_letters + '-'))
     return (
@@ -228,7 +223,7 @@ def rank(game: OverwatchGameSummary) -> str:
 
 
 @games_list_blueprint.app_template_filter('result')
-def result(s: str):
+def result(s: str) -> str:
     if s == 'UNKNOWN':
         return 'UNK'
     else:
@@ -236,7 +231,7 @@ def result(s: str):
 
 
 @games_list_blueprint.app_template_filter('gamemode')
-def gamemode(s: str):
+def gamemode(s: str) -> str:
     if s == 'quickplay':
         return 'Quick Play'
     else:
@@ -283,7 +278,7 @@ def check_superuser() -> bool:
         return False
 
 
-def render_games_list(user: User, share_settings: Optional[OverwatchShareSettings] = None, **next_args: str) -> Response:
+def render_games_list(user: User, share_settings: Optional[OverwatchShareSettings] = None, **next_args: str) -> FlaskResponse:
     user.refresh()
 
     if not user.overwatch_games:
@@ -371,6 +366,7 @@ def get_sessions(
         logger.info(f'Using include_quickplay={include_quickplay} from cookie')
 
     # Use a range key filter for the season
+    logger.info(f'Using season time range {datetime.datetime.fromtimestamp(season.start)} -> {datetime.datetime.fromtimestamp(season.end)}')
     range_key_condition = OverwatchGameSummary.time.between(season.start, season.end)
 
     # Construct the filter condition combining season, share accounts, show quickplay
@@ -379,9 +375,9 @@ def get_sessions(
         logger.info(f'Share settings has whitelisted accounts {share_settings.accounts}')
         filter_condition &= OverwatchGameSummary.player_name.is_in(*share_settings.accounts)
     if not include_quickplay:
-        filter_condition &= OverwatchGameSummary.game_type == 'competitive'
+        filter_condition &= (OverwatchGameSummary.game_type == 'competitive') | OverwatchGameSummary.game_type.does_not_exist()
     else:
-        filter_condition &= OverwatchGameSummary.game_type.is_in('quickplay', 'competitive')
+        filter_condition &= OverwatchGameSummary.game_type.is_in('quickplay', 'competitive') | OverwatchGameSummary.game_type.does_not_exist()
 
     # Use last_evaluated from args
     if 'last_evaluated' in args:

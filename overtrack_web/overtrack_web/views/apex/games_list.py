@@ -16,7 +16,7 @@ from overtrack_models.orm.apex_game_summary import ApexGameSummary
 from overtrack_models.orm.common import ResultIteratorExt
 from overtrack_models.orm.user import User
 from overtrack_web.data import ApexRankSummary, ApexSeason, WELCOME_META, apex_data
-from overtrack_web.lib import b64_decode, b64_encode
+from overtrack_web.lib import b64_decode, b64_encode, FlaskResponse
 from overtrack_web.lib.authentication import check_authentication, require_login
 from overtrack_web.lib.opengraph import Meta
 from overtrack_web.lib.session import session
@@ -45,12 +45,12 @@ def context_processor():
 
 @games_list_blueprint.route('')
 @require_login
-def games_list() -> Response:
+def games_list() -> FlaskResponse:
     return render_games_list(session.user)
 
 
 @games_list_blueprint.route('/<string:username>')
-def public_games_list(username: str) -> Response:
+def public_games_list(username: str) -> FlaskResponse:
     try:
         user = User.username_index.get(username.lower())
     except User.DoesNotExist:
@@ -61,7 +61,7 @@ def public_games_list(username: str) -> Response:
 
 
 @games_list_blueprint.route('/games_pagination')
-def games_pagination():
+def games_pagination() -> FlaskResponse:
     public = 'username' in request.args
     if public:
         try:
@@ -86,7 +86,7 @@ def games_pagination():
     )
 
 
-def render_games_list(user: User, public=False, meta_title: Optional[str] = None) -> Response:
+def render_games_list(user: User, public=False, meta_title: Optional[str] = None) -> FlaskResponse:
     user.refresh()
     games_it, is_ranked, season = get_games(user, limit=PAGINATION_SIZE)
     games, next_from = paginate(games_it, username=user.username if public else None)
@@ -264,7 +264,7 @@ def paginate(games_it: ResultIteratorExt[ApexGameSummary], username: Optional[st
     return games, next_from
 
 
-def is_superuser():
+def is_superuser() -> bool:
     if check_authentication() is None:
         return session.user.superuser
     else:
