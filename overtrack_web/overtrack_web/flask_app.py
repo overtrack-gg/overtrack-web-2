@@ -14,6 +14,7 @@ from overtrack_web.lib.authentication import check_authentication
 # port of https://bugs.python.org/issue34363 to the dataclasses backport
 # see https://github.com/ericvsmith/dataclasses/issues/151
 from overtrack_web.lib import dataclasses_asdict_namedtuple_patch
+from overtrack_web.lib.session import session
 from overtrack_web.views.sitemap import sitemap_blueprint
 
 dataclasses_asdict_namedtuple_patch.patch()
@@ -164,13 +165,13 @@ def game_redirect(key):
     try:
         OverwatchGameSummary.get(key)
     except OverwatchGameSummary.DoesNotExist:
-        return redirect(url_for('apex.game.game', key=key), code=308)
+        return redirect(url_for('apex.game.game', key=key), code=301)
     else:
-        return redirect(url_for('overwatch.game.game', key=key), code=308)
+        return redirect(url_for('overwatch.game.game', key=key), code=301)
 
 @app.route('/games/<string:key>')
 def overwatch_share_link_redirect(key):
-    return redirect(url_for('overwatch.games_list.shared_games_list', sharekey=key), code=308)
+    return redirect(url_for('overwatch.games_list.shared_games_list', sharekey=key), code=301)
 
 # redirect old apex.overtrack.gg/<streamer> shares
 for key, username in {
@@ -179,25 +180,25 @@ for key, username in {
     app.add_url_rule(
         f'/{key}',
         f'hardcoded_redirect_{key}',
-        functools.partial(redirect, f'/apex/games/{username}', code=308)
+        functools.partial(redirect, f'/apex/games/{username}', code=301)
     )
 
 @app.route('/apex')
 def apex_games_redirect():
-    return redirect(url_for('apex.games_list.games_list'), code=308)
+    return redirect(url_for('apex.games_list.games_list'), code=301)
 
 
 @app.route('/assets/<path:path>')
 def legacy_assets(path):
-    return redirect('https://overtrack.gg/assets/' + path, code=308)
+    return redirect('https://overtrack.gg/assets/' + path, code=301)
 
 @app.route('/assets/<string:key>.jpg')
 def legacy_assets_banner(key):
-    return redirect('https://overtrack.gg/' + key + '.jpg', code=308)
+    return redirect('https://overtrack.gg/' + key + '.jpg', code=301)
 
 @app.route('/favicon.png')
 def favicon():
-    return redirect(url_for('static', filename='images/favicon.png'), code=308)
+    return redirect(url_for('static', filename='images/favicon.png'), code=301)
 
 
 # ------ SUBSCRIBE  ------
@@ -213,15 +214,49 @@ else:
 @app.route('/')
 def root():
     if check_authentication() is None:
-        return redirect(url_for('apex.games_list.games_list'), code=307)
+        return games()
     else:
         return welcome()
 
 
 @app.route('/games')
 def games():
-    # this one wants a login
-    return redirect(url_for('apex.games_list.games_list'), code=307)
+    if session.user.overwatch_games and not session.user.apex_games:
+        logger.info(f'User has overwatch games and no apex games, redirecting to overwatch games list')
+        return redirect(url_for('overwatch.games_list.games_list'), code=302)
+    elif session.user.apex_games and not session.user.overwatch_games:
+        logger.info(f'User has apex games and no overwatch games, redirecting to apex games list')
+        return redirect(url_for('apex.games_list.games_list'), code=302)
+    elif not session.user.overwatch_games and session.user.apex_games:
+        logger.info(f'User has no apex games and no overwatch games, redirecting to overwatch games list')
+        return redirect(url_for('overwatch.games_list.games_list'), code=302)
+    else:
+        # check apex games first, so OW becomes the default if there is no apex game
+        try:
+            from overtrack_models.orm.apex_game_summary import ApexGameSummary
+            apex_game = ApexGameSummary.user_id_time_index.get(session.user.user_id, scan_index_forward=False)
+        except:
+            logger.info(f'Fetching latest apex game failed, redirecting to overwatch games list')
+            return redirect(url_for('overwatch.games_list.games_list'), code=302)
+        try:
+            from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
+            overwatch_game = OverwatchGameSummary.user_id_time_index.get(session.user.user_id, scan_index_forward=False)
+        except:
+            logger.info(f'Fetching latest overwatch game failed, redirecting to apex games list')
+            return redirect(url_for('apex.games_list.games_list'), code=302)
+
+        if overwatch_game.datetime > apex_game.time:
+            logger.info(
+                f'Most recent overwatch game ({overwatch_game.datetime}) is more recent than apex game ({apex_game.time}) - '
+                f'redirecting to overwatch games'
+            )
+            return redirect(url_for('overwatch.games_list.games_list'), code=302)
+        else:
+            logger.info(
+                f'Most recent apex game ({apex_game.time}) is more recent than overwatch game ({overwatch_game.datetime}) - '
+                f'redirecting to overwatch games'
+            )
+            return redirect(url_for('apex.games_list.games_list'), code=302)
 
 
 # ------ SIMPLE INFO PAGES  ------
