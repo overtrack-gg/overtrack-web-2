@@ -7,6 +7,32 @@
             </div>
             <div class="card-body">
                 <div class="games-list container">
+                    {% if session.game_mode == 'competitive' %}
+                        <div class="row row-cols-1 row-cols-md-3 px-2 session-sr-row justify-content-center">
+                            {% for role, role_games in session.roles_sorted() %}
+                                <div class="col text-center p-2 session-sr role-{{ role }}" style="font-size: smaller; font-weight: bold;">
+                                    {% if role_games[0].rank == 'placement' and not session.end_sr(role) %}
+                                        Placement
+                                    {% else %}
+                                        <img class="img-fluid role-role"
+                                             src="{{ url_for('static', filename='images/overwatch/role_icons/' + role + '.svg') }}"/>
+                                        {{ session.start_sr(role) | ifnone('?' if role_games[-1].rank != 'placement' else '-') }}
+                                        {% if session.start_rank(role) is not none %}
+                                            <img class="img-fluid"
+                                                 src="{{ url_for('static', filename='images/overwatch/rank_icons/' + session.start_rank(role) + '.png') }}"/>
+                                        {% endif %}
+                                        →
+                                        {{ session.end_sr(role) | ifnone('?') }}
+                                        {% if session.end_rank(role) is not none %}
+                                            <img class="img-fluid"
+                                                 src="{{ url_for('static', filename='images/overwatch/rank_icons/' + session.end_rank(role) + '.png') }}"/>
+                                        {% endif %}
+                                        ({{ session.sr_change(role) }})
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                     <div class="card-deck">
                         {% for game in session.games %}
                         {% include 'overwatch/games_list/game_card.html' %}

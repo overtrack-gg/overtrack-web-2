@@ -2,7 +2,11 @@ import datetime
 import json
 import logging
 import string
-from typing import List, Optional, Tuple, Dict, Any
+from typing import List, Optional, Tuple, Dict, Any, DefaultDict
+from collections import defaultdict
+from functools import lru_cache
+
+from itertools import permutations
 from urllib.parse import parse_qs, urlparse
 
 import boto3
@@ -46,6 +50,7 @@ class Session:
 
     def __init__(self, first_game: OverwatchGameSummary):
         self.games = [first_game]
+        self.roles: DefaultDict[str, List[OverwatchGameSummary]] = defaultdict(list)
 
     def add_game(self, game: OverwatchGameSummary) -> bool:
         """
@@ -63,6 +68,7 @@ class Session:
             return False
         else:
             self.games.append(game)
+            self.roles[game.role].append(game)
             return True
 
     @property
@@ -80,6 +86,37 @@ class Session:
     @property
     def quickplay(self) -> bool:
         return self.game_mode == 'quickplay'
+
+    def start_sr(self, role: str) -> int:
+        return self.roles[role][-1].start_sr
+
+    def end_sr(self, role: str) -> int:
+        return self.roles[role][0].end_sr
+
+    def start_rank(self, role: str) -> str:
+        return self.roles[role][-1].rank
+
+    def end_rank(self, role: str) -> str:
+        return self.roles[role][0].rank
+
+    def sr_change(self, role: str) -> str:
+        first_game = self.roles[role][-1]
+        last_game = self.roles[role][0]
+        if first_game.rank == 'placement':
+            return '-'
+        elif first_game.start_sr and last_game.end_sr:
+            if first_game.start_sr == last_game.end_sr:
+                return '0'
+            else:
+                return f'{last_game.end_sr - first_game.start_sr:+}'
+        else:
+            return '?'
+
+    def roles_sorted(self) -> List[Tuple[str, List[OverwatchGameSummary]]]:
+        return sorted(
+            self.roles.items(),
+            key=lambda r: ['tank', 'damage', 'support'].index(r[0])
+        )
 
     @property
     def account(self):
