@@ -1,3 +1,4 @@
+import logging
 from typing import Optional, Dict
 
 try:
@@ -9,7 +10,9 @@ try:
     def event(title: str, text: str, tags: Optional[Dict[str, str]] = None) -> None:
         _event(title, text, tags, stack='overtrack-web-2')
 
-except ImportError:
+except ImportError as e:
+    logging.getLogger(__name__).warning(f'Failed to import metrics: {e} - not recording metrics/events')
+
     def record(key: str, *, value: float = 1.0, unit: str = 'count') -> None:
         pass
 
