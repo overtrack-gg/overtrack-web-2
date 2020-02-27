@@ -6,9 +6,16 @@
         <div class="card card-main col-main">
             <div class="card-body">
                 {% if no_games_alert %}
-                    <div class="alert alert-primary" role="alert">
-                        It looks like you don't have any games yet.<br/>
-                        Download the OverTrack client to start tracking!
+                    <div class="alert alert-warning" role="alert">
+                        <p>
+                            It looks like you don't have any games yet.
+                            Download the OverTrack client to start tracking!
+                        </p>
+                        <hr>
+                        <p>
+                            If you think you <i>should</i> have games here, check what account you are logged in to.
+                            If you originally signed into OverTrack with an alt, the client may be recording games to that login instead.
+                        </p>
                     </div>
                 {% endif %}
                 <h2 class="card-title">Download Client</h2>

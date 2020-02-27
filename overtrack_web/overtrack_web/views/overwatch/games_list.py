@@ -19,7 +19,7 @@ from overtrack_models.dataclasses import s2ts
 from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
 from overtrack_models.orm.share_link import ShareLink
 from overtrack_models.orm.user import User, OverwatchShareSettings
-from overtrack_web.data import overwatch_data
+from overtrack_web.data import overwatch_data, WELCOME_META
 from overtrack_web.data.overwatch_data import Season
 from overtrack_web.lib import b64_decode, b64_encode
 from overtrack_web.lib.authentication import check_authentication, require_login
@@ -285,6 +285,12 @@ def check_superuser() -> bool:
 
 def render_games_list(user: User, share_settings: Optional[OverwatchShareSettings] = None, **next_args: str) -> Response:
     user.refresh()
+
+    if not user.overwatch_games:
+        logger.info(f'User {user.username} has no games')
+        if not share_settings:
+            return render_template('client.html', no_games_alert=True, meta=WELCOME_META)
+
     sessions, current_season, include_quickplay, last_evaluated = get_sessions(user, share_settings=share_settings)
 
     seasons = [

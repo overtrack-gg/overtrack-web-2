@@ -23,6 +23,7 @@ LOG_FORMAT = '[%(asctime)16s | %(levelname)8s | %(filename)s:%(lineno)s %(funcNa
 
 
 request: Request = request
+logger = logging.getLogger(__name__)
 
 
 # ------ FLASK SETUP AND CONFIG ------
