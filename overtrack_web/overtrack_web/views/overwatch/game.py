@@ -164,7 +164,9 @@ def game_card_png(key: str):
         os.environ['RENDERTRON_URL'],
         'screenshot/',
         url_for('overwatch.game.game_card', key=key, _external=True),
-        f'?width={min(int(request.args.get("width", 356)), 512)}&height={min(int(request.args.get("height", 80)), 512)}'
+        f'?width={min(int(request.args.get("width", 356)), 512)}',
+        f'&height={min(int(request.args.get("height", 80)), 512)}',
+        f'&_cachebust={request.args.get("_cachebust", "")}'
     ))
     try:
         r = requests.get(
