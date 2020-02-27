@@ -14,6 +14,8 @@ from overtrack_web.lib.authentication import check_authentication
 # port of https://bugs.python.org/issue34363 to the dataclasses backport
 # see https://github.com/ericvsmith/dataclasses/issues/151
 from overtrack_web.lib import dataclasses_asdict_namedtuple_patch
+from overtrack_web.views.sitemap import sitemap_blueprint
+
 dataclasses_asdict_namedtuple_patch.patch()
 
 LOG_FORMAT = '[%(asctime)16s | %(levelname)8s | %(filename)s:%(lineno)s %(funcName)s() ] %(message)s'
@@ -234,6 +236,11 @@ def welcome():
 @app.route('/discord')
 def discord_redirect():
     return redirect('https://discord.gg/JywstAB')
+
+
+# -------- SITEMAPS + ROBOTS
+
+app.register_blueprint(sitemap_blueprint)
 
 
 @app.route('/test', methods=['GET', 'POST'])
