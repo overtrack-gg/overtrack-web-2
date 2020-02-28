@@ -51,6 +51,7 @@ class Session:
     def __init__(self, first_game: OverwatchGameSummary):
         self.games = [first_game]
         self.roles: DefaultDict[str, List[OverwatchGameSummary]] = defaultdict(list)
+        self.roles[first_game.role].append(first_game)
 
     def add_game(self, game: OverwatchGameSummary) -> bool:
         """
