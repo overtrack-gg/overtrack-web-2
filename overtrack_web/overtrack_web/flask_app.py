@@ -9,7 +9,7 @@ from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
 from werkzeug.utils import redirect
 
 from overtrack_web.data import CDN_URL, WELCOME_META
-from overtrack_web.lib.authentication import check_authentication
+from overtrack_web.lib.authentication import check_authentication, require_login
 
 # port of https://bugs.python.org/issue34363 to the dataclasses backport
 # see https://github.com/ericvsmith/dataclasses/issues/151
@@ -221,6 +221,7 @@ def root():
 
 
 @app.route('/games')
+@require_login
 def games():
     if session.user.overwatch_games and not session.user.apex_games:
         logger.info(f'User has overwatch games and no apex games, redirecting to overwatch games list')
