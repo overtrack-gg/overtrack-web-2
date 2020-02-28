@@ -115,7 +115,7 @@ class Session:
 
     def roles_sorted(self) -> List[Tuple[str, List[OverwatchGameSummary]]]:
         return sorted(
-            self.roles.items(),
+            [(r, g) for r, g in self.roles.items() if r],
             key=lambda r: ['tank', 'damage', 'support'].index(r[0])
         )
 
