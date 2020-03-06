@@ -1,0 +1,113 @@
+{% macro render_stat(stats, field, category, role, view, hide=false, percent=false) -%}
+    {% set stat_display, value = process_stat(stats, field, category, role, view, percent=percent) %}
+    <td class="text-right {{ "extra-info-collapsible" if hide else "" }}"><span class="big text-nowrap {{ stat_display }}">
+        {{ value }}
+    </span></td>
+{%- endmacro %}
+
+<tr
+    {% if category == "team" %}
+        class="team-row"
+        style="border-top: 1px dashed #c8c8c877"
+    {% endif %}
+    {% if category == "player" %}
+        class="player-row collapse-button {{ 'owner' if game.teams.owner == player and mode != 'firstperson' else '' }}"
+        data-toggle="collapse"
+        data-target=".player-group-{{ player.name }}-{{ mode }}"
+    {% endif %}
+    {% if category == "hero" %}
+        class="hero-row collapse player-group-{{ player.name }}-{{ mode }}"
+    {% endif %}
+>
+    <th scope="row" class="p-0 m-0 big {{ 'text-right' if category == 'team' else ''}}">
+        {% if category != "hero" %}
+        <b class="text-{{ color }} player-name {{ 'player-name-long' if name | length > 16 else '' }}">
+            {{ name|upper }}
+        </b>
+        {% else %}
+            <span style="left: 15px;top: 3px;position: relative;font-weight: 100;font-size: 11pt;">
+                {{ stats.teamfights }} fights - {{ stats.playtime | s2ts }}
+            </span>
+        {% endif %}
+    </th>
+    {% if category == "team" %}
+        <td class="p-0 m-0 pl-2 big text-right">
+            <b class="player-name }}">
+                {% if view == "per-teamfight" %}
+                    {{
+                        "{:.0%}".format(
+                            game.teamfights.team_stats[team_index].won_fights /
+                            game.teamfights.team_stats[team_index].teamfights
+                        )
+                    }}
+                {% elif view == "per-10min" %}
+                    {{
+                        "{:.1f}".format(
+                            game.teamfights.team_stats[team_index].won_fights /
+                            (game.teamfights.team_stats[team_index].playtime / 600)
+                        )
+                    }}
+                {% else %}
+                    {{ game.teamfights.team_stats[team_index].won_fights }}
+                {% endif %}
+                Wins
+            </b>
+        </td>
+    {% elif category == "player" %}
+        <td class="p-0 m-0 text-left">
+            <div class="hero-icons">
+                {% for hero_name, _ in get_top_heroes(player) %}
+                    <div class="hero-icon-container p-0 m-0 collapse show player-group-{{ player.name }}">
+                        <div class="hero-icon">
+                            <div class="hero-icon-background"
+                                 style="background-color: {{ get_hero_color(hero_name) }}"></div>
+                            <img class="hero-icon-image"
+                                 src="{{ url_for('static', filename=get_hero_image(hero_name)) }}"
+                                 alt="{{ hero_name | title }}">
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+        </td>
+    {% elif category == "hero" %}
+        <td class="p-0 m-0 text-left" style="border-left: 3px solid {{ get_hero_color(name) }};">
+            <div class="hero-icon-container p-0 d-inline-block">
+                <div class="hero-icon">
+                    <div class="hero-icon-background"
+                         style="background-color: {{ get_hero_color(name) }}"></div>
+                    <img class="hero-icon-image"
+                         src="{{ url_for('static', filename=get_hero_image(name)) }}"
+                         alt="{{ name | title }}">
+                </div>
+            </div>
+        </td>
+    {% else %}
+        <td></td>
+    {% endif %}
+
+    {{ render_stat(stats, "eliminations.during_fights", category, role, view) }}
+    {{ render_stat(stats, "deaths.during_fights", category, role, view) }}
+    {{ render_stat(stats, "killfeed_assists.during_fights", category, role, view) }}
+    {{ render_stat(stats, "elimination_assists.during_fights", category, role, view) }}
+    {{ render_stat(stats, "first_kills", category, role, view, percent=true) }}
+    {{ render_stat(stats, "first_deaths", category, role, view, percent=true) }}
+
+    {{ render_stat(stats, "ults.during_fights", category, role, view) }}
+
+    <td class="vert-sep extra-info-collapsible"></td>
+    {% if category != "team" %}
+        {{ render_stat(stats, "times_staggered", category, role, view, true, percent=true) }}
+        {{ render_stat(stats, "fight_starts_missed", category, role, view, true, percent=true) }}
+        {{ render_stat(stats, "suicides.during_fights", category, role, view, true) }}
+    {% else %}
+        <td class="extra-info-collapsible" colspan="3"></td>
+    {% endif %}
+
+    <td class="vert-sep extra-info-collapsible"></td>
+
+    {{ render_stat(stats, "eliminations.outside_fights", category, role, view, true) }}
+    {{ render_stat(stats, "deaths.outside_fights", category, role, view, true) }}
+    {{ render_stat(stats, "killfeed_assists.outside_fights", category, role, view, true) }}
+
+</tr>
+

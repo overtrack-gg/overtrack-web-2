@@ -5,7 +5,8 @@ import logging
 import os
 import string
 import warnings
-from typing import List, Optional, Sequence
+from functools import reduce
+from typing import List, Optional, Sequence, Tuple, Iterable
 from urllib.parse import urlparse
 
 import boto3
@@ -17,9 +18,12 @@ from itertools import chain
 from overtrack_models.dataclasses.overwatch.basic_types import Map
 from overtrack_models.dataclasses.overwatch.overwatch_game import OverwatchGame
 from overtrack_models.dataclasses.overwatch.performance_stats import HeroStats
+from overtrack_models.dataclasses.overwatch.teamfights import PlayerStats
+from overtrack_models.dataclasses.overwatch.teams import Player
 from overtrack_models.dataclasses.typedload import referenced_typedload
 from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
 from overtrack_web.data import overwatch_data
+from overtrack_web.data.overwatch_data import hero_colors
 from overtrack_web.lib.authentication import check_authentication
 from overtrack_web.lib.opengraph import Meta
 from overtrack_web.lib.overwatch_legacy import get_legacy_paths
@@ -97,6 +101,136 @@ def game(key: str):
     dev_info = get_dev_info(summary, game)
 
     imagehash = hashlib.md5(str((game.result, game.start_sr, game.end_sr)).encode()).hexdigest()
+
+    try:
+        tfs = game.teamfights
+        stat_totals = {
+            'eliminations.during_fights': len(tfs.eliminations_during_fights),
+            'deaths.during_fights': len(tfs.eliminations_during_fights) + len(tfs.suicides_during_fights),
+            'killfeed_assists.during_fights': len(tfs.killfeed_assists_during_fights),
+            'first_elims': len(tfs.first_bloods),
+            'first_deaths': len(tfs.first_bloods),
+            'eliminations.outside_fights': len(tfs.eliminations_outside_fights),
+            'deaths.outside_fights': len(tfs.eliminations_outside_fights) + len(tfs.suicides_outside_fights),
+            'killfeed_assists.outside_fights': len(tfs.killfeed_assists_outside_fights),
+            'fight_starts_missed': len(tfs.teamfights),
+            'times_staggered': len(tfs.teamfights),
+        }
+        show_stats = True
+    except AttributeError:
+        stat_totals = {}
+        show_stats = False
+
+    def process_stat(
+        stats: PlayerStats,
+        field: str,
+        category: str,
+        role: int,
+        view: str,
+        percent: bool = False,
+    ) -> Tuple[str, str]:
+        def build_attr(stats, field):
+            parts = field.split('.')
+            try:
+                return reduce(getattr, parts, stats)
+            except AttributeError:
+                return None
+
+        def for_attr(field: str) -> Iterable[int]:
+            if category == 'player':
+                blue = game.teams.blue
+                red = game.teams.red
+                all_stats = [x.stats for x in blue + red]
+            else:
+                blue = game.teamfights.team_stats[0]
+                red = game.teamfights.team_stats[1]
+                all_stats = [blue, red]
+            return [
+                x for x in (build_attr(x, field) for x in all_stats)
+                if x is not None
+            ]
+
+        stat = build_attr(stats, field)
+        if stat is None:
+            return 'stat-below-threshold', ''
+
+        try:
+            if view == 'per-teamfight':
+                if percent:
+                    value = f'{(stat / stats.teamfights) * 100:.1f} %'
+                else:
+                    value = f'{stat / stats.teamfights:.2f}'
+            elif view == 'per-10min':
+                value = f'{stat / (stats.playtime / 600):.2f}'
+            elif view == 'ratio' and stat != 0:
+                total = stat_totals[field]
+                value = f'{100 * stat / total:.1f}'
+            elif view == 'ratio':
+                value = '0'
+            else:
+                value = str(stat)
+        except ZeroDivisionError:
+            return 'stat-below-threshold', ''
+
+        values = for_attr(field)
+        if not values:
+            values = [stat]
+
+        min_val = min(values)
+        max_val = max(values)
+        threshold = max_val - min_val > max_val / 2 > 1
+
+        if stat == 0:
+            stat_display = 'stat-zero'
+        elif threshold:
+            percent = (stat - min_val) / (max_val - min_val)
+            if percent > 0.9:
+                stat_display = 'stat-very-high'
+            elif percent > 0.6:
+                stat_display = 'stat-high'
+            elif percent >= 0.4:
+                stat_display = 'stat-median'
+            elif percent >= 0.1:
+                stat_display = 'stat-low'
+            else:
+                stat_display = 'stat-very-low'
+        else:
+            stat_display = 'stat-below-threshold'
+
+        if any(x in field for x in ['kill', 'elim']) and 'low' in stat_display and role is not None and role >= 4:
+            # don't consider a support with low kills as doing bad
+            stat_display = 'stat-below-threshold'
+
+        stat_display += f' stat-{field} role-{role}'
+
+        if any(
+            x in field
+            for x in ['deaths', 'missed', 'suicides', 'staggered']
+        ):
+            stat_display += ' stat-red-highs'
+        else:
+            stat_display += ' stat-green-highs'
+
+        return stat_display, value
+
+    def get_top_heroes(player: Player) -> List[Tuple[str, PlayerStats]]:
+        heroes = sorted(
+            [(n, s) for n, s in player.stats_by_hero.items() if s.playtime > 60],
+            key=lambda x: x[1].playtime,
+            reverse=True
+        )
+
+        return heroes[:3]
+
+    def get_hero_image(name: str) -> str:
+        return f'images/overwatch/hero_icons/{name}.png'
+
+    def get_hero_color(name: str) -> str:
+        try:
+            return hero_colors[name]
+        except KeyError:
+            return '#5d518e'
+
     return render_template(
         'overwatch/game/game.html',
 
@@ -108,6 +242,12 @@ def game(key: str):
             summary_large_image=True,
             colour=COLOURS.get(game.result, 'gray')
         ),
+
+        show_stats=show_stats,
+        get_top_heroes=get_top_heroes,
+        get_hero_color=get_hero_color,
+        get_hero_image=get_hero_image,
+        process_stat=process_stat,
 
         summary=summary,
         game=game,
@@ -303,7 +443,6 @@ def load_game(summary: OverwatchGameSummary) -> OverwatchGame:
         )
         game_data = json.loads(game_object['Body'].read())
     except:
-        game_object = None
         if s3:
             logger.exception('Failed to fetch game data from S3 - trying HTTP')
         r = requests.get(f'https://overtrack-overwatch-games.s3.amazonaws.com/{summary.key}.json')

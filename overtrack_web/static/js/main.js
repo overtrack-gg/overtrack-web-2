@@ -85,4 +85,5 @@ function update_elements(){
 }
 document.addEventListener("DOMContentLoaded", function(event) {
     update_elements();
+    $('[data-toggle="tooltip"]').tooltip()
 });
