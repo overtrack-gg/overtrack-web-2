@@ -16,7 +16,7 @@ from itertools import chain
 
 from overtrack_models.dataclasses.overwatch.basic_types import Map
 from overtrack_models.dataclasses.overwatch.overwatch_game import OverwatchGame
-from overtrack_models.dataclasses.overwatch.statistics import HeroStats
+from overtrack_models.dataclasses.overwatch.performance_stats import HeroStats
 from overtrack_models.dataclasses.typedload import referenced_typedload
 from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
 from overtrack_web.data import overwatch_data
@@ -320,7 +320,7 @@ def get_dev_info(summary, game):
     summary_dict = summary.asdict()
     summary_dict['key'] = (summary.key, f'https://overtrack-overwatch-games.s3.amazonaws.com/{summary.key}.json')
     log_id = summary_dict['log_id']
-    if log_id:
+    if log_id and len(log_id) == 3 and all(log_id):
         summary_dict['log_id'] = (
             ' '.join(log_id),
             (
