@@ -51,6 +51,177 @@
         overflow: visible!important;
     }
 
+    .player-stats {
+        .player-name {
+            font-size: 14px;
+        }
+
+        .player-name-long {
+            font-size: 12px;
+        }
+
+        .tab-stats-table th {
+            font-size: 14px;
+        }
+
+        .tab-stats-table .big {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .tab-stats-table span.stat-green-highs{
+            &.stat-very-high {
+                color: #38f689;
+            }
+            &.stat-high {
+                color: #38af58;
+            }
+            &.stat-median {
+                color: #b8860b;
+            }
+            &.stat-low {
+                color: #d35400;
+            }
+            &.stat-very-low {
+                color: #d91e18;
+            }
+        }
+        .tab-stats-table span.stat-red-highs{
+            &.stat-very-high {
+                color: #d91e18;
+            }
+            &.stat-high {
+                color: #d35400;
+            }
+            &.stat-median {
+                color: #b8860b;
+            }
+            &.stat-low {
+                color: #38af58;
+            }
+            &.stat-very-low {
+                color: #38f689;
+            }
+        }
+        .tab-stats-table span.stat-below-threshold {
+            color: #c8c8c8;
+        }
+        .tab-stats-table span.stat-zero {
+            color: #717171;
+        }
+
+        .tab-stats-table tr th, .tab-stats-table tr td {
+            color: #C8C8C8;
+            font-weight: 300;
+            line-height: 1.5;
+            padding: 5px;
+        }
+
+        .dashed-line {
+            padding: 0;
+            margin: 10px 0 -2px;
+            position: relative;
+            border-top: 1px dashed;
+        }
+
+        .vert-sep {
+            border-right: 1px dashed #c8c8c877;
+        }
+
+        .nohover:hover {
+            background-color: unset !important;
+        }
+
+        /*tbody > td, thead > th {*/
+            /*width: 3em;*/
+        /*}*/
+
+        /*tbody > th {*/
+            /*width: 16em;*/
+        /*}*/
+
+        table {
+            table-layout: fixed;
+        }
+
+        .collapse-button {
+            cursor: pointer;
+        }
+
+        .collapsing {
+            -webkit-transition: none;
+            transition: none;
+            display: none;
+        }
+
+        .player-row :not(.show) + .hero-row .show {
+            display: none;
+        }
+
+        .team-row {
+            background-color: rgb(10, 13, 38);
+        }
+        .player-row.owner {
+            background-color: #2a3168;
+        }
+        /*.player-row {*/
+            /*background-color: rgb(13, 18, 53);*/
+        /*}*/
+        .hero-row {
+            background-color: rgb(19, 27, 77);
+        }
+
+        .hero-icons {
+            position: absolute;
+        }
+        @media screen and (max-width: 480px) {
+            .hero-icons {
+                display: none;
+            }
+        }
+        @media screen and (max-width: 768px) {
+            table:not(.extra-info-collapsed) .hero-icons {
+                display: none;
+            }
+        }
+        .hero-icon-container {
+            position: relative;
+            width: 28px;
+            height: 33px;
+            top: 0.1em;
+            &.show {
+                display: inline-block;
+            }
+        }
+        .hero-icon {
+            position: absolute;
+            left: 0.2em;
+            width: 36px;
+            height: 33px;
+        }
+        .hero-icon-background {
+            z-index: 0;
+            transform: skewX(-20deg);
+            border-color: rgba(255, 255, 255, 0.5);
+            border-style: solid;
+            border-width: 4px;
+            height: 100%;
+            width: 90%;
+        }
+        .hero-icon-image {
+            position: absolute;
+            left: -2px;
+            top: 1px;
+            z-index: 1;
+            height: 89.5%;
+            clip-path: polygon(32% 0%, 112% 0%, 79% 100%, 0% 100%);
+        }
+
+        .extra-info-collapsed .extra-info-collapsible {
+            display: none;
+        }
+    }
+
     .timeline {
         .card-body {
             padding: 1.25rem;

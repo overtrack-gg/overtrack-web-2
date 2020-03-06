@@ -7,6 +7,11 @@
 
     <div class="container">
         <div class="row">
+            {% if show_stats %}
+                <div class="col-12 mb-2" >
+                    {% include 'overwatch/game/player_stats/player_stats.html' %}
+                </div>
+            {% endif %}
             <div class="col-12 mb-2" >
                 {% include 'overwatch/game/timeline.html' %}
             </div>

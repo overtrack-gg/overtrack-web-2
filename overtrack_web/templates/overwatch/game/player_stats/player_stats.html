@@ -1,0 +1,139 @@
+<div class="card text-center player-stats">
+    <div class="card-header">
+        <div class="row">
+            <div class="col">
+                <ul class="nav nav-tabs card-header-tabs justify-content-start">
+                    <li>
+                        <b>Player Stats:</b>
+                    </li>
+                    {% for view_id, view in [("per-teamfight", "Per Teamfight"), ("per-10min", "Per 10min"), ("total", "Totals")] %}
+                        <li class="nav-item">
+                            <a class="nav-link {{ 'active' if loop.first else '' }}"
+                               data-toggle="tab"
+                               id="select-{{ view_id }}"
+                               href="#view-{{ view_id }}">{{ view }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col text-right">
+                <div class="custom-control custom-switch custom-switch-lg">
+                    <input type="checkbox" class="custom-control-input" id="extra-info-toggle">
+                    <label class="custom-control-label" for="extra-info-toggle">Full Data</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tab-content card-body">
+        {% for view in ["per-teamfight", "per-10min", "total"] %}
+            <div id="view-{{ view }}" class="tab-pane {{ 'active' if loop.first else '' }}">
+
+                {#<p>
+                    {{ game.teamfights | length }} Teamfights
+                </p>#}
+
+                <table id="player-stats-table-{{ view }}" class="table tab-stats-table table-borderless table-hover text-left table-responsive-sm extra-info-collapsed">
+                    <thead class="border-bottom">
+                        <tr>
+                            <th scope="col" width=120px" class="text-nowrap">
+                                {{ game.teamfights.team_stats[0].teamfights }} Teamfights
+                            </th>
+                            <th scope="col" width=80px"></th>
+                            <th scope="col" colspan="7" class="text-center" style="font-weight: bold;">
+                                During Teamfights
+                            </th>
+                            <th scope="col" colspan="1" class="extra-info-collapsible" width=1px></th>
+                            <th scope="col" colspan="3" class="extra-info-collapsible"></th>
+                            <th scope="col" colspan="1" class="extra-info-collapsible" width=1px></th>
+                            <th scope="col" colspan="3" class="extra-info-collapsible text-center" style="font-weight: bold;">
+                                Outside Teamfights
+                                {% if view == 'per-teamfight' %}
+                                <a href="#" style="color: #c59b12;"  data-toggle="tooltip" title="" data-original-title="Isolated picks that were not considered a teamfight. Values are still averaged by the number of teamfights.">?</a>
+                                {% endif %}
+                            </th>
+                        </tr>
+                        <tr class="text-right">
+                            <th scope="col"></th>
+                            <th scope="col"></th>
+
+                            <th scope="col">Kills</th>
+                            <th scope="col">Deaths</th>
+                            <th scope="col">Killfeed Assists</th>
+                            <th scope="col">Elim Assists</th>
+                            <th scope="col">First Kill</th>
+                            <th scope="col">First Death</th>
+                            <th scope="col">Ults</th>
+
+                            <th scope="col" class="extra-info-collapsible"></th>
+                            <th scope="col" class="extra-info-collapsible" style="font-size: 12px;">Staggered</th>
+                            <th scope="col" class="extra-info-collapsible">Fight Starts Missed</th>
+                            <th scope="col" class="extra-info-collapsible">Suicides</th>
+
+                            <th scope="col" class="extra-info-collapsible vert-sep"></th>
+
+                            <th scope="col" class="extra-info-collapsible">Kills</th>
+                            <th scope="col" class="extra-info-collapsible">Deaths</th>
+                            <th scope="col" class="extra-info-collapsible">Killfeed Assists</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for color, team, team_index in [("blue", game.teams.blue, 0), ("red", game.teams.red, 1)] %}
+                        {% with
+                            category = "team",
+                            mode = "thirdperson",
+                            name = color.upper() + " TEAM",
+                            stats = game.teamfights.team_stats[team_index],
+                            role = none %}
+                            {% include "overwatch/game/player_stats/player_stats_row.html" %}
+                        {% endwith %}
+                        {% for player in team %}
+                            {% with
+                                category = "player",
+                                mode = "thirdperson",
+                                name = player.name,
+                                stats = player.stats,
+                                role = loop.index0 %}
+                                {% include "overwatch/game/player_stats/player_stats_row.html" %}
+                            {% endwith %}
+                            {% for name, stats in get_top_heroes(player) %}
+                                {% with
+                                    category = "hero",
+                                    mode = "thirdperson",
+                                    role = loop.index0 %}
+                                    {% include "overwatch/game/player_stats/player_stats_row.html" %}
+                                {% endwith %}
+                            {% endfor %}
+                        {% endfor %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<script>
+function extra_info() {
+    this.classList.toggle('selected');
+    {% for view in ["per-teamfight", "per-10min", "total"] %}
+        document.querySelector('#player-stats-table-{{ view }}').classList.toggle('extra-info-collapsed');
+    {% endfor %}
+}
+
+document.querySelector('#extra-info-toggle').addEventListener('click', extra_info);
+
+let last = null;
+document.onkeydown = function (e) {
+    let current = $('.player-stats .nav-item .active');
+    if (e.key === 'Shift' && current.attr('id') !== 'select-total' && (current.attr('id') === 'select-per-teamfight' || current.attr('id') === 'select-per-10min')){
+        last = current;
+        $('#select-total').tab('show');
+    }
+};
+document.onkeyup = function (e) {
+    if (e.key === 'Shift' && last){
+        last.tab('show');
+        last = null;
+    }
+};
+</script>
