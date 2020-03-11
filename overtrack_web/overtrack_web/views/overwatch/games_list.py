@@ -348,6 +348,11 @@ def render_games_list(user: User, share_settings: Optional[OverwatchShareSetting
 
             seasons=seasons,
             current_season=current_season,
+            show_sub_request=(
+                not user.subscription_active and
+                not user.trial_active and
+                share_settings is None
+            ),
 
             allow_toggle_quickplay=not share_settings or share_settings.include_quickplay,
             include_quickplay=include_quickplay,
