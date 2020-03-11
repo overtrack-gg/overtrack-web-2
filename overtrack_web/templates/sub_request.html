@@ -1,10 +1,19 @@
 <div class="alert alert-primary sub-request" role="alert">
     <h2>Support OverTrack's Development</h2>
     <p>
-        Hi! I'm glad you're enjoying using OverTrack. <br/>
-        This has been a project I have poured my heart and soul into, and have been working fulltime on for some time. <br/>
-        I need the support of people like you to keep OverTrack alive. If you would like to help support the development of OverTrack, please consider
-        subscribing.
+        OverTrack requires the continued support of its users to exist. <br/>
+        Developing this software is a monumental task - please consider supporting my efforts in building, maintaining, and hosting it by
+        <a href="{{ url_for('subscribe.subscribe') }}">subscribing</a>.
     </p>
-    <a href="{{ url_for('subscribe.subscribe') }}" class="btn btn-primary sub-link">Subscribe ♥</a>
+    {% if game_name == 'overwatch' %}
+    <p>
+        Subscribing will unlock full game details including detailed per-player stats, a full game timeline to track everything that occurred
+        during a game, and tab-screen/endgame statistics.
+    </p>
+    {% elif game_name == 'apex' %}
+    <p>
+        I chose to release Apex Legends tracker with no monetization, but I am relying on your support to keep it running.
+    </p>
+    {% endif %}
+    Thanks! ♥
 </div>
