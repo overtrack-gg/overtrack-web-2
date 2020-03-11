@@ -6,7 +6,7 @@ import functools
 from urllib.request import Request
 
 import flask
-from flask import Flask, g, render_template, request, url_for
+from flask import Flask, g, render_template, request, url_for, Blueprint
 from werkzeug.utils import redirect
 
 # port of https://bugs.python.org/issue34363 to the dataclasses backport
@@ -175,6 +175,14 @@ for key, username in {
 @app.route('/games')
 def apex_games_redirect():
     return redirect(url_for('apex.games_list.games_list'), code=308)
+
+
+# ------ SUBSCRIBE  ------
+subscribe_blueprint = Blueprint('subscribe', __name__)
+@subscribe_blueprint.route('/')
+def subscribe():
+    return 'Not Implemented'
+app.register_blueprint(subscribe_blueprint, url_prefix='/subscribe')
 
 
 # ------ ROOT PAGE  ------
