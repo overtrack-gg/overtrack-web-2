@@ -25,6 +25,21 @@ $thumbnail-width: 110px;
     }
 }
 
+.sub-request, .trial-reminder {
+    background-color: #5d518e;
+    color: white;
+    border: none;
+
+    p > a {
+        text-decoration: underline;
+        color: #ffbde8;
+    }
+    p > a:hover {
+        text-decoration: underline;
+        color: #fffffff;
+    }
+}
+
 .session {
     margin-top: 10px;
     min-width: 340px;

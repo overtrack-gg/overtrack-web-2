@@ -5,6 +5,8 @@
 <div class="container">
     {% if show_sub_request %}
     {% include 'sub_request.html' %}
+    {% elif show_trial_reminder %}
+    {% include 'overwatch/games_list/trial_reminder.html' %}
     {% endif %}
 
     <div class="card games-selector">
