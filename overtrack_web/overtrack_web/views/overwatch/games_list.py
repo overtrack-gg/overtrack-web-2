@@ -338,6 +338,19 @@ def render_games_list(user: User, share_settings: Optional[OverwatchShareSetting
     else:
         next_from = None
 
+    now = datetime.datetime.now()
+    trial_end_time = datetime.datetime.utcfromtimestamp(user.trial_end_time)
+    raw_time_left = trial_end_time - now
+
+    if raw_time_left.days > 0:
+        trial_time_left = f'{raw_time_left.days} days'
+    elif raw_time_left.seconds > 60 * 60:
+        trial_time_left = f'{raw_time_left.seconds // (60 * 60)} hours'
+    elif raw_time_left.seconds > 60:
+        trial_time_left = f'{raw_time_left.seconds // 60} minutes'
+    else:
+        trial_time_left = f'{raw_time_left.seconds} seconds'
+
     response = make_response(
         render_template(
             'overwatch/games_list/games_list.html',
@@ -353,6 +366,9 @@ def render_games_list(user: User, share_settings: Optional[OverwatchShareSetting
                 not user.trial_active and
                 share_settings is None
             ),
+            show_trial_reminder=user.trial_active and share_settings is None,
+            trial_time_left=trial_time_left,
+            trial_games_left=user.trial_games_remaining,
 
             allow_toggle_quickplay=not share_settings or share_settings.include_quickplay,
             include_quickplay=include_quickplay,
