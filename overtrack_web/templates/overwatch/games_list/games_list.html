@@ -114,5 +114,10 @@ function copy_share_link(){
     $('#shareLinkURL').tooltip('show');
     window.setTimeout(() => $('#shareLinkURL').tooltip('hide'), 1500);
 }
+document.addEventListener("DOMContentLoaded", function() {
+    $('.subscribe-tooltip').on('show.bs.tooltip', function () {
+        $('.subscribe-tooltip').not(this).tooltip('hide');
+    });
+});
 </script>
 {% endblock %}

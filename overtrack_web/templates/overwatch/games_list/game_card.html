@@ -55,6 +55,16 @@
         </div>
         {% if game.viewable or user.superuser %}
         <a href="{{ url_for('overwatch.game.game', key=game.key) }}" class="stretched-link"></a>
+        {% elif show_sub_request %}
+            <a href="#"
+               style="color: #c59b12;"
+               class="subscribe-tooltip stretched-link"
+               data-template='<div class="tooltip" role="tooltip"><div class="tooltip-inner"></div></div>'
+               data-placement="left"
+               data-toggle="tooltip"
+               data-html="true"
+               data-trigger="click"
+               title='Please <a href="{{ url_for('subscribe.subscribe') }}">subscribe</a> to view full game details'></a>
         {% endif %}
     </div>
 </div>
