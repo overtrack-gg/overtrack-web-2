@@ -39,7 +39,7 @@ COLOURS = {
     'LOSS': '#ee5f5b',
     'DRAW': '#f89406',
 }
-LEGACY_URL = 'https://overtrack.gg'
+LEGACY_URL = 'https://old.overtrack.gg'
 
 
 request: Request = request
