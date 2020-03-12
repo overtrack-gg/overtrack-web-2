@@ -205,3 +205,11 @@ def welcome():
 @app.route('/discord')
 def discord_redirect():
     return redirect('https://discord.gg/JywstAB')
+
+@app.route('/faq')
+def faq():
+    game = request.args.get('game')
+    return render_template(
+        'faq.html',
+        game_name=game if game in ['overwatch', 'apex'] else None
+    )

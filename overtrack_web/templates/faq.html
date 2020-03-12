@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% block title %}FAQ{% endblock %}
+
+{% set is_ow = game_name is none or game_name == 'overwatch' %}
+{% set is_apex = game_name is none or game_name == 'apex' %}
+
+{%- macro icon_image(name) %}
+    <img class="icon" src="{{ url_for('static', filename='images/faq/' + name + '.png') }}" alt="{{ name }}"/>
+{% endmacro -%}
+
+{% block content %}
+    <div class="faq container">
+        <div class="card mt-3">
+            <div class="card-header">
+                <h1>FAQ / Troubleshooting</h1>
+            </div>
+            <div class="card-body p-3">
+                <p>
+                    For general troubleshooting or if your question is not answered here please join the
+                    <a href="https://discord.gg/JywstAB">OverTrack Discord</a>.
+                </p>
+                <div class="row">
+                    <div class="col col-auto col-md-2">
+                        <ul class="nav flex-column sticky-top">
+                            <li class="nav-item">
+                                <a class="nav-link" href="#cheat">Is OverTrack a cheat?</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#ban">Has anyone been banned for using OverTrack?</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#install">Where does OverTrack install to?</a>
+                            </li>
+                            {% if is_ow %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#owtrack">My Overwatch games aren't being tracked</a>
+                                </li>
+                            {% endif %}
+                            {% if is_apex %}
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#apextrack">My Apex games aren't being tracked</a>
+                                </li>
+                            {% endif %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="#dll">I'm getting <code>DLL load failed</code></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#perf">How can I improve performance while using OverTrack</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col col-auto col-md-10">
+                        <dl>
+                            <dt id="cheat"><h2>Is OverTrack a cheat?</h2></dt>
+                            <dd>
+                                <p>
+                                    No - OverTrack is not intended as a cheat, and care has been taken to avoid anything
+                                    that could be considered cheating.
+                                </p>
+                                <p>
+                                    The OverTrack client <b>does not and will never</b> modify game behaviour, read game
+                                    memory/network access, or otherwise reveal information that is intended to be
+                                    hidden. OverTrack behaves just like any other screen recording software on your PC
+                                    e.g. OBS, Shadowplay, and offers no advantage beyond that of carefully watching back
+                                    VODs of every game you played while entering data into a spreadsheet. All data is
+                                    collected by processing screenshots, extracting visual information that would be
+                                    available to anyone watching the VOD or replay.
+                                </p>
+                                <p>
+                                    OverTrack only uploads data after a game completes, so there is no in-game advantage
+                                    provided. Since OverTrack’s data is not realtime, any advantage OverTrack offers
+                                    could be achieved by a human with a notebook watching VODs.
+                                </p>
+                            </dd>
+                            <dt id="ban"><h2>Has anyone been banned for using OverTrack?</h2></dt>
+                            <dd>
+                                <p>
+                                    On May 10 2019, all users of OverTrack for Overwatch were temporarily banned for a
+                                    period of approximately one hour. This ban was promptly reverted (presumably once
+                                    Blizzard was made aware of the situation), and there exist no known existing bans
+                                    stemming from the use of OverTrack.
+                                </p>
+                                <p>
+                                    Users are advised to use their own discretion over the use of OverTrack as no
+                                    official stance has been published. Keep in mind however, that Overwatch maintains a
+                                    blacklist of software that is determined to be against TOS and it will refuse to
+                                    launch if any running programs match this blacklist. Currently OverTrack is not in
+                                    this blacklist, however if you at any point receive this error it is advised to stop
+                                    using OverTrack until the issue is resolved.
+                                </p>
+                            </dd>
+                            <dt id="install"><h2>Where does OverTrack install to?</h2></dt>
+                            <dd>
+                                <p>
+                                    OverTrack installs to "<code>%appdata%\overtrack</code>" and should be available
+                                    under all programs > OverTrack launcher.<br/> To stop using OverTrack, you can
+                                    remove it through "Add or remove programs" or just disable 'Launch on Startup' in
+                                    the Settings menu in from the taskbar.
+                                </p>
+                            </dd>
+                            {% if is_ow %}
+                                <dt id="owtrack"><h2>My Overwatch games aren't being tracked</h2></dt>
+                                <dd>
+                                    <p>If OverTrack is not tracking your Overwatch games, please ensure the following:
+                                    </p>
+                                    <ul>
+                                        <li>
+                                            You have installed and are running the client, downloaded from
+                                            <a href="{{ url_for('client') }}">here</a>. Check your taskbar for one of
+                                            these icons {{ icon_image('active') }} {{ icon_image('inactive') }}
+                                        </li>
+                                        <li>Overwatch is set to English</li>
+                                        <li>Overwatch is set to a 16:9 aspect ratio</li>
+                                        <li>Overwach is not minimized for the map loading screen</li>
+                                        <li>You have authenticated the client with your overtrack account (this should
+                                            happen on first run)
+                                        </li>
+                                    </ul>
+                                    <p>
+                                        To ensure SR is tracked correctly, ensure you visit the role select menu between
+                                        each game for at least a second.
+                                    </p>
+                                </dd>
+                            {% endif %}
+                            {% if is_apex %}
+                                <dt id="apextrack"><h2>My Apex games aren't being tracked</h2></dt>
+                                <dd>
+                                    <p>If OverTrack is not tracking your Apex Legends games, please ensure the
+                                        following:
+                                    </p>
+                                    <ul>
+                                        <li>
+                                            You have installed and are running the client, downloaded from
+                                            <a href="{{ url_for('client') }}">here</a>. Check your taskbar for one of
+                                            these icons {{ icon_image('active') }} {{ icon_image('inactive') }}
+                                        </li>
+                                        <li>Apex is set to English</li>
+                                        <li>Apex is set to a 16:9 aspect ratio</li>
+                                        <li>You are not minimizing/alt tabbing away from Apex after selecting your
+                                            champion (not an issue in OBS capture mode)
+                                        </li>
+                                        <li>You have authenticated the client with your overtrack account (this should
+                                            happen on first run)
+                                        </li>
+                                    </ul>
+                                    <p>
+                                        Note that Apex games upload upon visiting the main menu, starting a new game, or
+                                        upon exit. If you are still at a summary screen for the match, it will not have
+                                        uploaded yet.
+                                    </p>
+                                    <p>
+                                        OverTrack does not currently track Limited Time Modes.
+                                    </p>
+                                    <p>
+                                        If OverTrack is giving you performance issues, try out the OBS capture mode
+                                    </p>
+                                </dd>
+                            {% endif %}
+                            <dt id="dll"><h2>I'm getting <code>DLL load failed</code></h2></dt>
+                            <dd>
+                                <p>
+                                    If you are getting the error <code>DLL load failed</code> you may need to download
+                                    and install the Microsoft Visual C++ Redistributable:
+                                    <a href="https://aka.ms/vs/16/release/vc_redist.x64.exe">https://aka.ms/vs/16/release/vc_redist.x64.exe</a>
+                                </p>
+                            </dd>
+                            <dt id="perf"><h2>How can I improve performance while using OverTrack</h2></dt>
+                            <dd>
+                                <p>To minimize the performance impact (e.g. to reduce FPS stutter, lag, and lost FPS) of
+                                    OverTrack you can try the following
+                                </p>
+                                <ul>
+                                    <li>Use the OBS capture mode (join the <a href="https://discord.gg/JywstAB">OverTrack
+                                        Discord</a> for help setting it up)
+                                    </li>
+                                    <li>Set your game's process priority to High and OverTrack's to Below Normal (right
+                                        click the process in the details tab of task manager)
+                                    </li>
+                                    <li>Set the CPU affinity on OverTrack to constrain it to a single core/CPU</li>
+                                </ul>
+                                <p>
+                                    Priority and affinity settings will revert on restart, but can be made permanent by
+                                    editing the OverTrack shortcut located in <code>%appdata%\Microsoft\Windows\Start
+                                    Menu\Programs\Startup</code> to have the target <code>C:\Windows\System32\cmd.exe /C
+                                    START /BELOWNORMAL /AFFINITY 0x1 /D "%appdata%/overtrack/"
+                                    overtrack_launcher.exe</code>
+                                </p>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
