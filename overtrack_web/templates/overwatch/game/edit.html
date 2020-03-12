@@ -1,0 +1,60 @@
+<a class="btn btn-secondary mr-5" data-toggle="modal" data-target="#editGame">Edit</a>
+<div class="modal fade" id="editGame" tabindex="-1" role="dialog" aria-hidden="true" style="text-align: left">
+    <div class="modal-dialog" role="document">
+        <form action="{{ url_for('overwatch.game.edit') }}" method="post">
+            <input type="hidden" name="key" value="{{ game.key }}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Game</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body container" id="editGameContent">
+                    <div class="row form-group">
+                        <label class="col-3" for="gameType">Game Type</label>
+                        <select class="col-8 custom-select" id="gameType" name="game-type">
+                            <option {% if not game.competitive %} selected {% endif %} value="quickplay">Quick Play</option>
+                            <option {% if game.competitive and not game.placement %} selected {% endif %} value="competitive">Competitive</option>
+                            <option {% if game.competitive and game.placement %} selected {% endif %} value="competitive-placement">Competitive (Placement)</option>
+                        </select>
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-3" for="startSR">Start SR</label>
+                        <input class="col-8 start-sr-input"
+                               type="number"
+                               id="startSR"
+                               name="start-sr"
+                               min="500"
+                               max="5000"
+                               value="{{ game.start_sr }}">
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-3" for="endSR">End SR</label>
+                        <input class="col-8 start-sr-input"
+                               type="number"
+                               id="endSR"
+                               name="end-sr"
+                               min="500"
+                               max="5000"
+                               value="{{ game.end_sr }}">
+                    </div>
+                    <div class="row form-group">
+                        <label class="col-3" for="result">Result</label>
+                        <select class="col-8 custom-select" id="result" name="result">
+                            <option value="auto">Derive from SR</option>
+                            <option {% if game.result == 'WIN' %} selected {% endif %} value="win">Win</option>
+                            <option {% if game.result == 'LOSS' %} selected {% endif %} value="loss">Loss</option>
+                            <option {% if game.result == 'DRAW' %} selected {% endif %} value="draw">Draw</option>
+                            <option {% if game.result == 'UNKNOWN' and not game.competitive %} selected {% endif %} value="unknown">Unknown</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-danger mr-auto" name="delete">Delete</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

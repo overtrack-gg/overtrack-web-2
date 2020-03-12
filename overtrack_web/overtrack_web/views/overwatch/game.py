@@ -6,7 +6,7 @@ import os
 import string
 import warnings
 from functools import reduce
-from typing import List, Optional, Sequence, Tuple, Iterable
+from typing import List, Optional, Sequence, Tuple, Iterable, Dict
 from urllib.parse import urlparse
 
 import boto3
@@ -14,8 +14,9 @@ import requests
 from dataclasses import asdict, fields, is_dataclass
 from flask import Blueprint, Request, render_template, request, url_for, render_template_string, Response
 from itertools import chain
+from werkzeug.utils import redirect
 
-from overtrack_models.dataclasses.overwatch.basic_types import Map
+from overtrack_models.dataclasses.overwatch.basic_types import Map, Mode
 from overtrack_models.dataclasses.overwatch.overwatch_game import OverwatchGame
 from overtrack_models.dataclasses.overwatch.performance_stats import HeroStats
 from overtrack_models.dataclasses.overwatch.teamfights import PlayerStats
@@ -24,7 +25,8 @@ from overtrack_models.dataclasses.typedload import referenced_typedload
 from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
 from overtrack_web.data import overwatch_data
 from overtrack_web.data.overwatch_data import hero_colors
-from overtrack_web.lib.authentication import check_authentication
+from overtrack_web.lib.authentication import check_authentication, require_login
+from overtrack_web.lib.decorators import restrict_origin
 from overtrack_web.lib.opengraph import Meta
 from overtrack_web.lib.overwatch_legacy import get_legacy_paths
 from overtrack_web.lib.session import session
@@ -90,7 +92,7 @@ def game(key: str):
             legacy_stylesheet=legacy_stylesheet,
         )
 
-    game = load_game(summary)
+    game, metadata = load_game(summary)
     game.timestamp = summary.time
 
     if game.teams.owner and game.result != 'UNKNOWN':
@@ -98,7 +100,8 @@ def game(key: str):
     elif game.teams.owner:
         title = f'{game.teams.owner.name}\'s game on {game.map.name}'
 
-    dev_info = get_dev_info(summary, game)
+    print(metadata)
+    dev_info = get_dev_info(summary, game, metadata)
 
     imagehash = hashlib.md5(str((game.result, game.start_sr, game.end_sr)).encode()).hexdigest()
 
@@ -178,7 +181,11 @@ def game(key: str):
 
         min_val = min(values)
         max_val = max(values)
-        threshold = max_val - min_val > max_val / 2 > 1
+        if min_val == 0:
+            threshold = max_val - min_val > max_val / 2 > 1
+        else:
+            threshold = min_val < min_val * 1.5 < max_val
+
 
         if stat == 0:
             stat_display = 'stat-zero'
@@ -251,6 +258,8 @@ def game(key: str):
 
         summary=summary,
         game=game,
+
+        show_edit=summary.user_id == session.user_id or session.superuser,
 
         dev_info=dev_info,
 
@@ -326,6 +335,87 @@ def game_card_png(key: str):
         r.content,
         headers=dict(r.headers)
     )
+
+
+@game_blueprint.route('/edit', methods=['POST'])
+@require_login
+@restrict_origin
+def edit():
+    logger.info(f'Updating game: {request.form}')
+    try:
+        summary = OverwatchGameSummary.get(request.form['key'])
+    except OverwatchGameSummary.DoesNotExist:
+        return 'Game does not exist', 404
+
+    logger.info(f'Loaded game: {summary}')
+
+    if summary.user_id != session.user_id and not session.superuser:
+        user = session.user
+        logger.error(f'Rejecting edit for unowned game')
+        return 'Objection!', 403
+
+    if 'delete' in request.form:
+        logger.warning(f'Deleting {summary.key!r}')
+        summary.delete()
+        return redirect(url_for('overwatch.games_list.games_list'), code=303)
+
+    summary.edited = True
+
+    summary.start_sr = int(request.form['start-sr']) if request.form['start-sr'] else None
+    summary.end_sr = int(request.form['end-sr']) if request.form['end-sr'] else None
+    logger.info(f'Got SR {summary.start_sr} -> {summary.end_sr} from form')
+
+    if request.form['game-type'] == 'quickplay':
+        summary.game_type = 'quickplay'
+    elif request.form['game-type'] == 'competitive':
+        summary.game_type = 'competitive'
+    elif request.form['game-type'] == 'competitive-placement':
+        summary.game_type = 'competitive'
+        summary.rank = 'placement'
+        logger.info(f'Derived rank={summary.rank!r} from form')
+    logger.info(f'Got game_type={summary.game_type!r} from form')
+
+    if request.form['result'] == 'auto':
+        if summary.game_type == 'competitive' and summary.start_sr and summary.end_sr:
+            if summary.end_sr > summary.start_sr:
+                summary.result = 'WIN'
+            elif summary.end_sr < summary.start_sr:
+                summary.result = 'LOSS'
+            else:
+                summary.result = 'DRAW'
+        else:
+            summary.result = 'UNKNOWN'
+        logger.info(f'Derived result={summary.result!r} from SR')
+    elif request.form['result'].upper() in ['WIN', 'LOSS', 'DRAW', 'UNKNOWN']:
+        summary.result = request.form['result'].upper()
+        logger.info(f'Got result={summary.result!r} from form')
+
+    logger.info(f'Saving game: {summary}')
+    summary.save()
+
+    game, metadata = load_game(summary)
+    game.start_sr = summary.start_sr
+    game.end_sr = summary.end_sr
+    game.result = summary.result
+    game.placement = summary.rank == 'placement'
+    if summary.game_type == 'competitive':
+        game.mode = Mode('Competitive Play')
+        game.competitive = True
+    else:
+        game.mode = Mode('Quick Play')
+        game.competitive = False
+
+    metadata['edited'] = 'True'
+    s3.put_object(
+        Bucket=GAMES_BUCKET,
+        Key=game.key + '.json',
+        Body=json.dumps(referenced_typedload.dump(game), indent=1).encode(),
+        ACL='public-read',
+        ContentType='application/json',
+        Metadata=metadata
+    )
+
+    return redirect(url_for('overwatch.game.game', key=summary.key), code=303)
 
 
 @game_blueprint.context_processor
@@ -435,24 +525,26 @@ def hero_name(h: str):
         return h.title()
 
 
-def load_game(summary: OverwatchGameSummary) -> OverwatchGame:
+def load_game(summary: OverwatchGameSummary) -> Tuple[OverwatchGame, Dict]:
     try:
         game_object = s3.get_object(
             Bucket=GAMES_BUCKET,
             Key=summary.key + '.json'
         )
         game_data = json.loads(game_object['Body'].read())
+        metadata = game_object['Metadata']
     except:
         if s3:
             logger.exception('Failed to fetch game data from S3 - trying HTTP')
         r = requests.get(f'https://overtrack-overwatch-games.s3.amazonaws.com/{summary.key}.json')
         r.raise_for_status()
         game_data = r.json()
+        metadata = {}
 
-    return referenced_typedload.load(game_data, OverwatchGame)
+    return referenced_typedload.load(game_data, OverwatchGame), metadata
 
 
-def get_dev_info(summary, game):
+def get_dev_info(summary, game, metatada):
     if check_authentication() is not None or not session.user.superuser:
         return None
 
@@ -484,9 +576,7 @@ def get_dev_info(summary, game):
         pass
 
     def _quickdump(val):
-        if isinstance(val, (tuple, str)):
-            return val
-        elif isinstance(val, collections.Sequence):
+        if not isinstance(val, (tuple, str)) and isinstance(val, collections.Sequence):
             return f'... {len(val)} items'
         else:
             rep = repr(val)
@@ -496,7 +586,9 @@ def get_dev_info(summary, game):
                 return rep[:50 - 3] + '...'
 
     game_dict = {}
-    extras = {}
+    extras = {
+        'metadata': metatada.items(),
+    }
     for f in fields(game):
         if f.name == 'images':
             game_dict['images'] = ''
