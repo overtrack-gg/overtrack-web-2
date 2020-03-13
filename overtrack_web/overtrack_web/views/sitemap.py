@@ -35,6 +35,10 @@ def sitemap():
             url_for('welcome', _external=True),
             priority=1.0,
         ),
+        SiteMapUrl(
+            url_for('faq', _external=True),
+            priority=0.8,
+        ),
 
         SiteMapUrl(
             url_for('client', _external=True),
