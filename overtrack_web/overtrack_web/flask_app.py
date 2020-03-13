@@ -191,11 +191,11 @@ def apex_games_redirect():
 
 @app.route('/assets/<path:path>')
 def legacy_assets(path):
-    return redirect('https://overtrack.gg/assets/' + path, code=301)
+    return redirect('https://old.overtrack.gg/assets/' + path, code=301)
 
 @app.route('/assets/<string:key>.jpg')
 def legacy_assets_banner(key):
-    return redirect('https://overtrack.gg/' + key + '.jpg', code=301)
+    return redirect('https://old.overtrack.gg/' + key + '.jpg', code=301)
 
 @app.route('/favicon.png')
 def favicon():
