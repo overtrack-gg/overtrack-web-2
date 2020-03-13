@@ -259,7 +259,7 @@ def game(key: str):
         summary=summary,
         game=game,
 
-        show_edit=summary.user_id == session.user_id or session.superuser,
+        show_edit=check_authentication() is None and (summary.user_id == session.user_id or session.superuser),
 
         dev_info=dev_info,
 
