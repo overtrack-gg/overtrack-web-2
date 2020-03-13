@@ -1,8 +1,0 @@
-EXCLUDES: []
-LIBRARY_PATHS: []
-OUTPUT_STYLES: nested
-SOURCES_PATH: static/scss
-SOURCE_COMMENTS: false
-TARGET_PATH: static/css
-OUTPUT_STYLES: compressed
-SOURCE_MAP: true
