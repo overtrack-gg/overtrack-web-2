@@ -13,7 +13,7 @@ login_blueprint = Blueprint('login', __name__)
 def login():
     if 'next' in request.args:
         next_ = request.args['next']
-        if check_authentication() is None:
+        if check_authentication() is None and next_.startswith(request.url_root):
             return redirect(next_)
     else:
         next_ = request.host_url
