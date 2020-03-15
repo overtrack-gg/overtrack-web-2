@@ -51,7 +51,7 @@
         overflow: visible!important;
     }
 
-    .player-stats {
+    .compositions, .player-stats {
         .player-name {
             font-size: 14px;
         }
@@ -107,6 +107,9 @@
             color: #c8c8c8;
         }
         .tab-stats-table span.stat-zero {
+            color: #717171;
+        }
+        .composition-below-threshold {
             color: #717171;
         }
 
@@ -298,7 +301,7 @@
         }
     }
 
-    .hero-stats {
+    .hero-stats, .compositions {
         .card-body {
             font: 300 11px 'Helvetica Neue',Helvetica,Arial,sans-serif;
         }
@@ -311,7 +314,7 @@
             font-size: 15px;
         }
 
-        .tab-stats-table span.big {
+        span.big {
             color: #FFFFFF;
             font-size: 16px;
             font-weight: 600;

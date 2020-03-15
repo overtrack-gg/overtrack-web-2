@@ -1,5 +1,5 @@
 {% macro render_stat(stats, field, category, role, view, hide=false, percent=false) -%}
-    {% set stat_display, value = process_stat(stats, field, category, role, view, percent=percent) %}
+    {% set stat_display, value = process_stat(game, stats, stat_totals, field, category, role, view, percent=percent) %}
     <td class="text-right {{ "extra-info-collapsible" if hide else "" }}"><span class="big text-nowrap {{ stat_display }}">
         {{ value }}
     </span></td>

@@ -19,7 +19,7 @@ from werkzeug.utils import redirect
 from overtrack_models.dataclasses.overwatch.basic_types import Map, Mode
 from overtrack_models.dataclasses.overwatch.overwatch_game import OverwatchGame
 from overtrack_models.dataclasses.overwatch.performance_stats import HeroStats
-from overtrack_models.dataclasses.overwatch.teamfights import PlayerStats
+from overtrack_models.dataclasses.overwatch.teamfights import PlayerStats, StageStats
 from overtrack_models.dataclasses.overwatch.teams import Player
 from overtrack_models.dataclasses.typedload import referenced_typedload
 from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
@@ -69,6 +69,8 @@ except:
 game_blueprint = Blueprint('overwatch.game', __name__)
 
 
+# ----- Routes -----
+
 @game_blueprint.route('/<path:key>')
 def game(key: str):
     try:
@@ -100,7 +102,6 @@ def game(key: str):
     elif game.teams.owner:
         title = f'{game.teams.owner.name}\'s game on {game.map.name}'
 
-    print(metadata)
     dev_info = get_dev_info(summary, game, metadata)
 
     imagehash = hashlib.md5(str((game.result, game.start_sr, game.end_sr)).encode()).hexdigest()
@@ -119,124 +120,8 @@ def game(key: str):
             'fight_starts_missed': len(tfs.teamfights),
             'times_staggered': len(tfs.teamfights),
         }
-        show_stats = True
     except AttributeError:
         stat_totals = {}
-        show_stats = False
-
-    def process_stat(
-        stats: PlayerStats,
-        field: str,
-        category: str,
-        role: int,
-        view: str,
-        percent: bool = False,
-    ) -> Tuple[str, str]:
-        def build_attr(stats, field):
-            parts = field.split('.')
-            try:
-                return reduce(getattr, parts, stats)
-            except AttributeError:
-                return None
-
-        def for_attr(field: str) -> Iterable[int]:
-            if category == 'player':
-                blue = game.teams.blue
-                red = game.teams.red
-                all_stats = [x.stats for x in blue + red]
-            else:
-                blue = game.teamfights.team_stats[0]
-                red = game.teamfights.team_stats[1]
-                all_stats = [blue, red]
-            return [
-                x for x in (build_attr(x, field) for x in all_stats)
-                if x is not None
-            ]
-
-        stat = build_attr(stats, field)
-        if stat is None:
-            return 'stat-below-threshold', ''
-
-        try:
-            if view == 'per-teamfight':
-                if percent:
-                    value = f'{(stat / stats.teamfights) * 100:.1f} %'
-                else:
-                    value = f'{stat / stats.teamfights:.2f}'
-            elif view == 'per-10min':
-                value = f'{stat / (stats.playtime / 600):.2f}'
-            elif view == 'ratio' and stat != 0:
-                total = stat_totals[field]
-                value = f'{100 * stat / total:.1f}'
-            elif view == 'ratio':
-                value = '0'
-            else:
-                value = str(stat)
-        except ZeroDivisionError:
-            return 'stat-below-threshold', ''
-
-        values = for_attr(field)
-        if not values:
-            values = [stat]
-
-        min_val = min(values)
-        max_val = max(values)
-        if min_val == 0:
-            threshold = max_val - min_val > max_val / 2 > 1
-        else:
-            threshold = min_val < min_val * 1.5 < max_val
-
-
-        if stat == 0:
-            stat_display = 'stat-zero'
-        elif threshold:
-            percent = (stat - min_val) / (max_val - min_val)
-            if percent > 0.9:
-                stat_display = 'stat-very-high'
-            elif percent > 0.6:
-                stat_display = 'stat-high'
-            elif percent >= 0.4:
-                stat_display = 'stat-median'
-            elif percent >= 0.1:
-                stat_display = 'stat-low'
-            else:
-                stat_display = 'stat-very-low'
-        else:
-            stat_display = 'stat-below-threshold'
-
-        if any(x in field for x in ['kill', 'elim']) and 'low' in stat_display and role is not None and role >= 4:
-            # don't consider a support with low kills as doing bad
-            stat_display = 'stat-below-threshold'
-
-        stat_display += f' stat-{field} role-{role}'
-
-        if any(
-            x in field
-            for x in ['deaths', 'missed', 'suicides', 'staggered']
-        ):
-            stat_display += ' stat-red-highs'
-        else:
-            stat_display += ' stat-green-highs'
-
-        return stat_display, value
-
-    def get_top_heroes(player: Player) -> List[Tuple[str, PlayerStats]]:
-        heroes = sorted(
-            [(n, s) for n, s in player.stats_by_hero.items() if s.playtime > 60],
-            key=lambda x: x[1].playtime,
-            reverse=True
-        )
-
-        return heroes[:3]
-
-    def get_hero_image(name: str) -> str:
-        return f'images/overwatch/hero_icons/{name}.png'
-
-    def get_hero_color(name: str) -> str:
-        try:
-            return hero_colors[name]
-        except KeyError:
-            return '#5d518e'
 
     return render_template(
         'overwatch/game/game.html',
@@ -250,11 +135,12 @@ def game(key: str):
             colour=COLOURS.get(game.result, 'gray')
         ),
 
-        show_stats=show_stats,
-        get_top_heroes=get_top_heroes,
-        get_hero_color=get_hero_color,
-        get_hero_image=get_hero_image,
-        process_stat=process_stat,
+        # show_stats=show_stats,
+        stat_totals=stat_totals,
+        # get_top_heroes=get_top_heroes,
+        # get_hero_color=get_hero_color,
+        # get_hero_image=get_hero_image,
+        # process_stat=process_stat,
 
         summary=summary,
         game=game,
@@ -266,81 +152,10 @@ def game(key: str):
         OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
     )
 
-
-@game_blueprint.route('<path:key>/card')
-def game_card(key: str):
-    try:
-        game = OverwatchGameSummary.get(key)
-    except OverwatchGameSummary.DoesNotExist:
-        return 'Game does not exist', 404
-
-    return render_template_string(
-        '''
-            <!DOCTYPE html>
-            <html lang="en">
-                <head>
-                    <title>{{ title }}</title>
-                    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/' + game_name + '.css') }}">
-                    <style>
-                        body {
-                            background-color: rgba(0, 0, 0, 0);
-                        }
-                        .game-summary {
-                            margin: 0 !important;
-                        }
-                    </style>
-                </head>
-                <body>
-                    {% include 'overwatch/games_list/game_card.html' %}
-                </body>
-            </html>
-        ''',
-        title='Card',
-        game=game,
-        show_rank=True,
-        OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
-
-        map_thumbnail_style=map_thumbnail_style,
-    )
-
-
-@game_blueprint.route('/<path:key>/card.png')
-def game_card_png(key: str):
-    if 'RENDERTRON_URL' not in os.environ:
-        return 'Rendertron url not set on server', 500
-
-    url = ''.join((
-        os.environ['RENDERTRON_URL'],
-        'screenshot/',
-        url_for('overwatch.game.game_card', key=key, _external=True),
-        f'?width={min(int(request.args.get("width", 356)), 512)}',
-        f'&height={min(int(request.args.get("height", 80)), 512)}',
-        f'&_cachebust={request.args.get("_cachebust", "")}'
-    ))
-    try:
-        r = requests.get(
-            url,
-            timeout=15,
-        )
-    except:
-        logger.exception('Rendertron failed to respond within the timeout')
-        return 'Rendertron failed to respond within the timeout', 500
-    try:
-        r.raise_for_status()
-    except:
-        logger.exception('Rendertron encountered an error fetching screenshot')
-        return f'Rendertron encountered an error fetching screenshot: got status {r.status_code}', 500
-
-    return Response(
-        r.content,
-        headers=dict(r.headers)
-    )
-
-
 @game_blueprint.route('/edit', methods=['POST'])
 @require_login
 @restrict_origin
-def edit():
+def edit_game():
     logger.info(f'Updating game: {request.form}')
     try:
         summary = OverwatchGameSummary.get(request.form['key'])
@@ -417,23 +232,240 @@ def edit():
 
     return redirect(url_for('overwatch.game.game', key=summary.key), code=303)
 
+@game_blueprint.route('<path:key>/card')
+def game_card(key: str):
+    try:
+        game = OverwatchGameSummary.get(key)
+    except OverwatchGameSummary.DoesNotExist:
+        return 'Game does not exist', 404
+
+    return render_template_string(
+        '''
+            <!DOCTYPE html>
+            <html lang="en">
+                <head>
+                    <title>{{ title }}</title>
+                    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/' + game_name + '.css') }}">
+                    <style>
+                        body {
+                            background-color: rgba(0, 0, 0, 0);
+                        }
+                        .game-summary {
+                            margin: 0 !important;
+                        }
+                    </style>
+                </head>
+                <body>
+                    {% include 'overwatch/games_list/game_card.html' %}
+                </body>
+            </html>
+        ''',
+        title='Card',
+        game=game,
+        show_rank=True,
+        OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
+
+        map_thumbnail_style=map_thumbnail_style,
+    )
+
+@game_blueprint.route('/<path:key>/card.png')
+def game_card_png(key: str):
+    if 'RENDERTRON_URL' not in os.environ:
+        return 'Rendertron url not set on server', 500
+
+    url = ''.join((
+        os.environ['RENDERTRON_URL'],
+        'screenshot/',
+        url_for('overwatch.game.game_card', key=key, _external=True),
+        f'?width={min(int(request.args.get("width", 356)), 512)}',
+        f'&height={min(int(request.args.get("height", 80)), 512)}',
+        f'&_cachebust={request.args.get("_cachebust", "")}'
+    ))
+    try:
+        r = requests.get(
+            url,
+            timeout=15,
+        )
+    except:
+        logger.exception('Rendertron failed to respond within the timeout')
+        return 'Rendertron failed to respond within the timeout', 500
+    try:
+        r.raise_for_status()
+    except:
+        logger.exception('Rendertron encountered an error fetching screenshot')
+        return f'Rendertron encountered an error fetching screenshot: got status {r.status_code}', 500
+
+    return Response(
+        r.content,
+        headers=dict(r.headers)
+    )
+
+
+# ----- Template Variables -----
 
 @game_blueprint.context_processor
 def context_processor():
     return {
         'game_name': 'overwatch',
 
+        # Header
         'sr_change': sr_change,
 
+        # Compositions
+        # 'sort_composition_stages': sort_composition_stages,
+
+        # Player Stats
+        'process_stat': process_stat,
+        'get_top_heroes': get_top_heroes,
+        'get_hero_image': get_hero_image,
+        'get_hero_color': get_hero_color,
+
+        # Timeline
         'ability_is_ult': ability_is_ult,
         'get_ult_ability': get_ult_ability,
 
-        'sort_stats': sort_stats,
-        'get_stat_type': get_stat_type,
+        # Performance Stats
+        'sort_stats': sort_performance_stats,
+        'get_stat_type': get_performance_stat_type,
 
         'asdict': asdict,
     }
 
+
+# # ----- Template Variables: Compositions -----
+#
+# def sort_composition_stages(stats: Dict[str, StageStats]) -> Dict[str, StageStats]:
+#     n: str
+#     s: StageStats
+#     return {
+#         n: s
+#         for (n, s) in sorted(
+#             stats.items(),
+#             key=lambda e: e[1].duration,
+#             reverse=True,
+#         ) if s.blue_compositions and s.red_compositions
+#     }
+
+
+# ----- Template Variables: Player Stats -----
+
+def process_stat(
+    game: OverwatchGame,
+    stats: PlayerStats,
+    stat_totals: Dict[str, int],
+    field: str,
+    category: str,
+    role: int,
+    view: str,
+    percent: bool = False,
+) -> Tuple[str, str]:
+    def build_attr(stats, field):
+        parts = field.split('.')
+        try:
+            return reduce(getattr, parts, stats)
+        except AttributeError:
+            return None
+
+    def for_attr(field: str) -> Iterable[int]:
+        if category == 'player':
+            blue = game.teams.blue
+            red = game.teams.red
+            all_stats = [x.stats for x in blue + red]
+        else:
+            blue = game.teamfights.team_stats[0]
+            red = game.teamfights.team_stats[1]
+            all_stats = [blue, red]
+        return [
+            x for x in (build_attr(x, field) for x in all_stats)
+            if x is not None
+        ]
+
+    stat = build_attr(stats, field)
+    if stat is None:
+        return 'stat-below-threshold', ''
+
+    try:
+        if view == 'per-teamfight':
+            if percent:
+                value = f'{(stat / stats.teamfights) * 100:.1f} %'
+            else:
+                value = f'{stat / stats.teamfights:.2f}'
+        elif view == 'per-10min':
+            value = f'{stat / (stats.playtime / 600):.2f}'
+        elif view == 'ratio' and stat != 0:
+            total = stat_totals[field]
+            value = f'{100 * stat / total:.1f}'
+        elif view == 'ratio':
+            value = '0'
+        else:
+            value = str(stat)
+    except ZeroDivisionError:
+        return 'stat-below-threshold', ''
+
+    values = for_attr(field)
+    if not values:
+        values = [stat]
+
+    min_val = min(values)
+    max_val = max(values)
+    if min_val == 0:
+        threshold = max_val - min_val > max_val / 2 > 1
+    else:
+        threshold = min_val < min_val * 1.5 < max_val
+
+    if stat == 0:
+        stat_display = 'stat-zero'
+    elif threshold:
+        percent = (stat - min_val) / (max_val - min_val)
+        if percent > 0.9:
+            stat_display = 'stat-very-high'
+        elif percent > 0.6:
+            stat_display = 'stat-high'
+        elif percent >= 0.4:
+            stat_display = 'stat-median'
+        elif percent >= 0.1:
+            stat_display = 'stat-low'
+        else:
+            stat_display = 'stat-very-low'
+    else:
+        stat_display = 'stat-below-threshold'
+
+    if any(x in field for x in ['kill', 'elim']) and 'low' in stat_display and role is not None and role >= 4:
+        # don't consider a support with low kills as doing bad
+        stat_display = 'stat-below-threshold'
+
+    stat_display += f' stat-{field} role-{role}'
+
+    if any(
+        x in field
+        for x in ['deaths', 'missed', 'suicides', 'staggered']
+    ):
+        stat_display += ' stat-red-highs'
+    else:
+        stat_display += ' stat-green-highs'
+
+    return stat_display, value
+
+def get_top_heroes(player: Player) -> List[Tuple[str, PlayerStats]]:
+    heroes = sorted(
+        [(n, s) for n, s in player.stats_by_hero.items() if s.playtime > 60],
+        key=lambda x: x[1].playtime,
+        reverse=True
+    )
+
+    return heroes[:3]
+
+def get_hero_image(name: str) -> str:
+    return f'images/overwatch/hero_icons/{name}.png'
+
+def get_hero_color(name: str) -> str:
+    try:
+        return hero_colors[name]
+    except KeyError:
+        return '#5d518e'
+
+
+# ----- Template Variables: Timeline -----
 
 def ability_is_ult(ability) -> bool:
     if not ability:
@@ -452,14 +484,15 @@ def ability_is_ult(ability) -> bool:
         return False
     return ability_name == hero.ult
 
-
 def get_ult_ability(hero):
     if not hero or hero not in overwatch_data.heroes:
         return None
     return f'{hero}.{overwatch_data.heroes.get(hero).ult}'
 
 
-def sort_stats(stats: Sequence[HeroStats]) -> List[HeroStats]:
+# ----- Template Variables: Performance Stats -----
+
+def sort_performance_stats(stats: Sequence[HeroStats]) -> List[HeroStats]:
     stats = sorted(list(stats), key=lambda s: (s.hero != 'all heroes', s.hero))
     heroes = [s.hero for s in stats]
     if 'all heroes' in heroes and len(heroes) == 2:
@@ -471,7 +504,7 @@ def sort_stats(stats: Sequence[HeroStats]) -> List[HeroStats]:
     return stats
 
 
-def get_stat_type(hero_name: str, stat_name: str) -> str:
+def get_performance_stat_type(hero_name: str, stat_name: str) -> str:
     if hero_name in overwatch_data.heroes:
         hero = overwatch_data.heroes[hero_name]
         stats_by_name = {
@@ -494,6 +527,8 @@ def get_stat_type(hero_name: str, stat_name: str) -> str:
     return 'value'
 
 
+# ----- Template Filters -----
+
 @game_blueprint.app_template_filter('map_jumbo_style')
 def map_jumbo_style(map_: Map):
     map_name = map_.name.lower().replace(' ', '-')
@@ -503,7 +538,6 @@ def map_jumbo_style(map_: Map):
         f'url({url_for("static", filename="images/overwatch/map_banners/" + map_name + ".jpg")}); '
         f'background-color: #0d1235;'
     )
-
 
 @game_blueprint.app_template_filter('format_number')
 def format_number(v: Optional[float], precision: Optional[float] = 1):
@@ -516,7 +550,6 @@ def format_number(v: Optional[float], precision: Optional[float] = 1):
             precision = 1
     return f'{v:,.{precision}f}'
 
-
 @game_blueprint.app_template_filter('hero_name')
 def hero_name(h: str):
     if h in overwatch_data.heroes:
@@ -524,6 +557,8 @@ def hero_name(h: str):
     else:
         return h.title()
 
+
+# ----- Utility Functions -----
 
 def load_game(summary: OverwatchGameSummary) -> Tuple[OverwatchGame, Dict]:
     try:
@@ -542,7 +577,6 @@ def load_game(summary: OverwatchGameSummary) -> Tuple[OverwatchGame, Dict]:
         metadata = {}
 
     return referenced_typedload.load(game_data, OverwatchGame), metadata
-
 
 def get_dev_info(summary, game, metatada):
     if check_authentication() is not None or not session.user.superuser:

@@ -27,11 +27,6 @@
     <div class="tab-content card-body">
         {% for view in ["per-teamfight", "per-10min", "total"] %}
             <div id="view-{{ view }}" class="tab-pane {{ 'active' if loop.first else '' }}">
-
-                {#<p>
-                    {{ game.teamfights | length }} Teamfights
-                </p>#}
-
                 <table id="player-stats-table-{{ view }}" class="table tab-stats-table table-borderless table-hover text-left table-responsive-sm extra-info-collapsed">
                     <thead class="border-bottom">
                         <tr>

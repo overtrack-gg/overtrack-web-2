@@ -1,7 +1,7 @@
 <a class="btn btn-secondary mr-5" data-toggle="modal" data-target="#editGame">Edit</a>
 <div class="modal fade" id="editGame" tabindex="-1" role="dialog" aria-hidden="true" style="text-align: left">
     <div class="modal-dialog" role="document">
-        <form action="{{ url_for('overwatch.game.edit') }}" method="post">
+        <form action="{{ url_for('overwatch.game.edit_game') }}" method="post">
             <input type="hidden" name="key" value="{{ game.key }}">
             <div class="modal-content">
                 <div class="modal-header">

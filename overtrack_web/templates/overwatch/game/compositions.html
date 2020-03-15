@@ -1,0 +1,99 @@
+{%- macro stats_cols(stats) %}
+{% set class='composition-below-threshold' if stats.teamfights <= 3 else '' %}
+<td class="text-right py-1">
+    <span class="big {{ class }}">{{ stats.playtime | s2ts }}</span>
+</td>
+<td class="text-right py-1">
+    <span class="big {{ class }}">{{ stats.teamfights }}</span>
+</td>
+<td class="text-right py-1">
+    <span class="big {{ class }}">{{ "{0:1.1f}%".format(100 * stats.won_fights / stats.teamfights) }}</span>
+</td>
+<td class="text-right py-1">
+    <span class="big {{ class }}">{{ "{0:1.2f}".format(stats.eliminations.during_fights / stats.teamfights) }}</span>
+</td>
+<td class="text-right py-1">
+    <span class="big {{ class }}">{{ "{0:1.1f}%".format(100 * stats.first_kills / stats.teamfights) }}</span>
+</td>
+{% endmacro %}
+
+
+<div class="card text-center compositions">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs justify-content-start">
+            <li>
+                <b>Compositions:</b>
+            </li>
+            {% for stage_name in game.teamfights.stage_stats %}
+                <li class="nav-item">
+                    <a class="nav-link px-2 {{ 'active' if loop.first else '' }}"
+                       data-toggle="tab"
+                       id="select-{{ stage_name | strip }}"
+                       href="#view-{{ stage_name | strip }}">{{ stage_name }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="tab-content card-body">
+        {% for stage_name, stage_stats in game.teamfights.stage_stats.items() %}
+            <div id="view-{{ stage_name | strip }}" class="tab-pane {{ 'active' if loop.first else '' }}">
+                <table id="compositions-table-{{ stage_name | strip }}" class="table compositions-table table-borderless table-hover text-left table-responsive-sm" style="table-layout: fixed;">
+                    <thead class="border-bottom">
+                        <tr>
+                            <th scope="col" width=240px">
+                                Composition
+                            </th>
+                            <th scope="col" class="text-right">
+                                Time Played
+                            </th>
+                            <th scope="col" class="text-right">
+                                Teamfights
+                            </th>
+                            <th scope="col" class="text-right">
+                                Fight Winrate
+                            </th>
+                            <th scope="col" class="text-right">
+                                Avg Kills / Fight
+                            </th>
+                            <th scope="col" class="text-right">
+                                First Kill Rate
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for team in ['blue', 'red'] %}
+                        <tr style="border-top: 1px dashed #c8c8c877; background-color: #0a0d26;">
+                            <th class="px-0 py-1" style="height: 35px;" >
+                                <b class="text-{{ team }} player-name" style="font-size: 12px;">
+                                    ALL {{ team | upper }} COMPOSITIONS
+                                </b>
+                            </th>
+                            {{ stats_cols(stage_stats | attr(team + '_stats')) }}
+                        </tr>
+                        {% for composition, stats in stage_stats | attr(team + '_compositions') %}
+                        <tr>
+                            <td class="p-0 m-0 text-left" style="height: 35px;">
+                                <div class="hero-icons">
+                                    {% for hero_name in composition %}
+                                        <div class="hero-icon-container p-0 m-0 show">
+                                            <div class="hero-icon">
+                                                <div class="hero-icon-background"
+                                                     style="background-color: {{ get_hero_color(hero_name) }};"></div>
+                                                <img class="hero-icon-image"
+                                                     src="{{ url_for('static', filename=get_hero_image(hero_name)) }}"
+                                                     alt="{{ hero_name | title }}">
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            {{ stats_cols(stats) }}
+                        </tr>
+                        {% endfor %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endfor %}
+    </div>
+</div>
