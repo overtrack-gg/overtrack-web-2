@@ -339,7 +339,7 @@ def render_games_list(user: User, share_settings: Optional[OverwatchShareSetting
         next_from = None
 
     now = datetime.datetime.now()
-    trial_end_time = datetime.datetime.utcfromtimestamp(user.trial_end_time)
+    trial_end_time = datetime.datetime.utcfromtimestamp(user.trial_end_time or time.time() + 7 * 24 * 60 * 60)
     raw_time_left = trial_end_time - now
 
     if raw_time_left.days > 0:
