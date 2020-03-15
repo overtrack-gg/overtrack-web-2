@@ -7,13 +7,13 @@
     <span class="big {{ class }}">{{ stats.teamfights }}</span>
 </td>
 <td class="text-right py-1">
-    <span class="big {{ class }}">{{ "{0:1.1f}%".format(100 * stats.won_fights / stats.teamfights) }}</span>
+    <span class="big {{ class }}">{{ "{0:1.1f}%".format(100 * stats.won_fights / stats.teamfights) if stats.teamfights else '-' }}</span>
 </td>
 <td class="text-right py-1">
-    <span class="big {{ class }}">{{ "{0:1.2f}".format(stats.eliminations.during_fights / stats.teamfights) }}</span>
+    <span class="big {{ class }}">{{ "{0:1.2f}".format(stats.eliminations.during_fights / stats.teamfights) if stats.teamfights else '-' }}</span>
 </td>
 <td class="text-right py-1">
-    <span class="big {{ class }}">{{ "{0:1.1f}%".format(100 * stats.first_kills / stats.teamfights) }}</span>
+    <span class="big {{ class }}">{{ "{0:1.1f}%".format(100 * stats.first_kills / stats.teamfights) if stats.teamfights else '-' }}</span>
 </td>
 {% endmacro %}
 
