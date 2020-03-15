@@ -380,7 +380,7 @@ def render_results(user: User):
     accounts_list = ['All Accounts', *accounts.keys()]
 
     return render_template(
-        'overwatch/hero_stats/performance_stats.html',
+        'overwatch/hero_stats/hero_stats.html',
         seasons=seasons,
         current_season=overwatch_data.seasons[season_id],
         accounts=accounts_list,
