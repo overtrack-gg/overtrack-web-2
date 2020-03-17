@@ -92,15 +92,15 @@
     {{ render_stat(stats, "first_kills", category, role, view, percent=true) }}
     {{ render_stat(stats, "first_deaths", category, role, view, percent=true) }}
 
-    {{ render_stat(stats, "ults.during_fights", category, role, view) }}
+   {{ render_stat(stats, "ults.during_fights", category, role, view) }}
 
     <td class="vert-sep extra-info-collapsible"></td>
     {% if category != "team" %}
         {{ render_stat(stats, "times_staggered", category, role, view, true, percent=true) }}
         {{ render_stat(stats, "fight_starts_missed", category, role, view, true, percent=true) }}
-        {{ render_stat(stats, "suicides.during_fights", category, role, view, true) }}
+        {#{{ render_stat(stats, "suicides.during_fights", category, role, view, true) }}#}
     {% else %}
-        <td class="extra-info-collapsible" colspan="3"></td>
+        <td class="extra-info-collapsible" colspan="2"></td>
     {% endif %}
 
     <td class="vert-sep extra-info-collapsible"></td>
@@ -108,6 +108,11 @@
     {{ render_stat(stats, "eliminations.outside_fights", category, role, view, true) }}
     {{ render_stat(stats, "deaths.outside_fights", category, role, view, true) }}
     {{ render_stat(stats, "killfeed_assists.outside_fights", category, role, view, true) }}
+    {{ render_stat(stats, "ults.outside_fights", category, role, view, true) }}
+
+    <td class="vert-sep"></td>
+    {{ render_stat(stats, "first_kill_fights_won", category, role, view, percent=true) }}
+
 
 </tr>
 

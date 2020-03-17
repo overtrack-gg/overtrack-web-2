@@ -34,18 +34,22 @@
                                 {{ game.teamfights.blue_stats.teamfights }} Teamfights
                             </th>
                             <th scope="col" width=80px"></th>
-                            <th scope="col" colspan="7" class="text-center" style="font-weight: bold;">
-                                During Teamfights
+                            <th scope="col" colspan="7" class="text-center">
+                                <span style="font-weight: bold;">During Teamfights</span>
+                                <span>({{ view.replace('-', ' ') }})</span>
                             </th>
                             <th scope="col" colspan="1" class="extra-info-collapsible" width=1px></th>
-                            <th scope="col" colspan="3" class="extra-info-collapsible"></th>
+                            <th scope="col" colspan="2" class="extra-info-collapsible"></th>
                             <th scope="col" colspan="1" class="extra-info-collapsible" width=1px></th>
-                            <th scope="col" colspan="3" class="extra-info-collapsible text-center" style="font-weight: bold;">
-                                Outside Teamfights
+                            <th scope="col" colspan="4" class="extra-info-collapsible text-center">
+                                <span style="font-weight: bold;">Outside Teamfights</span>
+                                <span>({{ view.replace('-', ' ') }})</span>
                                 {% if view == 'per-teamfight' %}
-                                <a href="#" style="color: #c59b12;"  data-toggle="tooltip" title="" data-original-title="Isolated picks that were not considered a teamfight. Values are still averaged by the number of teamfights.">?</a>
+                                <a href="#" style="color: #c59b12;"  data-toggle="tooltip" title="" data-original-title="Isolated picks that were not considered a teamfight. Values are still normalized by the number of teamfights.">?</a>
                                 {% endif %}
                             </th>
+                            <th scope="col" colspan="1" class="" width=1px></th>
+                            <th scope="col" colspan="1" class=""></th>
                         </tr>
                         <tr class="text-right">
                             <th scope="col"></th>
@@ -62,13 +66,18 @@
                             <th scope="col" class="extra-info-collapsible"></th>
                             <th scope="col" class="extra-info-collapsible" style="font-size: 12px;">Staggered</th>
                             <th scope="col" class="extra-info-collapsible">Fight Starts Missed</th>
-                            <th scope="col" class="extra-info-collapsible">Suicides</th>
+                            {#<th scope="col" class="extra-info-collapsible">Suicides</th>#}
 
                             <th scope="col" class="extra-info-collapsible vert-sep"></th>
 
                             <th scope="col" class="extra-info-collapsible">Kills</th>
                             <th scope="col" class="extra-info-collapsible">Deaths</th>
                             <th scope="col" class="extra-info-collapsible">Killfeed Assists</th>
+                            <th scope="col" class="extra-info-collapsible">Ults</th>
+
+                            <th scope="col" class="vert-sep"></th>
+
+                            <th scope="col" style="font-size: 12px;">First Kill = Fight Won</th>
                         </tr>
                     </thead>
                     <tbody>

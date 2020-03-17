@@ -61,8 +61,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                    {% for team in ['blue', 'red'] %}
-                        <tr style="border-top: 1px dashed #c8c8c877; background-color: #0a0d26;">
+                    {% for team, team_colour in [('blue', '#1c3e56'), ('red', '#6f2323')] %}
+                        {% if stage_stats | attr(team + '_compositions') | length > 1 %}
+                        <tr style="border-top: 1px dashed #c8c8c877; background-color: {{ team_colour }};">
                             <th class="px-0 py-1" style="height: 35px;" >
                                 <b class="text-{{ team }} player-name" style="font-size: 12px;">
                                     ALL {{ team | upper }} COMPOSITIONS
@@ -70,8 +71,13 @@
                             </th>
                             {{ stats_cols(stage_stats | attr(team + '_stats')) }}
                         </tr>
+                        {% endif %}
                         {% for composition, stats in stage_stats | attr(team + '_compositions') %}
-                        <tr>
+                        <tr
+                        {% if loop.length == 1 %}
+                        style="border-top: 1px dashed #c8c8c877; background-color: {{ team_colour }};"
+                        {% endif %}
+                        >
                             <td class="p-0 m-0 text-left" style="height: 35px;">
                                 <div class="hero-icons">
                                     {% for hero_name in composition %}

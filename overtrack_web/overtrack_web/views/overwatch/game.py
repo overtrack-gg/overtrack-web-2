@@ -385,7 +385,14 @@ def process_stat(
         return 'stat-below-threshold', ''
 
     try:
-        if view == 'per-teamfight':
+        if field == 'first_kill_fights_won':
+            if stat is None:
+                return 'stat-below-threshold', ''
+            if view == 'total':
+                value = str(stat)
+            else:
+                value = f'{100 * stat / stats.first_kills:.1f} %'
+        elif view == 'per-teamfight':
             if percent:
                 value = f'{(stat / stats.teamfights) * 100:.1f} %'
             else:
