@@ -28,13 +28,14 @@ console.log(rings);
 
 var placed = 3;
 
+const MAP_IMAGE_SCALE = 2;
 const TIMESCALE = 10;
 
 const TIMESTART = route.locations[0][0];
 const TIMEEND = route.locations[route.locations.length - 1][0];
 const TIMEDURATION = TIMEEND - TIMESTART;
 
-const LINE_SIZE = 2;
+const LINE_WIDTH = 2;
 const ELIM_SCALE_INIT = 30;
 const ELIM_SCALE = 15;
 
@@ -43,22 +44,38 @@ const BTN_OVER = "#b92e26";
 const BTN_ACTIVE = "#228b22";
 const BTN_ACTIVE_OVER = "#22bb22";
 
+var image_url = IMAGE + route.map + ".jpg";
+var image_x, image_y;
+let img = new Image();
+img.onload = function(){
+    document.body.appendChild(this);
+    image_x = this.offsetWidth;
+    image_y = this.offsetHeight;
+    document.body.removeChild(this);
+    start_animation();
+};
+img.src = image_url;
+
 var assist_visibility = "hidden";
 var heat_visibility = "hidden";
 
 function draw_map() {
     d3.selectAll("#map svg").remove();
 
-    const SIZE_X = $('#map').width();
-    const SIZE_Y = $('#map').height();
-    const SIZE = Math.max(SIZE_X, SIZE_Y);
+    const canvas_w = $('#map').width();
+    const canvas_h = $('#map').height();
+    const canvas_size = Math.max(canvas_w, canvas_h);
+    const rescale_factor = canvas_size / Math.max(image_x, image_y);
+
+    const x_pad = Math.max(0, image_y - image_x) / 2;
+    const y_pad = Math.max(0, image_x - image_y) / 2;
 
     function rescale_x(n) {
-        return (n * SIZE) / 1502;
+        return (n * MAP_IMAGE_SCALE + x_pad) * rescale_factor;
     };
 
     function rescale_y(n) {
-        return (n * SIZE) / 1492;
+        return (n * MAP_IMAGE_SCALE + y_pad) * rescale_factor;
     };
 
     function get_initial_zoom() {
@@ -79,8 +96,8 @@ function draw_map() {
 
     var svg_base = d3.select("#map")
         .append("svg")
-            .attr("width", SIZE_X)
-            .attr("height", SIZE_Y)
+            .attr("width", canvas_w)
+            .attr("height", canvas_h)
 
     svg_base.append("rect")
         .attr("width", "100%")
@@ -92,11 +109,11 @@ function draw_map() {
     var defs = svg_base.append("defs");
 
     svg.append("image")
-        .attr("xlink:href", IMAGE + "map.jpg")
+        .attr("xlink:href", image_url)
         .attr("x", 0)
         .attr("y", 0)
-        .attr("width", SIZE)
-        .attr("height", SIZE);
+        .attr("width", canvas_size)
+        .attr("height", canvas_size);
 
     /************************************************************************
     *** OVERLAY SETUP
@@ -265,7 +282,7 @@ function draw_map() {
     var drop_path = svg.append("path")
         .attr("d", lineFunction(drop))
         .attr("stroke", "Cyan")
-        .attr("stroke-width", LINE_SIZE)
+        .attr("stroke-width", LINE_WIDTH)
         .attr("fill", "none")
         .attr("opacity", 0.5)
         .attr("visibility", heat_visibility == "hidden" ? "visible" : "hidden")
@@ -278,7 +295,7 @@ function draw_map() {
                 .attr("d", lineFunction(travel[i].route))
                 .attr("class", "travel-path")
                 .attr("stroke", "Lime")
-                .attr("stroke-width", LINE_SIZE)
+                .attr("stroke-width", LINE_WIDTH)
                 .attr("fill", "none")
                 .attr("visibility", heat_visibility === "hidden" ? "visible" : "hidden")
         );
@@ -514,7 +531,7 @@ function draw_map() {
                 .attr("r", function (r) { return rescale_x(r.radius) })
                 .attr("fill", "none")
                 .attr("opacity", 0)
-                .attr("stroke-width", LINE_SIZE)
+                .attr("stroke-width", LINE_WIDTH)
 
     }
 
@@ -533,11 +550,11 @@ function draw_map() {
     *** ZOOM SETUP
     *************************************************************************/
 
-    const min_scale = Math.min(SIZE_X, SIZE_Y) / Math.max(SIZE_X, SIZE_Y);
+    const min_scale = Math.min(canvas_w, canvas_h) / Math.max(canvas_w, canvas_h);
     const max_scale = 50;
     var zoom = d3.zoom()
         .scaleExtent([min_scale, max_scale])
-        .translateExtent([[0, 0], [SIZE, SIZE]])
+        .translateExtent([[0, 0], [canvas_size, canvas_size]])
         .on("zoom", function () {
             var k = d3.event.transform.k;
             var ok = k;
@@ -547,9 +564,9 @@ function draw_map() {
                 k = (k - 5) / 1.5 + 5;
             }
             svg.attr("transform", d3.event.transform);
-            drop_path.attr("stroke-width", LINE_SIZE / ok);
-            circles.attr("stroke-width", LINE_SIZE / ok);
-            d3.selectAll(".travel-path").attr("stroke-width", LINE_SIZE / ok);
+            drop_path.attr("stroke-width", LINE_WIDTH / ok);
+            circles.attr("stroke-width", LINE_WIDTH / ok);
+            d3.selectAll(".travel-path").attr("stroke-width", LINE_WIDTH / ok);
             knocks_a.attr("r", ELIM_SCALE / k);
             elims_a.attr("r", ELIM_SCALE / k);
             knocks.attr("r", ELIM_SCALE / k);
@@ -562,9 +579,9 @@ function draw_map() {
 
     svg_base
         .call(zoom.scaleTo, 1)
-        .call(zoom.translateTo, SIZE / 2, SIZE / 2);
+        .call(zoom.translateTo, canvas_size / 2, canvas_size / 2);
     svg_base
-        .call(zoom.scaleBy, Math.max(Math.min((range_x > range_y ? SIZE_X : SIZE_Y) / (Math.max(range_x, range_y) + 40), max_scale), min_scale))
+        .call(zoom.scaleBy, Math.max(Math.min((range_x > range_y ? canvas_w : canvas_h) / (Math.max(range_x, range_y) + 40), max_scale), min_scale))
         .call(zoom.translateTo, min_x + range_x / 2, min_y + range_y / 2);
 
     var k = d3.zoomTransform(svg_base.node()).k;
@@ -769,7 +786,7 @@ function draw_map() {
 }
 
 window.addEventListener("resize", draw_map);
-document.addEventListener("DOMContentLoaded", function(event) {
+function start_animation(){
     let travel_last = travel_full[0];
     let travel_current = [travel_last];
 
@@ -794,4 +811,4 @@ document.addEventListener("DOMContentLoaded", function(event) {
         e.stopPropagation();
         return false;
     })
-});
+};
