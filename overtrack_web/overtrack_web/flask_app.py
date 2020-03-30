@@ -287,6 +287,10 @@ def faq():
 
 app.register_blueprint(sitemap_blueprint)
 
+@app.route('/riot.txt')
+def riot_proof():
+    return '26313095-f71c-4db7-b3db-9309f3afd071'
+
 
 @app.route('/test', methods=['GET', 'POST'])
 def test():
