@@ -267,7 +267,7 @@ def check_stripe_subscription() -> Tuple[bool, Optional[str], str]:
 
 @subscribe_blueprint.route('/paypal_approved', methods=['POST'])
 @require_login
-@restrict_origin()
+@restrict_origin(whitelist=['overtrack.gg', 'www.overtrack.gg'])
 def paypal_approved():
     logger.info(f'Paypal subscription approved: {request.form}')
 
@@ -337,7 +337,7 @@ def paypal_approved():
 
 @subscribe_blueprint.route('/paypal_cancel', methods=['POST'])
 @require_login
-@restrict_origin(whitelist=['apex.overtrack.gg'])
+@restrict_origin(whitelist=['overtrack.gg', 'www.overtrack.gg'])
 def paypal_cancel():
     session.user.refresh()
     logger.info(f'Canceling PayPal subscription {session.user.paypal_subscr_id}')
@@ -369,7 +369,7 @@ def paypal_cancel():
 
 @subscribe_blueprint.route('/stripe_cancel', methods=['POST'])
 @require_login
-@restrict_origin(whitelist=['apex.overtrack.gg'])
+@restrict_origin(whitelist=['overtrack.gg', 'www.overtrack.gg'])
 def stripe_cancel():
     session.user.refresh()
     logger.info(f'Canceling Stripe subscription {session.user.stripe_subscription_id}')
