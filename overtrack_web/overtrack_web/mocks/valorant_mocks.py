@@ -6,7 +6,8 @@ from typing import List
 
 import requests
 
-from overtrack_models.orm.apex_game_summary import ApexGameSummary
+from overtrack_models.orm.valorant_game_summary import ValorantGameSummary
+
 from overtrack_web.mocks.dynamo_mocks import MockIndex
 from overtrack_web.mocks.login_mocks import mock_user
 
@@ -15,30 +16,30 @@ GAMES_SOURCE = os.environ.get('APEX_GAMES_SOURCE', 'mendo')
 logger = logging.getLogger(__name__)
 
 
-def mock_apex_games():
-    cached_apex_games = download_games_list()
+def mock_valorant_games():
+    cached_valorant_games = download_games_list()
 
     primary_index = MockIndex(
-        cached_apex_games,
+        cached_valorant_games,
         'key',
-        ApexGameSummary,
+        ValorantGameSummary,
     )
-    ApexGameSummary.query = primary_index.query
-    ApexGameSummary.scan = primary_index.scan
-    ApexGameSummary.get = primary_index.get
+    ValorantGameSummary.query = primary_index.query
+    ValorantGameSummary.scan = primary_index.scan
+    ValorantGameSummary.get = primary_index.get
 
-    ApexGameSummary.user_id_time_index = MockIndex(
-        cached_apex_games,
+    ValorantGameSummary.user_id_timestamp_index = MockIndex(
+        cached_valorant_games,
         'user_id',
-        ApexGameSummary,
+        ValorantGameSummary,
     )
 
 
-def download_games_list() -> List[ApexGameSummary]:
+def download_games_list() -> List[ValorantGameSummary]:
     games = []
     next_key = True
     while next_key:
-        url = 'https://api2.overtrack.gg/apex/games/' + GAMES_SOURCE + '?limit=500'
+        url = 'https://api2.overtrack.gg/valorant/games/' + GAMES_SOURCE + '?limit=500'
         if isinstance(next_key, str):
             url += '&last_evaluated_key=' + next_key
         logger.info(f'Downloading games list: {url}')
@@ -49,11 +50,11 @@ def download_games_list() -> List[ApexGameSummary]:
         games += data['games']
         next_key = data['last_evaluated_key']
 
-    cached_apex_games = [
-        ApexGameSummary(**g) for g in games
+    cached_valorant_games = [
+        ValorantGameSummary(**g) for g in games
     ]
 
-    for g in cached_apex_games:
+    for g in cached_valorant_games:
         g.user_id = mock_user.user_id
 
-    return cached_apex_games
+    return cached_valorant_games
