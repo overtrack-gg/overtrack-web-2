@@ -133,7 +133,12 @@ class MockIndex:
             if getattr(g, self.hash_key_attr_name, None) == hash_key and evaluate_filter(g, merged_filter)
         ]
         if newest_first:
-            items.sort(key=lambda g: g.time, reverse=True)
+            def key(g):
+                if hasattr(g, 'time'):
+                    return g.time
+                else:
+                    return g.timestamp
+            items.sort(key=key, reverse=True)
 
         return MockResultIteratorExt(
             items[last_evaluated_key:],

@@ -38,6 +38,7 @@ def game_name(n: str) -> str:
     return {
         'apex': 'Apex Legends',
         'overwatch': 'Overwatch',
+        'valorant': 'Valorant',
     }[n]
 
 

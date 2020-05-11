@@ -140,6 +140,14 @@ else:
     app.register_blueprint(apex_discord_blueprint, url_prefix='/apex/discord_bot')
 
 
+# ------ VALORANT ------
+from overtrack_web.views.valorant.games_list import games_list_blueprint as valorant_games_list_blueprint
+app.register_blueprint(valorant_games_list_blueprint, url_prefix='/valorant/games')
+
+from overtrack_web.views.valorant.game import game_blueprint as valorant_game_blueprint
+app.register_blueprint(valorant_game_blueprint, url_prefix='/valorant/games')
+
+
 # ------ OVERWATCH ------
 from overtrack_web.views.overwatch.games_list import games_list_blueprint as overwatch_games_list_blueprint
 app.register_blueprint(overwatch_games_list_blueprint, url_prefix='/overwatch/games')

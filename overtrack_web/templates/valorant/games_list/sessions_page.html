@@ -1,0 +1,44 @@
+{% for session in sessions %}
+<div class="row session mx-0">
+    <div class="col-12 px-0">
+        <div class="card">
+            <div class="card-header">
+                <h5><span class="epoch-format-date">{{ session.start }}</span></h5>
+            </div>
+            <div class="card-body">
+                <div class="games-list container">
+                    <div class="row">
+                        {% for game in session.games %}
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ game.agent }}</h5>
+                                    <p class="card-text">{{ game.won | val_result }} {{ game.score }}</p>
+                                    <p class="card-text"><small class="text-muted epoch-format-datetime">{{ game.timestamp }}</small></p>
+                                </div>
+                                <a href="{{ url_for('valorant.game.game', key=game.key) }}" class="stretched-link"></a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% if next_from %}
+<div id="nextSessions"
+     style="padding-bottom: 30px;"
+     ic-append-from='{{ next_from | safe }}'
+     ic-trigger-on='scrolled-into-view'
+     ic-target='#nextSessions'
+     ic-on-complete='update_elements'
+     ic-replace-target='true'
+>
+    <div id="indicator" class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+        </div>
+    </div>
+</div>
+{% endif %}

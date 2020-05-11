@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% if show_sub_request %}
+    {% include 'sub_request.html' %}
+    {% endif %}
+
+    <div id="sessions-list" class="px-0 px-md-2 px-lg-4">
+        {% include 'valorant/games_list/sessions_page.html' %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock %}

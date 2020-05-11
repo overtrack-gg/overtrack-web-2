@@ -21,7 +21,7 @@ from overtrack_models.orm.share_link import ShareLink
 from overtrack_models.orm.user import User, OverwatchShareSettings
 from overtrack_web.data import overwatch_data, WELCOME_META
 from overtrack_web.data.overwatch_data import Season
-from overtrack_web.lib import b64_decode, b64_encode, FlaskResponse
+from overtrack_web.lib import b64_decode, b64_encode, FlaskResponse, check_superuser, parse_args, hopeful_int
 from overtrack_web.lib.authentication import check_authentication, require_login
 from overtrack_web.lib.decorators import restrict_origin
 from overtrack_web.lib.session import session
@@ -309,13 +309,6 @@ def resolve_share_key(sharekey: str) -> Tuple[Optional[User], Optional[Overwatch
     return user, share_settings
 
 
-def check_superuser() -> bool:
-    if check_authentication() is None:
-        return session.user.superuser
-    else:
-        return False
-
-
 def render_games_list(user: User, share_settings: Optional[OverwatchShareSettings] = None, **next_args: str) -> FlaskResponse:
     user.refresh()
 
@@ -410,7 +403,7 @@ def get_sessions(
     if hopeful_int(args.get('season')) in user.overwatch_seasons:
         season = overwatch_data.seasons[int(args['season'])]
         logger.info(f'Using season={season.index} from args')
-    elif user.overwatch_last_season:
+    elif user.overwatch_last_season in overwatch_data.seasons:
         season = overwatch_data.seasons[user.overwatch_last_season]
         logger.info(f'Using season={season.index} from user.overwatch_last_season')
     else:
@@ -504,21 +497,6 @@ def get_sessions(
     else:
         logger.info(f'Reached end of query with items remaining - returning last_evaluated={last_evaluated_key!r}')
         return sessions, season, include_quickplay, b64_encode(json.dumps(last_evaluated_key))
-
-
-def hopeful_int(s: Optional[str]) -> Optional[int]:
-    if not s:
-        return None
-    try:
-        return int(s)
-    except ValueError:
-        return None
-
-
-def parse_args(url: Optional[str]) -> MultiDict:
-    if not url:
-        return MultiDict()
-    return MultiDict(parse_qs(urlparse(url).query))
 
 
 def get_all_account_names(user: User, minimum_games=5, _cache={}) -> List[str]:

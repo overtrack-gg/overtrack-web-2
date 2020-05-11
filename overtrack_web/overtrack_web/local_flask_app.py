@@ -69,8 +69,16 @@ boto3.client = None
 # load and mock all games lists
 from overtrack_web.mocks.apex_mocks import mock_apex_games
 from overtrack_web.mocks.overwatch_mocks import mock_overwatch_games
+from overtrack_web.mocks.valorant_mocks import mock_valorant_games
 mock_apex_games()
 mock_overwatch_games()
+mock_valorant_games()
+
+# Force always superuser (display dev data)
+import overtrack_web.lib
+def check_superuser():
+    return True
+overtrack_web.lib.check_superuser = check_superuser
 
 
 # ------ JINJA2 TEMPLATE VARIABLES AND FILTERS ------
@@ -90,6 +98,14 @@ app.jinja_env.filters.update(filters)
 # still needed in local mode to add "logout" button
 from overtrack_web.views.login import login_blueprint
 app.register_blueprint(login_blueprint)
+
+
+# ------ VALORANT ------
+from overtrack_web.views.valorant.games_list import games_list_blueprint as valorant_games_list_blueprint
+app.register_blueprint(valorant_games_list_blueprint, url_prefix='/valorant/games')
+
+from overtrack_web.views.valorant.game import game_blueprint as valorant_game_blueprint
+app.register_blueprint(valorant_game_blueprint, url_prefix='/valorant/games')
 
 
 # ------ APEX ------
