@@ -53,7 +53,8 @@ seasons: Dict[int, ApexSeason] = {
     1: ApexSeason(index=1, start=1553014800.0, end=1562086800.0, has_ranked=False),
     2: ApexSeason(index=2, start=1562086800.0, end=1569956446.0),
     3: ApexSeason(index=3, start=1569956446.0, end=1580839200.0),
-    4: ApexSeason(index=4, start=1580839200.0, end=1896199200.0),
+    4: ApexSeason(index=4, start=1580839200.0, end=1589302800.0),
+    5: ApexSeason(index=5, start=1589302800.0, end=1597766400.0),
 }
 current_season = seasons[sorted(seasons.keys())[-1]]
 try:
