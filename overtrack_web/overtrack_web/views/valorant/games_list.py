@@ -19,7 +19,7 @@ from overtrack_web.lib.session import session
 
 PAGINATION_PAGE_MINIMUM_SIZE = 40
 PAGINATION_SESSIONS_COUNT_AS = 2
-SESSION_MAX_TIME_BETWEEN_GAMES = 45
+SESSION_MAX_TIME_BETWEEN_GAMES = 2 * 60
 
 
 request: Request = request
@@ -95,7 +95,7 @@ def games_next() -> FlaskResponse:
     if 'username' in request.args:
         username = request.args['username']
         next_args['username'] = username
-        user, share_settings = resolve_public_user(username)
+        user = resolve_public_user(username)
         if not user:
             return 'Share link not found', 404
     else:
@@ -125,18 +125,24 @@ def context_processor() -> Dict[str, Any]:
         'game_name': 'valorant',
 
         # 'sr_change': sr_change,
-        # 'map_thumbnail_style': map_thumbnail_style,
         # 'rank': rank,
     }
 
 @games_list_blueprint.app_template_filter('val_result')
 def result_filter(won: Optional[bool]) -> str:
     if won is None:
-        return 'Unknown'
+        return '-'
     elif won:
-        return 'WON'
+        return 'VICTORY'
     else:
-        return 'LOST'
+        return 'DEFEAT'
+
+@games_list_blueprint.app_template_filter('val_score')
+def score_filter(score: Optional[Tuple[int, int]]) -> str:
+    if not score:
+        return '? - ?'
+    else:
+        return f'{score[0]} - {score[1]}'
 
 
 def resolve_public_user(username: str) -> Optional[User]:

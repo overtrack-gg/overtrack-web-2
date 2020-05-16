@@ -1,0 +1,53 @@
+{% macro round_results(name, results) %}
+<div>
+    <h6 class="d-inline">{{name}}: </h6>
+    <div class="d-inline">
+        {% for r in results %}
+        {% if r %}
+        I
+        {% else %}
+        O
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{%- endmacro -%}
+
+<div class="card game-summary result-{{ ['loss', 'win'][game.won] }}">
+    <div class="map-image no-sm" style="
+        background-image: url({{ url_for('static', filename='images/valorant/maps/' + game.map.lower() + '.png') }});
+    ">
+    </div>
+    <div class="row no-gutters game-backdrop">
+        <div class="col agent-thumbnail" style="
+            background-image: url({{ url_for('static', filename='images/valorant/agent_profiles/' + game.agent.lower() + '.png') }});">
+        </div>
+        <div class="col-1 p-1" style="min-width: 165px;">
+            <h2 class="px-1 mb-1">{{ game.agent | title }}</h2>
+            <h5 class="px-3 m-0">on {{ game.map | title }}</h5>
+        </div>
+        <div class="col-2 p-1 text-center">
+            <h6 class="pb-0">{{ game.won | val_result }}</h6>
+            <h2 class="">{{ game.score | val_score }}</h2>
+        </div>
+        <div class="col-2 pt-1 no-xs" style="padding-left: 2.1em !important;">
+            {% if game.stats %}
+            <h4>K: {{ game.stats.kills }}</h4>
+            <h4 class="m-0">D: {{ game.stats.deaths }}</h4>
+            {% endif %}
+        </div>
+        <div class="col pt-2 no-sm">
+            {% if game.rounds and game.rounds.attacking_first %}
+            {{ round_results('ATK', game.rounds.round_results[:12]) }}
+            {{ round_results('DEF', game.rounds.round_results[12:]) }}
+            {% elif game.rounds %}
+            {{ round_results('DEF', game.rounds.round_results[:12]) }}
+            {{ round_results('ATK', game.rounds.round_results[12:]) }}
+            {% endif %}
+        </div>
+        <small class="absolute-bottomright fit-content px-2 epoch-format-datetime no-sm game-timestamp">
+            {{ game.timestamp }}
+        </small>
+    </div>
+    <a href="{{ url_for('valorant.game.game', key=game.key) }}" class="stretched-link"></a>
+</div>

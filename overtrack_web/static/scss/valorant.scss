@@ -1,12 +1,68 @@
+@import "lib/bootswatch/superhero/variables";
 
+$body-color: #ece8e1;
+$body-bg: #0f1923;
+
+$card-bg: #141E29;
+$card-cap-bg: #FF4655;
+
+$navbar-color: $card-bg;
+$navbar-dark-color: $card-cap-bg;
+$navbar-dark-hover-color: rgb(169, 144, 144);
+$navbar-dark-hover: rgb(169, 144, 144);
+$navbar-dark-active-color: white;
+$navbar-brand-padding-y: 0;
+$navbar-brand-padding-x: 0;
+
+$primary: #d49191;
+
+$dropdown-bg: $body-color;
+$dropdown-color: black;
+$dropdown-link-color: black;
+$dropdown-link-hover-color: $dropdown-link-color;
+$dropdown-link-hover-bg: lighten($primary, 10%);
+
+// $table-dark-color: #f8f9fa;
+// $table-dark-bg: rgb(250, 248, 248);
+// $table-accent-bg: #4a2126;
+// $table-hover-bg: #994444;
 
 @import "base";
 
-
-.dev-info {
-    tbody > tr > td,
-    tbody > tr > th {
-        padding: 1px;
-        padding-right: 10px;
+@media (max-width: 576px){
+    .container {
+        padding-left: 0;
+        padding-right: 0;
     }
 }
+
+
+.valorant-game {
+
+    .dev-info {
+        tbody > tr > td,
+        tbody > tr > th {
+            padding: 1px;
+            padding-right: 10px;
+        }
+    }
+
+    .player-stats {
+        .card-body {
+            font: 300 14px 'Helvetica Neue',Helvetica,Arial,sans-serif;
+        }
+
+        .team-name {
+            font: 400 16px  'Helvetica Neue',Helvetica,Arial,sans-serif;
+        }
+
+        .hor-sep {
+            border-top: 1px solid #c8c8c877;
+        }
+        .vert-sep {
+            border-right: 1px dashed #c8c8c877;
+        }
+    }
+}
+
+@import "valorant/games_list";

@@ -1,0 +1,37 @@
+<td>
+    {{ performance.kills.total }}
+</td>
+<td>
+    {{ performance.kills.per_round | round(2) }}
+</td>
+<td class="vert-sep">
+    {{ performance.kills.of_total | percentage }}
+</td>
+</td>
+<td>
+    {{ performance.deaths.total }}
+</td>
+<td class="vert-sep">
+    {{ performance.deaths.per_round | round(2) }}
+</td>
+<td class="vert-sep">
+    {{ performance.kills_per_death | round(2) }}
+</td>
+<td>
+    {{ performance.team_firstbloods.total }}
+</td>
+<td class="vert-sep">
+    {{ performance.team_firstbloods.led_to_win_ratio | percentage }}
+</td>
+<td>
+    {{ performance.firstbloods.total }}
+</td>
+<td class="vert-sep">
+    {{ performance.firstbloods.led_to_win_ratio | percentage }}
+</td>
+<td>
+    {{ performance.team_firstdeaths.total }}
+</td>
+<td>
+    {{ performance.team_firstdeaths.led_to_loss_ratio | percentage }}
+</td>

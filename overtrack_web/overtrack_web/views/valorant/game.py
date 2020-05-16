@@ -1,16 +1,17 @@
 import collections
+import itertools
 import json
 import logging
 import random
-from typing import Tuple, Dict, Any, Optional
+from typing import Tuple, Dict, Any, Optional, List
 from urllib.parse import urlparse
 
 import boto3
 import requests
-from dataclasses import fields, is_dataclass
+from dataclasses import fields, is_dataclass, dataclass
 from flask import Blueprint, render_template
 from overtrack_models.dataclasses.typedload import referenced_typedload
-from overtrack_models.dataclasses.valorant import ValorantGame
+from overtrack_models.dataclasses.valorant import ValorantGame, Kill, Player, Round
 from overtrack_models.orm.valorant_game_summary import ValorantGameSummary
 
 from overtrack_web.lib.authentication import check_authentication
@@ -97,6 +98,31 @@ def score_template_filter(score: Optional[Tuple[int, int]]) -> str:
         return '?-?'
     else:
         return f'{score[0]}-{score[1]}'
+
+# @game_blueprint.app_template_filter('killson')
+# def killson(kills: List[Kill], player: Player) -> List[Kill]:
+#     print('killson', player, kills)
+#     return [k for k in kills if k.killed == player]
+#
+# @game_blueprint.app_template_filter('deathsby')
+# def deathsby(kills: List[Kill], player: Player) -> List[Kill]:
+#     return [k for k in kills if k.killer == player]
+
+@game_blueprint.app_template_filter('percentage')
+def percentage(frac: Optional[float]) -> str:
+    return f'{frac * 100:.0f}%' if frac is not None else '-'
+
+@game_blueprint.app_template_filter('weapon_name')
+def weapon_name(s: str) -> str:
+    return s.split('.', 1)[-1].replace('_', ' ').title()
+
+@game_blueprint.app_template_filter('get_kill_counts')
+def get_kill_counts(weapons):
+    return sorted(
+        [(w, len(ks)) for (w, ks) in weapons.items()],
+        key=lambda e: e[1],
+        reverse=True,
+    )
 
 
 # ----- Utility Functions -----

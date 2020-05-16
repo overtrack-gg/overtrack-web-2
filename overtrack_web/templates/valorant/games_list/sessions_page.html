@@ -7,20 +7,9 @@
             </div>
             <div class="card-body">
                 <div class="games-list container">
-                    <div class="row">
-                        {% for game in session.games %}
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title">{{ game.agent }}</h5>
-                                    <p class="card-text">{{ game.won | val_result }} {{ game.score }}</p>
-                                    <p class="card-text"><small class="text-muted epoch-format-datetime">{{ game.timestamp }}</small></p>
-                                </div>
-                                <a href="{{ url_for('valorant.game.game', key=game.key) }}" class="stretched-link"></a>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
+                    {% for game in session.games %}
+                    {% include 'valorant/games_list/game_card.html' %}
+                    {% endfor %}
                 </div>
             </div>
         </div>

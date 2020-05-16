@@ -1,0 +1,123 @@
+$summary-height: 80px;
+$thumbnail-width: 80px;
+
+$win-color: #67B7A2;
+$loss-color: #DE5B57;
+
+@media (max-width: 576px){
+    .session {
+        padding-right: 0;
+        .card-body {
+            padding: 0;
+        }
+    }
+    .games-selector {
+        margin-left: 0;
+        margin-right: 0;
+    }
+    .row {
+        margin-right: 0;
+    }
+}
+@media (max-width: 740px){
+    .no-sm {
+        display: none !important;
+    }
+}
+
+@media (max-width: 440px){
+    .no-xs {
+        display: none !important;
+    }
+}
+
+.absolute-bottomright {
+    position: absolute !important;
+    right: 0;
+    bottom: 0;
+    z-index: 1030;
+}
+
+.fit-content {
+    width: fit-content;
+}
+
+@function stroke($stroke, $color) {
+  $shadow: ();
+  $from: $stroke*-1;
+  @for $i from $from through $stroke {
+   @for $j from $from through $stroke {
+      $shadow: append($shadow, $i*1px $j*1px 0 $color, comma);
+    }
+  }
+  @return $shadow;
+}
+@mixin stroke($stroke, $color) {
+  text-shadow: stroke($stroke, $color);
+}
+
+.game-summary {
+    height: $summary-height;
+    margin: 5px !important;
+
+    h1, h2, h3, h4, h5, h6, p {
+        white-space: nowrap;
+    }
+
+    .darken-bg {
+        background-color: rgba(0, 0, 0, 0.6);
+    }
+
+    &.result-win {
+        .game-backdrop{
+            background-color: darken($win-color, 20%)
+        }
+    }
+    &.result-loss {
+        .game-backdrop{
+            background-color: darken($loss-color, 20%);
+        }
+    }
+
+    .game-timestamp {
+        color: rgba(255, 255, 255, 0.6) !important;
+        text-shadow: stroke(1, black);
+    }
+
+    .agent-backdrop {
+        width: 30%;
+        height: $summary-height;
+        position: absolute;
+        -webkit-mask-image: -webkit-gradient(linear, 80% top, right top, from(black), to(rgba(0, 0, 0, 0)));
+    }
+
+    .agent-thumbnail {
+        width: $thumbnail-width;
+        min-width: $thumbnail-width;
+        max-width: $thumbnail-width;
+        height: $summary-height;
+
+        display: block;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+    .map-image {
+        height: $summary-height;
+        width: 33%;
+        min-width: 200px;
+        position: absolute;
+        filter: blur(0.5px);
+
+        //-webkit-mask-image: -webkit-gradient(linear, 75% top, right top, from(black), to(rgba(0, 0, 0, 0)));
+        right: 0;
+        -webkit-mask-image: -webkit-gradient(linear, left top, 25% top, from(rgba(0, 0, 0, 0)), to(black));
+
+        display: block;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+
+}
