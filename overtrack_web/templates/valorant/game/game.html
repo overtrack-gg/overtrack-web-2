@@ -2,16 +2,62 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
+{% set rank = random.choice([None, random.randint(-1, 21)]) %}
 <div class="valorant-game">
     <div class="container">
         <div class="row">
             <div class="col-6 mb-2" >
-                <div class="card player-stats">
-                    <div class="card-header">
-                        <h4>Overview</h4>
+                <div class="card player-summary result-{{ ['loss', 'win'][game.won] }} p-0 m-0">
+                    <div class="row no-gutters">
+                        <h1 class="col text-center">
+                            <div class="team-score-0">
+                                {% if game.rounds.final_score is not none %}
+                                    {{ game.rounds.final_score[0] }}
+                                {% else %}
+                                    ?
+                                {% endif %}
+                            </div>
+                            {{ game.won | val_result }}
+                            <div class="team-score-1">
+                                {% if game.rounds.final_score is not none %}
+                                    {{ game.rounds.final_score[1] }}
+                                {% else %}
+                                    ?
+                                {% endif %}
+                            </div>
+                        </h1>
                     </div>
-                    <div class="card-body">
-                        <p>{{ game.teams.firstperson.agent }} on {{ game.map }}</p>
+                    <div class="row no-gutters align-items-center justify-content-between">
+                        <div class="col-4">
+                            <img class="agent-thumbnail m-0 p-0" src="{{ url_for('static', filename='images/valorant/agent_profiles/' + game.teams.firstperson.agent.lower() + '.png') }}" />
+                        </div>
+                        <div class="col-4">
+                            <h1 class="row">
+                                {{ game.teams.firstperson.agent }}
+                            </h1>
+                            <h2 class="row" style="color: #eaeeb2;">
+                                {{ game.map }}
+                            </h2>
+                            <h4 class="row" style="color: #959da7">
+                                {% if rank is not none %} Competitive {% else %} Unrated {% endif %}
+                            </h4>
+                        </div>
+                        <div class="col-2 rank-indicator rank-{{ rank }}">
+                            {% if rank is not none %}
+                            <img width="50" src="{{ url_for('static', filename='images/valorant/ranks/valorant.png') }}" />
+                            {% endif %}
+                        </div>
+                        <div class="col-2">
+                            <h4 class="row">K: {{ game.teams.firstperson.kills | length }}</h4>
+                            <h4 class="row">D: {{ game.teams.firstperson.deaths | length }}</h4>
+                            <h4 class="row">A: {% if game.teams.firstperson.stats is not none %}{{game.teams.firstperson.stats.assists or '-'}}{% else %}-{% endif %}</h4>
+                        </div>
+                    </div>
+                    <div class="card-footer" style="background-color: #202934">
+                        <div class="row no-gutters align-items-center justify-content-between">
+                            <div class="col epoch-format-datetime">{{ game.timestamp }}</div>
+                            <div class="col text-right">Duration {{ game.duration | s2ts }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -30,10 +76,16 @@
                                     <th>
                                         Kills
                                     </th>
+                                    <th>
+                                        Headshots
+                                    </th>
+                                    <th>
+                                        Wallbangs
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                            {% for weapon, kills in (game.teams.firstperson.weaponkills | get_kill_counts) %}
+                            {% for weapon, kills, headshots, wallbangs in (game.teams.firstperson.weaponkills | get_kill_counts) %}
                             <tr>
                                 <th scope="row">
                                     {{ weapon | weapon_name }}
@@ -41,10 +93,87 @@
                                 <td>
                                     {{ kills }}
                                 </td>
+                                <td>
+                                    {{ headshots }}
+                                </td>
+                                <td>
+                                    {{ wallbangs }}
+                                </td>
                             </tr>
                             {% endfor %}
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 mb-2" >
+                <div class="card player-stats" id="round-stats">
+                    <div class="card-header">
+                        <h4>Timeline</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <ul class="col nav nav-tabs justify-content-start">
+                                {% if game.rounds.attacking_first %}
+                                    <li class="first header text-right">Attack</li>
+                                    <li class="second header">Defense</li>
+                                {% else %}
+                                    <li class="first header text-right">Defense</li>
+                                    <li class="second header">Attack</li>
+                                {% endif %}
+                                {% for first, second in rounds_combined %}
+                                    <li class="first nav-item win-{{ first.won | string | lower }} text-right">
+                                        {% if first is not none %}
+                                        <a class="nav-link {{ 'active' if loop.first else '' }}" data-toggle="tab" href="#round{{ first.index }}">
+                                            {{ first.index + 1 }}
+                                        </a>
+                                        {% endif %}
+                                    </li>
+                                    <li class="second nav-item win-{{ second.won | string | lower }}">
+                                        {% if second is not none %}
+                                        <a class="nav-link" data-toggle="tab" href="#round{{ second.index }}">
+                                            {{ second.index + 1 }}
+                                        </a>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <div class="col tab-content">
+                                {% for round in game.rounds.rounds %}
+                                    <div id="round{{ round.index }}" class="tab-pane {{ 'active' if loop.first else '' }} round-pane">
+                                        <h1>
+                                            Round {{ round.index + 1}} -
+                                            {{ 'Attack' if round.attacking else 'Defense' }} -
+                                            <span class="win-{{ round.won | string | lower }}">{{ 'Won' if round.won else 'Loss'}}</span>
+                                        </h1>
+                                        <div class="row">
+                                            <div class="col">
+                                                <h2 class="row">Round Killfeed</h2>
+                                                {% for kill in round.kills %}
+                                                    <div class="row kill-row">
+                                                        <div class="time">{{ kill.round_timestamp | s2ts }}</div>
+                                                        <div class="killer {{ 'friendly' if kill.killer.friendly else 'enemy' }}">
+                                                            <img src="{{ url_for('static', filename='images/valorant/agent_profiles/' + kill.killer.agent.lower() + '.png') }}" />
+                                                            {{ kill.killer.name }}
+                                                            <span class="weapon">
+                                                            <img class="gun" src="{{ url_for('static', filename='images/valorant/guns/' + kill.weapon + '.png') }}" />
+<!--                                                                {% if kill.headshot %} headshot {% endif %}-->
+<!--                                                                {% if kill.wallbang %} wallbang {% endif %}-->
+                                                            </span>
+                                                        </div>
+                                                        <div class="killed {{ 'friendly' if kill.killed.friendly else 'enemy' }}">
+                                                            {{ kill.killed.name }}
+                                                            <img src="{{ url_for('static', filename='images/valorant/agent_profiles/' + kill.killed.agent.lower() + '.png') }}" />
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

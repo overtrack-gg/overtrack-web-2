@@ -1,8 +1,8 @@
 import collections
-import itertools
 import json
 import logging
 import random
+from itertools import takewhile, dropwhile, zip_longest
 from typing import Tuple, Dict, Any, Optional, List
 from urllib.parse import urlparse
 
@@ -55,6 +55,12 @@ def game(key: str):
     else:
         title = f'Game on {game.map}'
 
+    def is_first_round(round: Round) -> bool:
+        return round.attacking == game.rounds.rounds[0].attacking
+
+    rounds_first = takewhile(is_first_round, game.rounds.rounds)
+    rounds_second = dropwhile(is_first_round, game.rounds.rounds)
+
     return render_template(
         'valorant/game/game.html',
 
@@ -69,6 +75,7 @@ def game(key: str):
 
         summary=summary,
         game=game,
+        rounds_combined=list(zip_longest(rounds_first, rounds_second)),
 
         # show_edit=check_authentication() is None and (summary.user_id == session.user_id or session.superuser),
 
@@ -83,6 +90,7 @@ def context_processor() -> Dict[str, Any]:
     return {
         'game_name': 'valorant',
         'example_exposed_function': example_exposed_function,
+        'random': random,
     }
 
 
@@ -117,9 +125,16 @@ def weapon_name(s: str) -> str:
     return s.split('.', 1)[-1].replace('_', ' ').title()
 
 @game_blueprint.app_template_filter('get_kill_counts')
-def get_kill_counts(weapons):
+def get_kill_counts(weapons: Dict[Optional[str], List[Kill]]):
     return sorted(
-        [(w, len(ks)) for (w, ks) in weapons.items()],
+        [
+            (
+                w,
+                len(ks),
+                f'{len([k for k in ks if k.headshot]) / len(weapons):.0%}',
+                f'{len([k for k in ks if k.wallbang]) / len(weapons):.0%}',
+            ) for (w, ks) in weapons.items()
+        ],
         key=lambda e: e[1],
         reverse=True,
     )

@@ -22,6 +22,9 @@ $dropdown-link-color: black;
 $dropdown-link-hover-color: $dropdown-link-color;
 $dropdown-link-hover-bg: lighten($primary, 10%);
 
+$win-color: #58a18e;
+$loss-color: #e35e5b;
+
 // $table-dark-color: #f8f9fa;
 // $table-dark-bg: rgb(250, 248, 248);
 // $table-accent-bg: #4a2126;
@@ -66,3 +69,4 @@ $dropdown-link-hover-bg: lighten($primary, 10%);
 }
 
 @import "valorant/games_list";
+@import "valorant/game";

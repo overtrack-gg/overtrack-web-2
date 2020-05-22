@@ -1,6 +1,7 @@
 import datetime
 import json
 import logging
+import random
 from collections import defaultdict
 from typing import List, Optional, Tuple, Dict, Any, DefaultDict
 
@@ -126,6 +127,7 @@ def context_processor() -> Dict[str, Any]:
 
         # 'sr_change': sr_change,
         # 'rank': rank,
+        'random': random,
     }
 
 @games_list_blueprint.app_template_filter('val_result')

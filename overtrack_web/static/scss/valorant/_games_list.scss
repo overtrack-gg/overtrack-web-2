@@ -1,9 +1,6 @@
 $summary-height: 80px;
 $thumbnail-width: 80px;
 
-$win-color: #67B7A2;
-$loss-color: #DE5B57;
-
 @media (max-width: 576px){
     .session {
         padding-right: 0;
@@ -19,6 +16,13 @@ $loss-color: #DE5B57;
         margin-right: 0;
     }
 }
+
+@media (max-width: 992px) {
+    .no-lg {
+        display: none !important;
+    }
+}
+
 @media (max-width: 740px){
     .no-sm {
         display: none !important;
@@ -59,6 +63,7 @@ $loss-color: #DE5B57;
 .game-summary {
     height: $summary-height;
     margin: 5px !important;
+    color: #ffffff;
 
     h1, h2, h3, h4, h5, h6, p {
         white-space: nowrap;
@@ -69,18 +74,43 @@ $loss-color: #DE5B57;
     }
 
     &.result-win {
-        .game-backdrop{
-            background-color: darken($win-color, 20%)
+        .game-backdrop {
+            border-left: 5px solid #bdd9d5;
+            background: linear-gradient(to right, #7eb6af 0%, $win-color 15%, $win-color 60%, white 100%);
+            @media (max-width: 740px){
+                background: linear-gradient(to right, #7eb6af 0%, $win-color 15%);
+            }
         }
     }
     &.result-loss {
-        .game-backdrop{
-            background-color: darken($loss-color, 20%);
+        .game-backdrop {
+            border-left: 5px solid #e9b4b7;
+            background: linear-gradient(to right, #d37074 0%, $loss-color 15%, $loss-color 60%, white 100%);
+            @media (max-width: 740px){
+                background: linear-gradient(to right, #d37074 0%, $loss-color 15%);
+            }
+        }
+    }
+
+    .game-backdrop {
+        .rank-indicator {
+            z-index: 1;
+            position: absolute;
+            left: -40px;
+            bottom: 12.5%;
+            height: 75%;
+            width: 20%;
+
+            display: block;
+            background-origin: border-box;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: left;
         }
     }
 
     .game-timestamp {
-        color: rgba(255, 255, 255, 0.6) !important;
+        color: rgba(255, 255, 255, 0.9) !important;
         text-shadow: stroke(1, black);
     }
 
@@ -95,7 +125,7 @@ $loss-color: #DE5B57;
         width: $thumbnail-width;
         min-width: $thumbnail-width;
         max-width: $thumbnail-width;
-        height: $summary-height;
+        height: 100%;
 
         display: block;
         background-size: cover;
@@ -104,7 +134,7 @@ $loss-color: #DE5B57;
     }
 
     .map-image {
-        height: $summary-height;
+        height: 100%;
         width: 33%;
         min-width: 200px;
         position: absolute;
@@ -119,5 +149,4 @@ $loss-color: #DE5B57;
         background-repeat: no-repeat;
         background-position: center;
     }
-
 }
