@@ -23,6 +23,10 @@
 }
 
 #round-stats {
+    .nav-tabs {
+        border: none;
+    }
+
     .nav {
         height: 100%;
         max-width: 200px;
@@ -171,16 +175,21 @@
 
             .time {
                 width: 40px;
-                display: inline-block;
-                color: #959da7;
-                text-align: center;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+                color: #ffffff;
+                background: linear-gradient(to right, #777777 90%, #000000 100%);
+                border-radius: 10% 0 0 10%;
+                padding-left: 10px;
+                padding-right: 10px;
             }
 
             .killer {
-                min-width: 300px;
+                min-width: 350px;
                 display: inline-block;
                 position: relative;
-                margin-left: 10px;
 
                 &:after {
                     left: 100%;
@@ -208,7 +217,7 @@
             }
 
             .killed {
-                min-width: 200px;
+                min-width: 250px;
                 display: inline-block;
                 padding-left: 30px;
                 text-align: right;
@@ -218,6 +227,11 @@
                 }
             }
 
+            .weapon {
+                margin-left: 20px;
+                float: right;
+            }
+
             img {
                 height: 40px;
 
@@ -225,7 +239,6 @@
                     height: 30px;
                     margin-top: 5px;
                     filter: grayscale(100%) brightness(255);
-                    float: right;
                 }
             }
         }

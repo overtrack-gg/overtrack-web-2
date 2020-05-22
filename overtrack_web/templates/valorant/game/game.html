@@ -149,7 +149,6 @@
                                         </h1>
                                         <div class="row">
                                             <div class="col">
-                                                <h2 class="row">Round Killfeed</h2>
                                                 {% for kill in round.kills %}
                                                     <div class="row kill-row">
                                                         <div class="time">{{ kill.round_timestamp | s2ts }}</div>
@@ -158,8 +157,12 @@
                                                             {{ kill.killer.name }}
                                                             <span class="weapon">
                                                             <img class="gun" src="{{ url_for('static', filename='images/valorant/guns/' + kill.weapon + '.png') }}" />
-<!--                                                                {% if kill.headshot %} headshot {% endif %}-->
-<!--                                                                {% if kill.wallbang %} wallbang {% endif %}-->
+                                                                {% if kill.headshot %}
+                                                                    <img class="gun" src="{{ url_for('static', filename='images/valorant/guns/headshot.png') }}" />
+                                                                {% endif %}
+                                                                {% if kill.wallbang %}
+                                                                    <img class="gun" src="{{ url_for('static', filename='images/valorant/guns/wallbang.png') }}" />
+                                                                {% endif %}
                                                             </span>
                                                         </div>
                                                         <div class="killed {{ 'friendly' if kill.killed.friendly else 'enemy' }}">

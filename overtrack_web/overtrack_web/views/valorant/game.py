@@ -11,7 +11,7 @@ import requests
 from dataclasses import fields, is_dataclass, dataclass
 from flask import Blueprint, render_template
 from overtrack_models.dataclasses.typedload import referenced_typedload
-from overtrack_models.dataclasses.valorant import ValorantGame, Kill, Player, Round
+from overtrack_models.dataclasses.valorant import ValorantGame, Kill, Round
 from overtrack_models.orm.valorant_game_summary import ValorantGameSummary
 
 from overtrack_web.lib.authentication import check_authentication
