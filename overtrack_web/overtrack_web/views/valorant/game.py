@@ -107,22 +107,16 @@ def score_template_filter(score: Optional[Tuple[int, int]]) -> str:
     else:
         return f'{score[0]}-{score[1]}'
 
-# @game_blueprint.app_template_filter('killson')
-# def killson(kills: List[Kill], player: Player) -> List[Kill]:
-#     print('killson', player, kills)
-#     return [k for k in kills if k.killed == player]
-#
-# @game_blueprint.app_template_filter('deathsby')
-# def deathsby(kills: List[Kill], player: Player) -> List[Kill]:
-#     return [k for k in kills if k.killer == player]
 
 @game_blueprint.app_template_filter('percentage')
 def percentage(frac: Optional[float]) -> str:
     return f'{frac * 100:.0f}%' if frac is not None else '-'
 
+
 @game_blueprint.app_template_filter('weapon_name')
 def weapon_name(s: str) -> str:
     return s.split('.', 1)[-1].replace('_', ' ').title()
+
 
 @game_blueprint.app_template_filter('get_kill_counts')
 def get_kill_counts(weapons: Dict[Optional[str], List[Kill]]):
@@ -131,8 +125,8 @@ def get_kill_counts(weapons: Dict[Optional[str], List[Kill]]):
             (
                 w,
                 len(ks),
-                f'{len([k for k in ks if k.headshot]) / len(weapons):.0%}',
-                f'{len([k for k in ks if k.wallbang]) / len(weapons):.0%}',
+                f'{len([k for k in ks if k.headshot]) / len(ks):.0%}',
+                f'{len([k for k in ks if k.wallbang]) / len(ks):.0%}',
             ) for (w, ks) in weapons.items()
         ],
         key=lambda e: e[1],
