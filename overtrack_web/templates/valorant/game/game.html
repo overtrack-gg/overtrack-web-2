@@ -156,6 +156,7 @@
                                                             <img src="{{ url_for('static', filename='images/valorant/agent_profiles/' + kill.killer.agent.lower() + '.png') }}" />
                                                             {{ kill.killer.name }}
                                                             <span class="weapon">
+                                                            {% if kill.weapon %}
                                                             <img class="gun" src="{{ url_for('static', filename='images/valorant/guns/' + kill.weapon + '.png') }}" />
                                                                 {% if kill.headshot %}
                                                                     <img class="gun" src="{{ url_for('static', filename='images/valorant/guns/headshot.png') }}" />
@@ -164,6 +165,7 @@
                                                                     <img class="gun" src="{{ url_for('static', filename='images/valorant/guns/wallbang.png') }}" />
                                                                 {% endif %}
                                                             </span>
+                                                            {% endif %}
                                                         </div>
                                                         <div class="killed {{ 'friendly' if kill.killed.friendly else 'enemy' }}">
                                                             {{ kill.killed.name }}
