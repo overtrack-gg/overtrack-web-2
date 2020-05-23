@@ -28,7 +28,6 @@
 
 <div class="card game-summary result-{{ ['loss', 'win'][game.won] }}">
 
-    {% set rank = random.choice([None, random.randint(-1, 21)]) %}
     <div class="map-image no-sm" style="
         background-image: url({{ url_for('static', filename='images/valorant/maps/' + game.map.lower() + '.png') }});
     ">
@@ -42,7 +41,7 @@
             <h5 class="px-3 m-0">on {{ game.map | title }}</h5>
         </div>
         <div class="col-1 rank-indicator-2 no-sm" style="max-width: 2.5%; flex: 0 0 2.5%;">
-            {% if rank is not none %}
+            {% if game.game_mode == 'competitive' %}
                 <img height="80" style="object-fit: contain" src="{{ url_for('static', filename='images/valorant/ranks/valorant.png') }}" />
             {% endif %}
         </div>

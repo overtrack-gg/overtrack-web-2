@@ -2,7 +2,6 @@
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-{% set rank = random.choice([None, random.randint(-1, 21)]) %}
 <div class="valorant-game">
     <div class="container">
         <div class="row">
@@ -39,11 +38,11 @@
                                 {{ game.map }}
                             </h2>
                             <h4 class="row" style="color: #959da7">
-                                {% if rank is not none %} Competitive {% else %} Unrated {% endif %}
+                                {{ game.game_mode | title }}
                             </h4>
                         </div>
-                        <div class="col-2 rank-indicator rank-{{ rank }}">
-                            {% if rank is not none %}
+                        <div class="col-2 rank-indicator rank-valorant">
+                            {% if game.game_mode == 'competitive' %}
                             <img width="50" src="{{ url_for('static', filename='images/valorant/ranks/valorant.png') }}" />
                             {% endif %}
                         </div>
