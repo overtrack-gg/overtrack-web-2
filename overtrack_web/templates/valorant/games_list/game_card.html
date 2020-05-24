@@ -26,7 +26,7 @@
         </div>
 {%- endmacro -%}
 
-<div class="card game-summary result-{{ ['loss', 'win'][game.won] }}">
+<div class="card game-summary result-{{ ['loss', 'win'][game.won] if not game.scrim else 'scrim' }}">
 
     <div class="map-image no-sm" style="
         background-image: url({{ url_for('static', filename='images/valorant/maps/' + game.map.lower() + '.png') }});
@@ -46,7 +46,7 @@
             {% endif %}
         </div>
         <div class="col-2 p-1 text-center">
-            <h6 class="pb-0" style="color: #eaeeb2; ">{{ game.won | val_result }}</h6>
+            <h6 class="pb-0" style="color: #eaeeb2; ">{{ (game.won | val_result) if not game.scrim else 'SCRIM' }}</h6>
             <h2 class="pt-0">{{ game.score | val_score }}</h2>
         </div>
         <div class="col-2 pt-1 no-xs" style="padding-left: 2.1em !important;">

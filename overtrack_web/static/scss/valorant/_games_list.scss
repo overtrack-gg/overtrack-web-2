@@ -91,6 +91,15 @@ $thumbnail-width: 80px;
             }
         }
     }
+    &.result-scrim {
+        .game-backdrop {
+            border-left: 5px solid $scrim-color;
+            background: linear-gradient(to right, #DBBC20 0%, $scrim-color 15%, $scrim-color 60%, white 100%);
+            @media (max-width: 740px){
+                background: linear-gradient(to right, #DBBC20 0%, $scrim-color 15%);
+            }
+        }
+    }
 
     .game-backdrop {
         .rank-indicator {

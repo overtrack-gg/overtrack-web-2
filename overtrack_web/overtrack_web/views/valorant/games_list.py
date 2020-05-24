@@ -130,6 +130,7 @@ def context_processor() -> Dict[str, Any]:
         'random': random,
     }
 
+
 @games_list_blueprint.app_template_filter('val_result')
 def result_filter(won: Optional[bool]) -> str:
     if won is None:
@@ -138,6 +139,7 @@ def result_filter(won: Optional[bool]) -> str:
         return 'VICTORY'
     else:
         return 'DEFEAT'
+
 
 @games_list_blueprint.app_template_filter('val_score')
 def score_filter(score: Optional[Tuple[int, int]]) -> str:
@@ -172,7 +174,7 @@ def check_superuser() -> bool:
 def render_games_list(user: User, public: bool = False, **next_args: str) -> FlaskResponse:
     user.refresh()
 
-    if not user.overwatch_games:
+    if not user.valorant_games:
         logger.info(f'User {user.username} has no games')
         if not public:
             return render_template('client.html', no_games_alert=True, meta=WELCOME_META)

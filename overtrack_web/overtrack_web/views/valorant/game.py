@@ -224,8 +224,10 @@ def get_dev_info(summary, game, metatada):
     for r in game.rounds:
         extras['kills'].append((f'Round\u00a0{r.index}', ''))
         for i, k in enumerate(r.kills):
-            extras['kills'].append(('\u00a0' * 6 + f'{i}', str(k)))
+            extras['kills'].append(('\u00a0' * 6 + f'{i}', repr(k)))
     game_dict['key'] = (summary.key, f'https://overtrack-valorant-games.s3.amazonaws.com/{summary.key}.json')
+    if game_dict['vod']:
+        game_dict['vod'] = (game_dict['vod'], game_dict['vod'])
 
     return {
         'Summary': list(summary_dict.items()),
