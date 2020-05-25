@@ -1,6 +1,8 @@
 import collections
+import hashlib
 import json
 import logging
+import os
 import random
 from itertools import takewhile, dropwhile, zip_longest
 from typing import Tuple, Dict, Any, Optional, List
@@ -9,15 +11,21 @@ from urllib.parse import urlparse
 import boto3
 import requests
 from dataclasses import fields, is_dataclass, dataclass
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, render_template_string, url_for, request, Response
 from overtrack_models.dataclasses.typedload import referenced_typedload
 from overtrack_models.dataclasses.valorant import ValorantGame, Kill, Round
 from overtrack_models.orm.valorant_game_summary import ValorantGameSummary
 
 from overtrack_web.lib.authentication import check_authentication
+from overtrack_web.lib.opengraph import Meta
 from overtrack_web.lib.session import session
 
 GAMES_BUCKET = 'overtrack-valorant-games'
+COLOURS = {
+    'WIN': '#58a18e',
+    'LOSS': '#e35e5b',
+    'SCRIM': '#DDCE7A',
+}
 
 logger = logging.getLogger(__name__)
 try:
@@ -46,14 +54,19 @@ def game(key: str):
     game, metadata = load_game(summary)
     dev_info = get_dev_info(summary, game, metadata)
 
-    if game.teams.firstperson and game.won is not None:
-        title = f'{game.teams.firstperson.name}\'s {["LOSS", "WIN"][game.won]} on {game.map}'
-    elif game.teams.firstperson:
-        title = f'{game.teams.firstperson.name}\'s game on {game.map}'
-    elif game.won is not None:
-        title = f'{["LOSS", "WIN"][game.won]} on {game.map}'
+    if game.won is not None:
+        result = ['LOSS', 'WIN'][game.won]
+    elif game.rounds.has_game_resets:
+        result = 'SCRIM'
     else:
-        title = f'Game on {game.map}'
+        result = 'game'
+
+    if game.teams.firstperson:
+        title = f'{game.teams.firstperson.name}\'s {result} on {game.map}'
+    else:
+        title = f'{result[0].capitalize() + result[1:]} on {game.map}'
+
+    imagehash = hashlib.md5(str((game.won, game.game_mode, game.rounds.final_score, summary.agent)).encode()).hexdigest()
 
     def is_first_round(round: Round) -> bool:
         return round.attacking == game.rounds.rounds[0].attacking
@@ -65,25 +78,88 @@ def game(key: str):
         'valorant/game/game.html',
 
         title=title,
-        # meta=Meta(
-        #     title=title,
-        #     image_url=url_for('overwatch.game.game_card_png', key=key, _external=True) + f'?_cachebust={imagehash}',
-        #     twitter_image_url=url_for('overwatch.game.game_card_png', key=key, _external=True) + f'?height=190&_cachebust={imagehash}',
-        #     summary_large_image=True,
-        #     colour=COLOURS.get(game.result, 'gray')
-        # ),
+        meta=Meta(
+            title=title,
+            image_url=url_for('valorant.game.game_card_png', key=key, _external=True) + f'?_cachebust={imagehash}',
+            twitter_image_url=url_for('valorant.game.game_card_png', key=key, _external=True) + f'?height=190&_cachebust={imagehash}',
+            summary_large_image=True,
+            colour=COLOURS.get(result, 'gray')
+        ),
 
         summary=summary,
         game=game,
         rounds_combined=list(zip_longest(rounds_first, rounds_second)),
 
-        # show_edit=check_authentication() is None and (summary.user_id == session.user_id or session.superuser),
-
         dev_info=dev_info,
     )
 
 
-# ----- Template Variables -----
+@game_blueprint.route('<path:key>/card')
+def game_card(key: str):
+    try:
+        game = ValorantGameSummary.get(key)
+    except ValorantGameSummary.DoesNotExist:
+        return 'Game does not exist', 404
+
+    return render_template_string(
+        '''
+            <!DOCTYPE html>
+            <html lang="en">
+                <head>
+                    <title>{{ title }}</title>
+                    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/' + game_name + '.css') }}">
+                    <style>
+                        body {
+                            background-color: rgba(0, 0, 0, 0);
+                        }
+                        .game-summary {
+                            margin: 0 !important;
+                        }
+                    </style>
+                </head>
+                <body>
+                    {% include 'valorant/games_list/game_card.html' %}
+                </body>
+            </html>
+        ''',
+        title='Card',
+        game=game,
+        show_rank=True,
+    )
+
+
+@game_blueprint.route('/<path:key>/card.png')
+def game_card_png(key: str):
+    if 'RENDERTRON_URL' not in os.environ:
+        return 'Rendertron url not set on server', 500
+
+    url = ''.join((
+        os.environ['RENDERTRON_URL'],
+        'screenshot/',
+        url_for('valorant.game.game_card', key=key, _external=True),
+        f'?width={min(int(request.args.get("width", 1000)), 2000)}',
+        f'&height={min(int(request.args.get("height", 80)), 512)}',
+        f'&_cachebust={request.args.get("_cachebust", "")}'
+    ))
+    try:
+        r = requests.get(
+            url,
+            timeout=15,
+        )
+    except:
+        logger.exception('Rendertron failed to respond within the timeout')
+        return 'Rendertron failed to respond within the timeout', 500
+    try:
+        r.raise_for_status()
+    except:
+        logger.exception('Rendertron encountered an error fetching screenshot')
+        return f'Rendertron encountered an error fetching screenshot: got status {r.status_code}', 500
+
+    return Response(
+        r.content,
+        headers=dict(r.headers)
+    )
+
 
 @game_blueprint.context_processor
 def context_processor() -> Dict[str, Any]:
@@ -94,11 +170,11 @@ def context_processor() -> Dict[str, Any]:
     }
 
 
+# ----- Template Variables -----
+
 def example_exposed_function():
     return random.choice(['foo', 'bar', 'baz'])
 
-
-# ----- Template Filters -----
 
 @game_blueprint.app_template_filter('score')
 def score_template_filter(score: Optional[Tuple[int, int]]) -> str:
@@ -107,6 +183,8 @@ def score_template_filter(score: Optional[Tuple[int, int]]) -> str:
     else:
         return f'{score[0]}-{score[1]}'
 
+
+# ----- Template Filters -----
 
 @game_blueprint.app_template_filter('percentage')
 def percentage(frac: Optional[float]) -> str:
@@ -134,8 +212,6 @@ def get_kill_counts(weapons: Dict[Optional[str], List[Kill]]):
     )
 
 
-# ----- Utility Functions -----
-
 def load_game(summary: ValorantGameSummary) -> Tuple[ValorantGame, Dict]:
     try:
         game_object = s3.get_object(
@@ -153,6 +229,9 @@ def load_game(summary: ValorantGameSummary) -> Tuple[ValorantGame, Dict]:
         metadata = {}
 
     return referenced_typedload.load(game_data, ValorantGame), metadata
+
+
+# ----- Utility Functions -----
 
 
 def get_dev_info(summary, game, metatada):
@@ -226,7 +305,7 @@ def get_dev_info(summary, game, metatada):
         for i, k in enumerate(r.kills):
             extras['kills'].append(('\u00a0' * 6 + f'{i}', repr(k)))
     game_dict['key'] = (summary.key, f'https://overtrack-valorant-games.s3.amazonaws.com/{summary.key}.json')
-    if game_dict['vod']:
+    if game_dict.get('vod'):
         game_dict['vod'] = (game_dict['vod'], game_dict['vod'])
 
     return {
