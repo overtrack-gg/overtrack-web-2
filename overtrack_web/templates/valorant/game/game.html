@@ -28,7 +28,9 @@
                     </div>
                     <div class="row no-gutters align-items-center justify-content-between">
                         <div class="col-4">
+                            {% if game.teams.firstperson %}
                             <img class="agent-thumbnail m-0 p-0" src="{{ url_for('static', filename='images/valorant/agent_profiles/' + game.teams.firstperson.agent.lower() + '.png') }}" />
+                            {% endif %}
                         </div>
                         <div class="col-4">
                             <h1 class="row">
@@ -47,9 +49,11 @@
                             {% endif %}
                         </div>
                         <div class="col-2">
+                            {% if game.teams.firstperson %}
                             <h4 class="row">K: {{ game.teams.firstperson.kills | length }}</h4>
                             <h4 class="row">D: {{ game.teams.firstperson.deaths | length }}</h4>
                             <h4 class="row">A: {% if game.teams.firstperson.stats is not none %}{{game.teams.firstperson.stats.assists or '-'}}{% else %}-{% endif %}</h4>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="card-footer" style="background-color: #202934">
@@ -84,6 +88,7 @@
                                 </tr>
                             </thead>
                             <tbody>
+                            {% if game.teams.firstperson %}
                             {% for weapon, kills, headshots, wallbangs in (game.teams.firstperson.weaponkills | get_kill_counts) %}
                             <tr>
                                 <th scope="row">
@@ -100,6 +105,7 @@
                                 </td>
                             </tr>
                             {% endfor %}
+                            {% endif %}
                             </tbody>
                         </table>
                     </div>

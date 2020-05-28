@@ -33,11 +33,13 @@
     ">
     </div>
     <div class="row no-gutters game-backdrop">
+        {% if game.agent %}
         <div class="col agent-thumbnail" style="
             background-image: url({{ url_for('static', filename='images/valorant/agent_profiles/' + game.agent.lower() + '.png') }});">
         </div>
+        {% endif %}
         <div class="col-1 p-1" style="min-width: 165px;">
-            <h2 class="px-1 mb-1">{{ game.agent | title }}</h2>
+            <h2 class="px-1 mb-1">{{ (game.agent or "Unknown") | title }}</h2>
             <h5 class="px-3 m-0">on {{ game.map | title }}</h5>
         </div>
         <div class="col-1 rank-indicator-2 no-sm" style="max-width: 2.5%; flex: 0 0 2.5%;">
