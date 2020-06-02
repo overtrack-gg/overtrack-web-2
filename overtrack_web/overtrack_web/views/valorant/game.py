@@ -195,7 +195,10 @@ def percentage(frac: Optional[float]) -> str:
 
 @game_blueprint.app_template_filter('weapon_name')
 def weapon_name(s: str) -> str:
-    return s.split('.', 1)[-1].replace('_', ' ').title()
+    if s == 'null':
+        return '?'
+    else:
+        return s.split('.', 1)[-1].replace('_', ' ').title()
 
 
 @game_blueprint.app_template_filter('get_kill_counts')
