@@ -21,6 +21,7 @@ from overtrack_web.lib.session import session
 PAGINATION_PAGE_MINIMUM_SIZE = 40
 PAGINATION_SESSIONS_COUNT_AS = 2
 SESSION_MAX_TIME_BETWEEN_GAMES = 2 * 60
+OLDEST_SUPPORTED_GAME_VERSION = '0.12.0'
 
 
 request: Request = request
@@ -117,6 +118,8 @@ def games_next() -> FlaskResponse:
         'valorant/games_list/sessions_page.html',
         sessions=sessions,
         next_from=next_from,
+
+        OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
     )
 
 
@@ -193,7 +196,7 @@ def render_games_list(user: User, public: bool = False, **next_args: str) -> Fla
         sessions=sessions,
         next_from=next_from,
 
-        show_share_links_edit=not public,
+        OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
     )
 
 

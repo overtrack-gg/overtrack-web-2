@@ -228,7 +228,7 @@ def load_game(summary: ValorantGameSummary) -> Tuple[ValorantGame, Dict]:
         game_data = r.json()
         metadata = {}
 
-    return referenced_typedload.load(game_data, ValorantGame), metadata
+    return ValorantGame.from_dict(game_data), metadata
 
 
 # ----- Utility Functions -----

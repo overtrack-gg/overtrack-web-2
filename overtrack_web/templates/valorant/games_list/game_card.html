@@ -4,26 +4,26 @@
         <div style="position: relative; display: inline-block; font-weight: bold; height: 15px; width: 45px;">{{name}}
         </div>
         {% for r in results %}
-        {% if r %}
-        {% if row == 0 %}
-        <div style="position: relative; display: inline-block; top: 2px; height: 15px; width: 10px; background-color: #5bbd6c; box-shadow: 1px 1px 4px black;">
-            {% else %}
-            <div style="position: relative; display: inline-block; top: 2px; height: 15px; width: 10px; background-color: #5bbd6c; box-shadow: 1px 1px 4px black;">
-                {% endif %}
-                &nbsp;
-            </div>
-            {% else %}
-            {% if row == 0 %}
-            <div style="position: relative; display: inline-block; top: 8px; height: 10px; width: 10px; background-color: #ed4642; box-shadow: 1px 1px 4px black;">
+            {% if r %}
+                {% if row == 0 %}
+                    <div style="position: relative; display: inline-block; top: 2px; height: 15px; width: 10px; background-color: #5bbd6c; box-shadow: 1px 1px 4px black;">
                 {% else %}
-                <div style="position: relative; display: inline-block; top: 2px; height: 10px; width: 10px; background-color: #ed4642; box-shadow: 1px 1px 4px black;">
-                    {% endif %}
-                    &nbsp;
-                </div>
+                    <div style="position: relative; display: inline-block; top: 2px; height: 15px; width: 10px; background-color: #5bbd6c; box-shadow: 1px 1px 4px black;">
                 {% endif %}
-                {% endfor %}
-            </div>
-        </div>
+                    &nbsp;
+                    </div>
+            {% else %}
+                {% if row == 0 %}
+                    <div style="position: relative; display: inline-block; top: 8px; height: 10px; width: 10px; background-color: #ed4642; box-shadow: 1px 1px 4px black;">
+                {% else %}
+                    <div style="position: relative; display: inline-block; top: 2px; height: 10px; width: 10px; background-color: #ed4642; box-shadow: 1px 1px 4px black;">
+                {% endif %}
+                    &nbsp;
+                    </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</div>
 {%- endmacro -%}
 
 <div class="card game-summary result-{{ ['loss', 'win'][game.won] if not game.scrim else 'scrim' }}">
@@ -71,5 +71,7 @@
             {{ game.timestamp }}
         </small>
     </div>
+    {% if game.version >= OLDEST_SUPPORTED_GAME_VERSION %}
     <a href="{{ url_for('valorant.game.game', key=game.key) }}" class="stretched-link"></a>
+    {% endif %}
 </div>
