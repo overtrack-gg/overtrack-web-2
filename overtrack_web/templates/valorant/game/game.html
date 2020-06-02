@@ -162,7 +162,7 @@
                                                             {{ kill.killer.name }}
                                                             <span class="weapon">
                                                             {% if kill.weapon %}
-                                                            <img class="gun" alt="{{ kill.weapon | weapon_name }}" title="{{ kill.weapon | weapon_name }}" src="{{ url_for('static', filename='images/valorant/guns/' + kill.weapon + '.png') }}" />
+                                                            <img class="gun" alt="{{ kill.weapon | weapon_name }}" title="{{ kill.weapon | weapon_name }}" src="{{ url_for('static', filename='images/valorant/weapons/' + kill.weapon + '.png') }}" />
                                                                 {% if kill.headshot %}
                                                                     <img class="gun" alt="Headshot" title="Headshot" src="{{ url_for('static', filename='images/valorant/guns/headshot.png') }}" />
                                                                 {% endif %}
