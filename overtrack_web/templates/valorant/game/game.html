@@ -164,10 +164,10 @@
                                                             {% if kill.weapon %}
                                                             <img class="gun" alt="{{ kill.weapon | weapon_name }}" title="{{ kill.weapon | weapon_name }}" src="{{ url_for('static', filename='images/valorant/weapons/' + kill.weapon + '.png') }}" />
                                                                 {% if kill.headshot %}
-                                                                    <img class="gun" alt="Headshot" title="Headshot" src="{{ url_for('static', filename='images/valorant/guns/headshot.png') }}" />
+                                                                    <img class="gun" alt="Headshot" title="Headshot" src="{{ url_for('static', filename='images/valorant/weapons/headshot.png') }}" />
                                                                 {% endif %}
                                                                 {% if kill.wallbang %}
-                                                                    <img class="gun" alt="Wallbang" title="Wallbang" src="{{ url_for('static', filename='images/valorant/guns/wallbang.png') }}" />
+                                                                    <img class="gun" alt="Wallbang" title="Wallbang" src="{{ url_for('static', filename='images/valorant/weapons/wallbang.png') }}" />
                                                                 {% endif %}
                                                             </span>
                                                             {% else %}
