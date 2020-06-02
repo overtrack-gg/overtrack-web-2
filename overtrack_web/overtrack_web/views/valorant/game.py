@@ -4,21 +4,21 @@ import json
 import logging
 import os
 import random
-from itertools import takewhile, dropwhile, zip_longest
+from dataclasses import fields, is_dataclass
 from typing import Tuple, Dict, Any, Optional, List
 from urllib.parse import urlparse
 
 import boto3
 import requests
-from dataclasses import fields, is_dataclass, dataclass
 from flask import Blueprint, render_template, render_template_string, url_for, request, Response
-from overtrack_models.dataclasses.typedload import referenced_typedload
+from itertools import takewhile, dropwhile, zip_longest
+
 from overtrack_models.dataclasses.valorant import ValorantGame, Kill, Round
 from overtrack_models.orm.valorant_game_summary import ValorantGameSummary
-
 from overtrack_web.lib.authentication import check_authentication
 from overtrack_web.lib.opengraph import Meta
 from overtrack_web.lib.session import session
+from overtrack_web.views.valorant.games_list import OLDEST_SUPPORTED_GAME_VERSION
 
 GAMES_BUCKET = 'overtrack-valorant-games'
 COLOURS = {
@@ -125,6 +125,8 @@ def game_card(key: str):
         title='Card',
         game=game,
         show_rank=True,
+
+        OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
     )
 
 
