@@ -15,7 +15,11 @@
     {{ performance.deaths.per_round | round(2) }}
 </td>
 <td class="vert-sep">
+    {% if performance.kills_per_death is none %}
+    -
+    {% else %}
     {{ performance.kills_per_death | round(2) }}
+    {% endif %}
 </td>
 <td>
     {{ performance.team_firstbloods.total }}

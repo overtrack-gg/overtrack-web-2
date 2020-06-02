@@ -632,7 +632,7 @@ version = "0.1.0"
 pynamodb = "^4.0"
 
 [package.source]
-reference = "01a82e834b37ebafe5d7807847b1d7939272dbcd"
+reference = "7da9277ca88c9f42d363560bb98805b7e4a1f699"
 type = "git"
 url = "https://gitlab.com/OverTrack/overtrack-models.git"
 [[package]]
