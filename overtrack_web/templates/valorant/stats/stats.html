@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="valorant-stats">
+    <div class="container">
+        <div class="row">
+            <div class="col mb-2" >
+                <div class="card stats-menu">
+                    <div class="card-header">
+                        <h4>Stats</h4>
+                    </div>
+                    <div class="card-body pb-0">
+                        <div class="row">
+                            <div class="col">
+                                <select class="custom-select">
+                                    <option selected value="all">All Maps</option>
+                                    {% for m in maps %}
+                                    <option value="{{ m }}">{{ m | title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" checked class="custom-control-input" id="showAverage" />
+                                    <label class="custom-control-label" for="showAverage">Show Global Averages</label>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="showDetailed" />
+                                    <label class="custom-control-label" for="showDetailed">Show Detailed Stats</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <table class="table table-borderless table-responsive-lg">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col" width="100px"></th>
+                                        <th scope="col">Game Winrate</th>
+                                        <th scope="col">Round Winrate</th>
+                                        <th scope="col">Attack Winrate</th>
+                                        <th scope="col">Defence Winrate</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for agent in sort_agents_by_games(agents) %}
+                                    {% if agent == 'all agents' %}
+                                        {% set winrate = winrates.map(selected_map) %}
+                                        {% set av_winrate = winrates_average.map(selected_map) %}
+                                    {% else %}
+                                        {% set winrate = winrates.map_agent(selected_map, agent) %}
+                                        {% set av_winrate = winrates_average.map_agent(selected_map, agent) %}
+                                    {% endif %}
+                                    <tr style="background-color: {% if loop.index % 2 == 0 %}#00000077{% endif %}">
+                                        <th class="p-0 text-center" scope="row">
+                                            {{ agent | title }}
+                                            <br/>
+                                            {% if agent != 'all agents' %}
+                                            <img class="agent-thumbnail m-0" src="{{ url_for('static', filename='images/valorant/agent_profiles/' + agent.lower() + '.png') }}" />
+                                            {% endif %}
+                                        </th>
+                                        {% for wr, wr_av in [
+                                            (winrate.games, av_winrate.games),
+                                            (winrate.rounds, av_winrate.rounds),
+                                            (winrate.attacking_rounds, av_winrate.attacking_rounds),
+                                            (winrate.defending_rounds, av_winrate.defending_rounds),
+                                        ] %}
+                                        <td class="stats-cell p-1">
+                                            {% if show_detailed %}
+                                                <table class="table table-borderless m-0" style="font-size: small">
+                                                    <thead>
+                                                    <tr>
+                                                        {% if show_averages %}
+                                                        <th class="p-0" scope="col"></th>
+                                                        {% endif %}
+                                                        <th class="p-0" scope="col">Wins</th>
+                                                        <th class="p-0" scope="col">Losses</th>
+                                                        <th class="p-0" scope="col">Winrate</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr>
+                                                        {% if show_averages %}
+                                                        <th class="p-0" scope="row">
+                                                            {% if loop.first %}
+                                                            Mine
+                                                            {% endif %}
+                                                        </th>
+                                                        {% endif %}
+                                                        <td class="p-0">{{ wr.wins }}</td>
+                                                        <td class="p-0">{{ wr.losses }}</td>
+                                                        <td class="p-0">{{ wr.winrate | percentage }}</td>
+                                                    </tr>
+                                                    {% if show_averages %}
+                                                    <tr>
+                                                        <th class="p-0" scope="row">
+                                                            {% if loop.first %}
+                                                            Average
+                                                            {% endif %}
+                                                        </th>
+                                                        <td class="p-0">{{ wr_av.wins }}</td>
+                                                        <td class="p-0">{{ wr_av.losses }}</td>
+                                                        <td class="p-0">{{ wr_av.winrate | percentage }}</td>
+                                                    </tr>
+                                                    {% endif %}
+                                                    </tbody>
+                                                </table>
+                                            {% else %}
+                                                <div class="progress position-relative">
+                                                    <div class="progress-bar" role="progressbar" style="width: {{ wr.winrate | percentage }}"></div>
+                                                    <span class="justify-content-center d-flex position-absolute w-100">
+                                                        {% if loop.first and show_averages %}
+                                                            Mine:
+                                                        {% endif %}
+                                                        {{ wr.winrate | percentage }}
+                                                    </span>
+                                                </div>
+                                                {% if show_averages %}
+                                                <div class="progress progress-average position-relative">
+                                                    <div class="progress-bar bg-info" role="progressbar" style="width: {{ wr_av.winrate | percentage }}"></div>
+                                                    <span class="justify-content-center d-flex position-absolute w-100">
+                                                        {% if loop.first %}
+                                                            Average:
+                                                        {% endif %}
+                                                        {{ wr_av.winrate | percentage }}
+                                                    </span>
+                                                </div>
+                                                {% endif %}
+                                            {% endif %}
+                                        </td>
+                                        {% endfor %}
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock %}
