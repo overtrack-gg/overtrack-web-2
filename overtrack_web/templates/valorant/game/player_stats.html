@@ -1,0 +1,102 @@
+<div class="card player-stats">
+    <div class="card-header">
+        <h4>Player Stats</h4>
+    </div>
+    <div class="card-body">
+        <table id="player-stats-table" class="table table-borderless table-hover table-striped text-left table-responsive-sm">
+            <thead class="border-bottom">
+                <tr style="text-align: center;">
+                    <td colspan="2">
+                    </td>
+                    <td colspan="3">
+                        Kills
+                    </td>
+                    <td colspan="2">
+                        Deaths
+                    </td>
+                    <td>
+                        Kills/Death
+                    </td>
+                    <td colspan="2">
+                        First Kill for Team
+                    </td>
+                    <td colspan="2">
+                        First Kill of Round
+                    </td>
+                    <td colspan="2">
+                        First Death for Team
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="vert-sep">
+                    </td>
+                    <td>
+                        total
+                    </td>
+                    <td>
+                        per round
+                    </td>
+                    <td class="vert-sep">
+                        % of total
+                    </td>
+                    <td>
+                        total
+                    </td>
+                    <td class="vert-sep">
+                        per round
+                    </td>
+                    <td class="vert-sep">
+                    </td>
+                    <td>
+                        total
+                    </td>
+                    <td class="vert-sep">
+                        led to win
+                    </td>
+                    <td>
+                        total
+                    </td>
+                    <td class="vert-sep">
+                        led to win
+                    </td>
+                    <td>
+                        total
+                    </td>
+                    <td>
+                        led to loss
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                {% for team in game.teams %}
+                <tr class="hor-sep">
+                    <th scope="row" colspan="2" class="big vert-sep">
+                        {{ ['Ally', 'Enemy'][not team.friendly] }}
+                    </th>
+                    {% with
+                        performance = team.performance
+                    %}
+                    {% include 'valorant/game/performance_row.html' %}
+                    {% endwith %}
+
+                </tr>
+                {% for player in team %}
+                <tr>
+                    <td>
+                        {{ player.agent }}
+                    </td>
+                    <th scope="row" class="big text-right vert-sep">
+                        {{ player.name }}
+                    </th>
+                    {% with
+                        performance = player.performance
+                    %}
+                    {% include 'valorant/game/performance_row.html' %}
+                    {% endwith %}
+                </tr>
+                {% endfor %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

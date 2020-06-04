@@ -1,0 +1,45 @@
+<div class="card player-weapon-stats">
+    <div class="card-header">
+        <h4>Weapons</h4>
+    </div>
+    <div class="card-body pb-0">
+        <table class="weapons-table table table-borderless table-hover table-striped text-left table-responsive-sm">
+            <thead class="border-bottom">
+                <tr>
+                    <th>
+                        Weapon
+                    </th>
+                    <th>
+                        Kills
+                    </th>
+                    <th>
+                        Headshots
+                    </th>
+                    <th>
+                        Wallbangs
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if game.teams.firstperson %}
+            {% for weapon, kills, headshots, wallbangs in (game.teams.firstperson.weaponkills | get_kill_counts) %}
+            <tr>
+                <th scope="row">
+                    {{ weapon | weapon_name }}
+                </th>
+                <td>
+                    {{ kills }}
+                </td>
+                <td>
+                    {{ headshots }}
+                </td>
+                <td>
+                    {{ wallbangs }}
+                </td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>

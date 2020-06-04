@@ -3,9 +3,8 @@ import hashlib
 import json
 import logging
 import os
-import random
 from dataclasses import fields, is_dataclass
-from typing import Tuple, Dict, Any, Optional, List
+from typing import Tuple, Dict, Any, Optional, List, Union
 from urllib.parse import urlparse
 
 import boto3
@@ -13,7 +12,7 @@ import requests
 from flask import Blueprint, render_template, render_template_string, url_for, request, Response
 from itertools import takewhile, dropwhile, zip_longest
 
-from overtrack_models.dataclasses.valorant import ValorantGame, Kill, Round
+from overtrack_models.dataclasses.valorant import ValorantGame, Kill, Round, Ult
 from overtrack_models.orm.valorant_game_summary import ValorantGameSummary
 from overtrack_web.lib.authentication import check_authentication
 from overtrack_web.lib.opengraph import Meta
@@ -89,6 +88,8 @@ def game(key: str):
         summary=summary,
         game=game,
         rounds_combined=list(zip_longest(rounds_first, rounds_second)),
+
+        # show_edit=check_authentication() is None and (summary.user_id == session.user_id or session.superuser),
 
         dev_info=dev_info,
     )
@@ -167,15 +168,10 @@ def game_card_png(key: str):
 def context_processor() -> Dict[str, Any]:
     return {
         'game_name': 'valorant',
-        'example_exposed_function': example_exposed_function,
-        'random': random,
     }
 
 
 # ----- Template Variables -----
-
-def example_exposed_function():
-    return random.choice(['foo', 'bar', 'baz'])
 
 
 @game_blueprint.app_template_filter('score')
@@ -215,6 +211,25 @@ def get_kill_counts(weapons: Dict[Optional[str], List[Kill]]):
         key=lambda e: e[1],
         reverse=True,
     )
+
+
+@game_blueprint.app_template_filter('round_events')
+def round_events(round: Round) -> List[Union[Kill, Ult]]:
+    events = round.kills.kills + round.ults_used
+    events.sort(
+        key=lambda e: e.timestamp if isinstance(e, Kill) else e.lost
+    )
+    return events
+
+
+@game_blueprint.app_template_test('kill')
+def is_kill(e):
+    return isinstance(e, Kill)
+
+
+@game_blueprint.app_template_test('ult')
+def is_ult(e):
+    return isinstance(e, Ult)
 
 
 def load_game(summary: ValorantGameSummary) -> Tuple[ValorantGame, Dict]:

@@ -1,247 +1,312 @@
-.player-summary {
-    .team-score-0 {
-        display: inline;
-        margin-right: 1em;
-        color: $win-color;
-    }
+.valorant-game {
 
-    .team-score-1 {
-        display: inline;
-        margin-left: 1em;
-        color: $loss-color;
-    }
-
-    .agent-thumbnail {
-    }
-
-    .rank-indicator {
-    }
-}
-
-#weapons-table {
-    table-layout: fixed;
-}
-
-#round-stats {
-    .nav-tabs {
-        border: none;
-    }
-
-    .nav {
-        height: 100%;
-        max-width: 200px;
-
-        .header {
-            font-size: large;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        li {
-            display: block;
-            width: 50%;
-        }
-
-        .nav-link {
-            border: none;
-            color: white;
-            font-weight: bold;
-            margin-bottom: 5px;
-
-            transition-property: width, margin;
-            transition-duration: 0.5s;
-
-            width: 75%;
-
-            &:hover {
-                width: 85%;
-            }
-
-            &.active {
-                width: 100%;
-            }
-        }
-
-        .win-true {
-            &.first {
-                .nav-link {
-                    background: linear-gradient(to right, #7eb6af 0%, $win-color 11.25%);
-                    border-left: 5px solid #bdd9d5;
-
-                    margin-left: 25%;
-
-                    &:hover {
-                        margin-left: 15%;
-                    }
-
-                    &.active {
-                        margin-left: 0%;
-                    }
-                }
-            }
-
-            &.second {
-                .nav-link {
-                    background: linear-gradient(to left, #7eb6af 0%, $win-color 11.25%);
-                    border-right: 5px solid #bdd9d5;
-                }
-            }
-
-            .nav-link {
-                /*width: 100%;*/
-
-                &:hover {
-                    background: darken($win-color, 10%);
-                }
-
-                &.active {
-                    border-color: #00d9d5;
-                    background: darken($win-color, 20%);
-                }
-            }
-        }
-
-        .win-false {
-            &.first {
-                .nav-link {
-                    background: linear-gradient(to right, #d37074 0%, $loss-color 15%);
-                    border-left: 5px solid #e9b4b7;
-                    margin-left: 25%;
-
-                    &:hover {
-                        margin-left: 15%;
-                    }
-
-                    &.active {
-                        margin-left: 0%;
-                    }
-                }
-            }
-
-            &.second {
-                .nav-link {
-                    background: linear-gradient(to left, #d37074 0%, $loss-color 15%);
-                    border-right: 5px solid #e9b4b7;
-                    /*margin-right: 25%;*/
-                }
-            }
-
-            .nav-link {
-                /*width: 75%;*/
-
-                &:hover {
-                    background: darken($loss-color, 10%);
-                }
-
-                &.active {
-                    border-color: #e90000;
-                    background: darken($loss-color, 20%);
-                }
-            }
-        }
-
-        .first {
-            padding-right: 5px;
-        }
-        .second {
-            padding-left: 5px;
+    .dev-info {
+        tbody > tr > td,
+        tbody > tr > th {
+            padding: 1px;
+            padding-right: 10px;
         }
     }
 
-    .tab-content {
-        .win-true {
+    .player-summary {
+        .team-score-0 {
+            display: inline;
+            margin-right: 1em;
             color: $win-color;
         }
 
-        .win-false {
+        .team-score-1 {
+            display: inline;
+            margin-left: 1em;
             color: $loss-color;
         }
 
-        .kill-row {
-            margin: 0 10px 0 10px;
-            height: 40px;
-            width: 100%;
-            margin-bottom: 5px;
-            font-weight: bold;
-            white-space: nowrap;
+        .agent-thumbnail {
+        }
 
-            .friendly {
-                background-color: $win-color;
+        .rank-indicator {
+        }
+    }
+
+    .player-weapon-stats {
+        .weapons-table {
+            table-layout: fixed;
+        }
+    }
+
+    
+    .card {
+        .card-body {
+            font: 300 14px 'Helvetica Neue',Helvetica,Arial,sans-serif;
+        }
+
+        .team-name {
+            font: 400 16px  'Helvetica Neue',Helvetica,Arial,sans-serif;
+        }
+
+        .hor-sep {
+            border-top: 1px solid #c8c8c877;
+        }
+        .vert-sep {
+            border-right: 1px dashed #c8c8c877;
+        }
+    }
+
+    .rounds {
+        .card-body {
+            font: 300 14px 'Helvetica Neue',Helvetica,Arial,sans-serif;
+        }
+
+        .team-name {
+            font: 400 16px  'Helvetica Neue',Helvetica,Arial,sans-serif;
+        }
+
+        .hor-sep {
+            border-top: 1px solid #c8c8c877;
+        }
+        .vert-sep {
+            border-right: 1px dashed #c8c8c877;
+        }
+
+        .nav-tabs {
+            border: none;
+        }
+
+        .nav {
+            height: 100%;
+            max-width: 200px;
+
+            .header {
+                font-size: large;
+                font-weight: bold;
+                margin-bottom: 10px;
             }
 
-            .enemy {
-                background-color: $loss-color;
+            li {
+                display: block;
+                width: 50%;
             }
 
-            .time {
-                width: 40px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                position: relative;
-                color: #ffffff;
-                background: linear-gradient(to right, #777777 90%, #000000 100%);
-                border-radius: 10% 0 0 10%;
-                padding-left: 10px;
-                padding-right: 10px;
-            }
+            .nav-link {
+                border: none;
+                color: white;
+                font-weight: bold;
+                margin-bottom: 5px;
 
-            .killer {
-                min-width: 350px;
-                display: inline-block;
-                position: relative;
+                transition-property: width, margin;
+                transition-duration: 0.5s;
 
-                &:after {
-                    left: 100%;
-                    top: 50%;
-                    border: solid transparent;
-                    content: " ";
-                    height: 0;
-                    width: 0;
-                    position: absolute;
-                    pointer-events: none;
-                    border-width: 20px;
-                    margin-top: -20px;
+                width: 75%;
+
+                &:hover {
+                    width: 85%;
                 }
 
-                &.friendly {
-                    &:after {
-                        border-left-color: $win-color;
+                &.active {
+                    width: 100%;
+                }
+            }
+
+            .win-true {
+                &.first {
+                    .nav-link {
+                        background: linear-gradient(to right, #7eb6af 0%, $win-color 11.25%);
+                        border-left: 5px solid #bdd9d5;
+
+                        margin-left: 25%;
+
+                        &:hover {
+                            margin-left: 15%;
+                        }
+
+                        &.active {
+                            margin-left: 0%;
+                        }
                     }
                 }
-                &.enemy {
-                    &:after {
-                        border-left-color: $loss-color;
+
+                &.second {
+                    .nav-link {
+                        background: linear-gradient(to left, #7eb6af 0%, $win-color 11.25%);
+                        border-right: 5px solid #bdd9d5;
+                    }
+                }
+
+                .nav-link {
+                    /*width: 100%;*/
+
+                    &:hover {
+                        background: darken($win-color, 10%);
+                    }
+
+                    &.active {
+                        border-color: #00d9d5;
+                        background: darken($win-color, 20%);
                     }
                 }
             }
 
-            .killed {
-                min-width: 250px;
-                display: inline-block;
-                padding-left: 30px;
-                text-align: right;
+            .win-false {
+                &.first {
+                    .nav-link {
+                        background: linear-gradient(to right, #d37074 0%, $loss-color 15%);
+                        border-left: 5px solid #e9b4b7;
+                        margin-left: 25%;
+
+                        &:hover {
+                            margin-left: 15%;
+                        }
+
+                        &.active {
+                            margin-left: 0%;
+                        }
+                    }
+                }
+
+                &.second {
+                    .nav-link {
+                        background: linear-gradient(to left, #d37074 0%, $loss-color 15%);
+                        border-right: 5px solid #e9b4b7;
+                        /*margin-right: 25%;*/
+                    }
+                }
+
+                .nav-link {
+                    /*width: 75%;*/
+
+                    &:hover {
+                        background: darken($loss-color, 10%);
+                    }
+
+                    &.active {
+                        border-color: #e90000;
+                        background: darken($loss-color, 20%);
+                    }
+                }
+            }
+
+            .first {
+                padding-right: 5px;
+            }
+            .second {
+                padding-left: 5px;
+            }
+        }
+
+        .tab-content {
+            .win-true {
+                color: $win-color;
+            }
+
+            .win-false {
+                color: $loss-color;
+            }
+
+            .event-row {
+                margin: 0 10px 0 10px;
+                height: 40px;
+                width: 100%;
+                margin-bottom: 5px;
+                font-weight: bold;
+                white-space: nowrap;
+
+                .friendly {
+                    background-color: $win-color;
+                }
+
+                .enemy {
+                    background-color: $loss-color;
+                }
+
+                .time {
+                    width: 40px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    position: relative;
+                    color: #ffffff;
+                    background: linear-gradient(to right, #777777 90%, #000000 100%);
+                    border-radius: 10% 0 0 10%;
+                    padding-left: 10px;
+                    padding-right: 10px;
+                }
+
+                .ulter {
+                    min-width: 250px;
+                    display: inline-block;
+                    position: relative;
+
+                    border-top-left-radius: 0;
+                    border-top-right-radius: 15px;
+                    border-bottom-right-radius: 15px;
+                    border-bottom-left-radius: 0;
+                }
+
+                .killer {
+                    min-width: 350px;
+                    display: inline-block;
+                    position: relative;
+
+                    &:after {
+                        left: 100%;
+                        top: 50%;
+                        border: solid transparent;
+                        content: " ";
+                        height: 0;
+                        width: 0;
+                        position: absolute;
+                        pointer-events: none;
+                        border-width: 20px;
+                        margin-top: -20px;
+                    }
+
+                    &.friendly {
+                        &:after {
+                            border-left-color: $win-color;
+                        }
+                    }
+                    &.enemy {
+                        &:after {
+                            border-left-color: $loss-color;
+                        }
+                    }
+                }
+
+                .killed {
+                    min-width: 250px;
+                    display: inline-block;
+                    padding-left: 30px;
+                    text-align: right;
+
+                    img {
+                        transform: scaleX(-1);
+                    }
+                }
+
+                .ult {
+                    margin-left: 20px;
+                    margin-right: 8px;
+                    float: right;
+                    font-size: 30px;
+                }
+
+                .weapon {
+                    margin-left: 20px;
+                    float: right;
+                    font-size: 30px;
+                }
 
                 img {
-                    transform: scaleX(-1);
-                }
-            }
+                    height: 40px;
 
-            .weapon {
-                margin-left: 20px;
-                float: right;
-                font-size: 30px;
-            }
-
-            img {
-                height: 40px;
-
-                &.gun {
-                    height: 30px;
-                    margin-top: 5px;
-                    filter: grayscale(100%) brightness(255);
+                    &.gun {
+                        height: 30px;
+                        margin-top: 5px;
+                        filter: grayscale(100%) brightness(255);
+                    }
                 }
             }
         }
     }
+
 }

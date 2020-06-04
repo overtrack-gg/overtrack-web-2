@@ -41,33 +41,5 @@ $scrim-color: #DDCE7A;
 }
 
 
-.valorant-game {
-
-    .dev-info {
-        tbody > tr > td,
-        tbody > tr > th {
-            padding: 1px;
-            padding-right: 10px;
-        }
-    }
-
-    .player-stats {
-        .card-body {
-            font: 300 14px 'Helvetica Neue',Helvetica,Arial,sans-serif;
-        }
-
-        .team-name {
-            font: 400 16px  'Helvetica Neue',Helvetica,Arial,sans-serif;
-        }
-
-        .hor-sep {
-            border-top: 1px solid #c8c8c877;
-        }
-        .vert-sep {
-            border-right: 1px dashed #c8c8c877;
-        }
-    }
-}
-
 @import "valorant/games_list";
 @import "valorant/game";

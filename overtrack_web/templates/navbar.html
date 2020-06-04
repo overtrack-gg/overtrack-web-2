@@ -32,11 +32,13 @@
                     {% endif %}
                 </a>
                 <div class="dropdown-menu dropdown-menu-right text-right">
-                    {% for game in ['overwatch', 'apex'] %}
+                    {% for game in ['overwatch', 'apex', 'valorant'] %}
+                    {% if url_exists(game + '.games_list.games_list') %}
                     <a class="dropdown-item {{ 'active' if game == game_name else '' }}" href="{{ url_for(game + '.games_list.games_list') }}">
                         {{ game | game_name }}
                         <img src="{{ url_for('static', filename='images/' + game + '-dark.png') }}">
                     </a>
+                    {% endif %}
                     {% endfor %}
                 </div>
             </li>

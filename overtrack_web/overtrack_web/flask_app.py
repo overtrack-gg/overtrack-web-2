@@ -195,6 +195,12 @@ for key, username in {
 @app.route('/apex')
 def apex_games_redirect():
     return redirect(url_for('apex.games_list.games_list'), code=301)
+@app.route('/overwatch')
+def overwatch_games_redirect():
+    return redirect(url_for('overwatch.games_list.games_list'), code=301)
+@app.route('/valorant')
+def valorant_games_redirect():
+    return redirect(url_for('valorant.games_list.games_list'), code=301)
 
 
 @app.route('/assets/<path:path>')

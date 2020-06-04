@@ -21,6 +21,8 @@ class MockUser(NamedTuple):
     overwatch_seasons: List[int] = list(overwatch_data.seasons.keys())[-5:]
     overwatch_games: int = 1
 
+    valorant_games: int = 1
+
     subscription_active: bool = False # bool(random.randint(0, 1))
     trial_active: bool = False # not subscription_active and bool(random.randint(0, 1))
     trial_games_remaining: int = random.randint(1, 30)

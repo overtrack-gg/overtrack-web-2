@@ -1,0 +1,87 @@
+<div class="card rounds" id="round-stats">
+    <div class="card-header">
+        <h4>Timeline</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <ul class="col nav nav-tabs justify-content-start">
+                {% if game.rounds.attacking_first %}
+                    <li class="first header text-right">Attack</li>
+                    <li class="second header">Defense</li>
+                {% else %}
+                    <li class="first header text-right">Defense</li>
+                    <li class="second header">Attack</li>
+                {% endif %}
+                {% for first, second in rounds_combined %}
+                    <li class="first nav-item win-{{ first.won | string | lower }} text-right">
+                        {% if first is not none %}
+                        <a class="nav-link {{ 'active' if loop.first else '' }}" data-toggle="tab" href="#round{{ first.index }}">
+                            {{ first.index + 1 }}
+                        </a>
+                        {% endif %}
+                    </li>
+                    <li class="second nav-item win-{{ second.won | string | lower }}">
+                        {% if second is not none %}
+                        <a class="nav-link" data-toggle="tab" href="#round{{ second.index }}">
+                            {{ second.index + 1 }}
+                        </a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+            <div class="col tab-content">
+                {% for round in game.rounds.rounds %}
+                    <div id="round{{ round.index }}" class="tab-pane {{ 'active' if loop.first else '' }} round-pane">
+                        <h1>
+                            Round {{ round.index + 1}} -
+                            {{ 'Attack' if round.attacking else 'Defense' }} -
+                            <span class="win-{{ round.won | string | lower }}">{{ 'Won' if round.won else 'Loss'}}</span>
+                        </h1>
+                        <div class="row">
+                            <div class="col">
+                                {% for event in round | round_events %}
+                                    {% if event is kill %}
+                                    <div class="row event-row kill">
+                                        <div class="time">{{ event.round_timestamp | s2ts }}</div>
+                                        <div class="killer {{ 'friendly' if event.killer.friendly else 'enemy' }}">
+                                            <img src="{{ url_for('static', filename='images/valorant/agent_profiles/' + event.killer.agent.lower() + '.png') }}" alt="{{ event.killer.agent }}" title="{{ event.killer.agent }}" />
+                                            {{ event.killer.name }}
+                                            <span class="weapon">
+                                            {% if event.weapon %}
+                                            <img class="gun" alt="{{ event.weapon | weapon_name }}" title="{{ event.weapon | weapon_name }}" src="{{ url_for('static', filename='images/valorant/weapons/' + event.weapon + '.png') }}" />
+                                                {% if event.headshot %}
+                                                    <img class="gun" alt="Headshot" title="Headshot" src="{{ url_for('static', filename='images/valorant/weapons/headshot.png') }}" />
+                                                {% endif %}
+                                                {% if event.wallbang %}
+                                                    <img class="gun" alt="Wallbang" title="Wallbang" src="{{ url_for('static', filename='images/valorant/weapons/wallbang.png') }}" />
+                                                {% endif %}
+                                            </span>
+                                            {% else %}
+                                            <span class="weapon">?</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="killed {{ 'friendly' if event.killed.friendly else 'enemy' }}">
+                                            {{ event.killed.name }}
+                                            <img src="{{ url_for('static', filename='images/valorant/agent_profiles/' + event.killed.agent.lower() + '.png') }}" alt="{{ event.killed.agent }}" title="{{ event.killed.agent }}" />
+                                        </div>
+                                    </div>
+                                    {% elif event is ult %}
+                                    <div class="row event-row ult">
+                                        <div class="time">{{ event.round_lost_timestamp | s2ts }}</div>
+                                        <div class="ulter {{ 'friendly' if event.player.friendly else 'enemy' }}">
+                                            <img src="{{ url_for('static', filename='images/valorant/agent_profiles/' + event.player.agent.lower() + '.png') }}" alt="{{ event.player.agent }}" title="{{ event.player.agent }}" />
+                                            {{ event.player.name }}
+                                            <img class="ult" alt="Ult" title="{{ event.player.agent | lower }}" src="{{ url_for('static', filename='images/valorant/ults/' + event.player.agent | lower + '.png') }}" />
+                                        </div>
+                                    </div>
+
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
