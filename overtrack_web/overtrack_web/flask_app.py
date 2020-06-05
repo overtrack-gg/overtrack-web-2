@@ -147,8 +147,11 @@ app.register_blueprint(valorant_games_list_blueprint, url_prefix='/valorant/game
 from overtrack_web.views.valorant.game import game_blueprint as valorant_game_blueprint
 app.register_blueprint(valorant_game_blueprint, url_prefix='/valorant/games')
 
-from overtrack_web.views.valorant.stats import stats_blueprint as valorant_stats_blueprint
-app.register_blueprint(valorant_stats_blueprint, url_prefix='/valorant/winrates')
+try:
+    from overtrack_web.views.valorant.stats import stats_blueprint as valorant_stats_blueprint
+    app.register_blueprint(valorant_stats_blueprint, url_prefix='/valorant/winrates')
+except:
+    logger.error('Failed to import valorant winrates')
 
 
 # ------ OVERWATCH ------
@@ -240,42 +243,51 @@ def root():
 @app.route('/games')
 @require_login
 def games():
-    if session.user.overwatch_games and not session.user.apex_games:
-        logger.info(f'User has overwatch games and no apex games, redirecting to overwatch games list')
+    if session.user.overwatch_games and not session.user.apex_games and not session.user.valorant_games:
+        logger.info(f'User has overwatch games and no apex/valorant games, redirecting to overwatch games list')
         return redirect(url_for('overwatch.games_list.games_list'), code=302)
-    elif session.user.apex_games and not session.user.overwatch_games:
-        logger.info(f'User has apex games and no overwatch games, redirecting to apex games list')
+    elif session.user.apex_games and not session.user.overwatch_games and not session.user.valorant_games:
+        logger.info(f'User has apex games and no overwatch/valorant games, redirecting to apex games list')
         return redirect(url_for('apex.games_list.games_list'), code=302)
-    elif not session.user.overwatch_games and session.user.apex_games:
+    elif session.user.valorant_games and not session.user.overwatch_games and not session.user.apex_games:
+        logger.info(f'User has valorant games and no overwatch/apex games, redirecting to valorant games list')
+        return redirect(url_for('valorant.games_list.games_list'), code=302)
+    elif not session.user.overwatch_games and session.user.apex_games and not session.user.valorant_games:
         logger.info(f'User has no apex games and no overwatch games, redirecting to overwatch games list')
         return redirect(url_for('overwatch.games_list.games_list'), code=302)
     else:
-        # check apex games first, so OW becomes the default if there is no apex game
-        try:
-            from overtrack_models.orm.apex_game_summary import ApexGameSummary
-            apex_game = ApexGameSummary.user_id_time_index.get(session.user.user_id, scan_index_forward=False)
-        except:
-            logger.info(f'Fetching latest apex game failed, redirecting to overwatch games list')
-            return redirect(url_for('overwatch.games_list.games_list'), code=302)
         try:
             from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
             overwatch_game = OverwatchGameSummary.user_id_time_index.get(session.user.user_id, scan_index_forward=False)
         except:
-            logger.info(f'Fetching latest overwatch game failed, redirecting to apex games list')
-            return redirect(url_for('apex.games_list.games_list'), code=302)
+            overwatch_game = None
+        try:
+            from overtrack_models.orm.apex_game_summary import ApexGameSummary
+            apex_game = ApexGameSummary.user_id_time_index.get(session.user.user_id, scan_index_forward=False)
+        except:
+            apex_game = None
+        try:
+            from overtrack_models.orm.valorant_game_summary import ValorantGameSummary
+            valorant_game = ValorantGameSummary.user_id_timestamp_index.get(session.user.user_id, scan_index_forward=False)
+        except:
+            valorant_game = None
 
-        if overwatch_game.datetime > apex_game.time:
-            logger.info(
-                f'Most recent overwatch game ({overwatch_game.datetime}) is more recent than apex game ({apex_game.time}) - '
-                f'redirecting to overwatch games'
-            )
-            return redirect(url_for('overwatch.games_list.games_list'), code=302)
-        else:
-            logger.info(
-                f'Most recent apex game ({apex_game.time}) is more recent than overwatch game ({overwatch_game.datetime}) - '
-                f'redirecting to overwatch games'
-            )
-            return redirect(url_for('apex.games_list.games_list'), code=302)
+        logger.info(f'Games: {overwatch_game, apex_game, valorant_game}')
+
+        most_recent = 'overwatch', None
+        if overwatch_game:
+            most_recent = 'overwatch', overwatch_game.datetime
+        if apex_game:
+            if not most_recent[1] or apex_game.time > most_recent[1]:
+                most_recent = 'apex', apex_game.time
+        if valorant_game:
+            if not most_recent[1] or valorant_game.datetime > most_recent[1]:
+                most_recent = 'valorant', valorant_game.datetime
+
+        logger.info(
+            f'Most recent game was {most_recent[0]} at {most_recent[1]}'
+        )
+        return redirect(url_for(most_recent[0] + '.games_list.games_list'), code=302)
 
 
 # ------ SIMPLE INFO PAGES  ------
