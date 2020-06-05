@@ -6,7 +6,7 @@ from flask import Blueprint, render_template
 from overtrack_models.orm.user import User
 from overtrack_web.data import WELCOME_META
 from overtrack_web.lib import FlaskResponse
-from overtrack_web.lib.authentication import require_login
+from overtrack_web.lib.authentication import check_authentication
 from overtrack_web.lib.queries.valorant import get_winrates, get_average_winrates
 from overtrack_web.lib.session import session
 from overtrack_web.views.valorant.games_list import resolve_public_user
@@ -16,22 +16,25 @@ stats_blueprint = Blueprint('valorant.stats', __name__)
 
 
 @stats_blueprint.route('')
-@require_login
-def games_list() -> FlaskResponse:
-    return render_stats(session.user)
+def winrates() -> FlaskResponse:
+    if check_authentication() is None:
+        user = session.user
+    else:
+        user = None
+    return render_winrates(user)
 
 
 @stats_blueprint.route('/<string:username>')
-def public_games_list(username: str) -> FlaskResponse:
+def public_winrates(username: str) -> FlaskResponse:
     if username == 'all':
-        return render_stats(None)
+        return render_winrates(None)
     user = resolve_public_user(username)
     if not user:
         return 'User does not exist or games not public', 404
-    return render_stats(user, public=True)
+    return render_winrates(user, public=True)
 
 
-def render_stats(user: Optional[User], public: bool = False) -> FlaskResponse:
+def render_winrates(user: Optional[User], public: bool = False) -> FlaskResponse:
     average_winrates = get_average_winrates()
     if user is not None:
         has_user = True
@@ -47,7 +50,6 @@ def render_stats(user: Optional[User], public: bool = False) -> FlaskResponse:
         title = user.username.title() + '\'s Valorant Winrates'
     else:
         has_user = False
-        user_winrates = None
         target = average_winrates
         title = 'Average Valorant Winrates'
 

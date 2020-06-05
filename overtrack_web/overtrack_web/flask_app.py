@@ -148,7 +148,7 @@ from overtrack_web.views.valorant.game import game_blueprint as valorant_game_bl
 app.register_blueprint(valorant_game_blueprint, url_prefix='/valorant/games')
 
 from overtrack_web.views.valorant.stats import stats_blueprint as valorant_stats_blueprint
-app.register_blueprint(valorant_stats_blueprint, url_prefix='/valorant/stats')
+app.register_blueprint(valorant_stats_blueprint, url_prefix='/valorant/winrates')
 
 
 # ------ OVERWATCH ------

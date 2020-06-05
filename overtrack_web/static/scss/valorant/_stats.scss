@@ -10,7 +10,7 @@ $headerTextColor:#ffffff;
 $rowTextColor:#ffffff;
 $rowHoverBackground: #ffffff11;
 
-//@import "lib/tabulator";
+@import "../lib/tabulator";
 
 .agent-thumbnail {
     height: 50px;
@@ -18,6 +18,19 @@ $rowHoverBackground: #ffffff11;
 
 .agent-thumbnail-small {
     height: 25px;
+}
+
+.map-thumbnail {
+    height: 50px;
+}
+
+.map-thumbnail-small {
+    height: 25px;
+}
+
+.map-name {
+    text-align: center;
+    font-weight: bold;
 }
 
 .progress {
@@ -70,7 +83,8 @@ $rowHoverBackground: #ffffff11;
     }
 }
 
-.tabulator-cell[tabulator-field=agent] {
+.tabulator-cell[tabulator-field=agent],
+.tabulator-cell[tabulator-field=map] {
     font-weight: bold;
     padding: 0px;
     text-align: center;
