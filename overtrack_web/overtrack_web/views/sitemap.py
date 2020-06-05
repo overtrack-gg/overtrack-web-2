@@ -67,7 +67,7 @@ def sitemap():
             logger.exception(f'Failed to generate sitemap entry for Overwatch user')
 
     try:
-        for user, last_game in get_listed_users():
+        for user, last_game, winrates in get_listed_users():
             urls.append(SiteMapUrl(
                 url_for('valorant.games_list.public_games_list', username=user.username, _external=True),
                 lastmod=last_game.datetime,
