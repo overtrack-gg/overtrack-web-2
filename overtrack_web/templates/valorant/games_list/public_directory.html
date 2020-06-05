@@ -22,7 +22,7 @@
                             <div class="row no-gutters player-backdrop">
                                 {% if game.agent %}
                                 <div class="col mr-3 agent-thumbnail" style="
-                                    background-image: url({{ url_for('static', filename='images/valorant/agent_profiles/' + winrate | most_played_agent + '.png') }});">
+                                    background-image: url({{ url_for('static', filename='images/valorant/agent_profiles/' + winrate | most_played_agent | lower + '.png') }});">
                                 </div>
                                 {% endif %}
                                 <div class="col-6">
