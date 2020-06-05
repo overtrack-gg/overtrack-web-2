@@ -4,7 +4,7 @@ import os
 
 try:
     from overtrack_models.queries.valorant.winrates import MapAgentWinrates
-    from overtrack.valorant.collect.relational import queries
+    from overtrack.valorant.relational import queries
 
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker

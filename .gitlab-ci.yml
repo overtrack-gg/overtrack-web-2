@@ -21,9 +21,9 @@ deploy:
 
     # optional dependency for metrics
     - git clone git@gitlab.com:OverTrack/overtrack_2_api.git
-    - mv -t . ./overtrack_2_api/api
+    - mv -t overtrack_web ./overtrack_2_api/api
     - git clone git@gitlab.com:OverTrack/overtrack-v2.git
-    - mv -t . ./overtrack-v2/overtrack
+    - mv -t overtrack_web ./overtrack-v2/overtrack
 
     - pushd overtrack_web
 
