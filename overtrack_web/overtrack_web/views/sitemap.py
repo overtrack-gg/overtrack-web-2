@@ -7,6 +7,7 @@ from flask import Blueprint, url_for, render_template, make_response, Response
 
 from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
 from overtrack_models.orm.user import User
+from overtrack_web.lib.listed_users import get_listed_users
 
 SITEMAP_OVERWATCH_USERS = [
     ('eeveea', 0.75)
@@ -64,6 +65,17 @@ def sitemap():
             )
         except Exception as e:
             logger.warning(f'Failed to generate sitemap entry for Overwatch user {username}: {e}')
+
+    try:
+        for user, last_game in get_listed_users():
+            urls.append(SiteMapUrl(
+                url_for('valorant.games_list.public_games_list', username=user.username, _external=True),
+                lastmod=last_game.datetime,
+                changefreq='daily',
+                priority=0.75,
+            ))
+    except Exception as e:
+        logger.warning(f'Failed to generate sitemap entry for Valorant users: {e}')
 
     return render_template(
         'sitemap.xml',

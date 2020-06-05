@@ -60,6 +60,20 @@ $thumbnail-width: 80px;
   text-shadow: stroke($stroke, $color);
 }
 
+
+$player-summary-width: 500px;
+.player-summary {
+    height: $summary-height;
+    width: $player-summary-width;
+    min-width: $player-summary-width;
+    max-width: $player-summary-width;
+    background-color: #2b435e;
+
+    .player-backdrop {
+        height: 100%;
+    }
+}
+
 .game-summary {
     height: $summary-height;
     margin: 5px !important;
@@ -102,6 +116,7 @@ $thumbnail-width: 80px;
     }
 
     .game-backdrop {
+        height: 100%;
         .rank-indicator {
             z-index: 1;
             position: absolute;
@@ -130,18 +145,6 @@ $thumbnail-width: 80px;
         -webkit-mask-image: -webkit-gradient(linear, 80% top, right top, from(black), to(rgba(0, 0, 0, 0)));
     }
 
-    .agent-thumbnail {
-        width: $thumbnail-width;
-        min-width: $thumbnail-width;
-        max-width: $thumbnail-width;
-        height: 100%;
-
-        display: block;
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-position: center;
-    }
-
     .map-image {
         height: 100%;
         width: 33%;
@@ -152,6 +155,20 @@ $thumbnail-width: 80px;
         //-webkit-mask-image: -webkit-gradient(linear, 75% top, right top, from(black), to(rgba(0, 0, 0, 0)));
         right: 0;
         -webkit-mask-image: -webkit-gradient(linear, left top, 25% top, from(rgba(0, 0, 0, 0)), to(black));
+
+        display: block;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+}
+
+.player-summary, .game-summary {
+    .agent-thumbnail {
+        width: $thumbnail-width;
+        min-width: $thumbnail-width;
+        max-width: $thumbnail-width;
+        height: 100%;
 
         display: block;
         background-size: cover;

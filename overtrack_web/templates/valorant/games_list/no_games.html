@@ -1,0 +1,7 @@
+{% extends "client.html" %}
+
+{% block alerts %}
+<div class="alert alert-primary alert-info" role="info">
+    Looking for <a href="{{ url_for('valorant.games_list.public_profiles_directory') }}">Public Profiles</a>?
+</div>
+{% endblock %}

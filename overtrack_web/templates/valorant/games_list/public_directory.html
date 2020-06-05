@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Valorant Match History{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% if not user %}
+        <div class="alert alert-primary alert-info" role="info">
+            <a class="btn btn-sm btn-success" href="{{ url_for('login.login', next=request.url) }}">Sign in</a> and download the client to track your own games!
+        </div>
+    {% endif %}
+
+    <div class="row public-users mx-0">
+        <div class="col-12 px-0">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Public Users</h5>
+                </div>
+                <div class="card-body">
+                    <div class="users-list container card-deck m-0">
+                        {% for user, game, winrate in users %}
+                        <div class="card m-2 player-summary">
+                            <div class="row no-gutters player-backdrop">
+                                {% if game.agent %}
+                                <div class="col mr-3 agent-thumbnail" style="
+                                    background-image: url({{ url_for('static', filename='images/valorant/agent_profiles/' + winrate | most_played_agent + '.png') }});">
+                                </div>
+                                {% endif %}
+                                <div class="col-6">
+                                    <div>
+                                        <h5 class="mb-1">{{ user.username }}</h5>
+                                    </div>
+                                    <div>
+                                        <small>Last game {{ game.datetime | naturaltime }}</small>
+                                    </div>
+                                    <div>
+                                        <small>{{ user.valorant_games }} Games - {{ winrate.all().games.total }} Post Launch</small>
+                                    </div>
+                                </div>
+                                <div class="col-2">
+                                    <h6 class="pt-2 mb-0">{{ (winrate.all().games.winrate * 100) | round(1) }}% Winrate</h6>
+                                    <small class="pt-0">post launch</small>
+                                </div>
+                            </div>
+                            <a href="{{ url_for('valorant.games_list.public_games_list', username=user.username) }}" class="stretched-link"></a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

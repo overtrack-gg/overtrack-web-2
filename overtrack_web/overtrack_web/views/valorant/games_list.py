@@ -3,25 +3,29 @@ import json
 import logging
 import random
 from collections import defaultdict
+from dataclasses import dataclass
 from typing import List, Optional, Tuple, Dict, Any, DefaultDict
 
 import boto3
+import humanize
 import time
-from dataclasses import dataclass
 from flask import Blueprint, Request, render_template, request, url_for
+
 from overtrack_models.dataclasses import s2ts
+from overtrack_models.dataclasses.valorant import AgentName
 from overtrack_models.orm.user import User
 from overtrack_models.orm.valorant_game_summary import ValorantGameSummary
-
-from overtrack_web.data import WELCOME_META
+from overtrack_models.queries.valorant.winrates import Winrate, MapAgentWinrates, Winrates
+from overtrack_web.data import WELCOME_META, VALORANT_WELCOME_META
 from overtrack_web.lib import b64_decode, b64_encode, FlaskResponse, parse_args
-from overtrack_web.lib.authentication import check_authentication, require_login
+from overtrack_web.lib.authentication import check_authentication
+from overtrack_web.lib.listed_users import get_listed_users
 from overtrack_web.lib.session import session
 
 PAGINATION_PAGE_MINIMUM_SIZE = 40
 PAGINATION_SESSIONS_COUNT_AS = 2
 SESSION_MAX_TIME_BETWEEN_GAMES = 2 * 60
-OLDEST_SUPPORTED_GAME_VERSION = '0.12.0'
+OLDEST_SUPPORTED_GAME_VERSION = '1.0.0'
 
 
 request: Request = request
@@ -77,9 +81,21 @@ class Session:
 
 
 @games_list_blueprint.route('')
-@require_login
 def games_list() -> FlaskResponse:
-    return render_games_list(session.user)
+    if check_authentication() is None:
+        return render_games_list(session.user)
+    else:
+        return public_profiles_directory()
+
+
+@games_list_blueprint.route('/public')
+def public_profiles_directory():
+    return render_template(
+        'valorant/games_list/public_directory.html',
+        now=datetime.datetime.now(),
+        users=get_listed_users(),
+        meta=VALORANT_WELCOME_META,
+    )
 
 
 @games_list_blueprint.route('/<string:username>')
@@ -152,6 +168,24 @@ def score_filter(score: Optional[Tuple[int, int]]) -> str:
         return f'{score[0]} - {score[1]}'
 
 
+@games_list_blueprint.app_template_filter('naturaltime')
+def naturaltime(td: datetime.timedelta) -> str:
+    return humanize.naturaltime(td)
+
+
+@games_list_blueprint.app_template_filter('most_played_agent')
+def most_played_agent(winrates: MapAgentWinrates) -> AgentName:
+    return sorted(list(
+        winrates.maps_agents.items()),
+        key=lambda kv: (
+            1 if kv[0][0] else 0,
+            1 if kv[0][1] else 0,
+            kv[1].games.total
+        ),
+        reverse=True,
+    )[0][0][1]
+
+
 def resolve_public_user(username: str) -> Optional[User]:
     try:
         user = User.username_index.get(username)  # TODO: make all usernames lower
@@ -180,7 +214,9 @@ def render_games_list(user: User, public: bool = False, **next_args: str) -> Fla
     if not user.valorant_games:
         logger.info(f'User {user.username} has no games')
         if not public:
-            return render_template('client.html', no_games_alert=True, meta=WELCOME_META)
+            return render_template('valorant/games_list/no_games.html', no_games_alert=True, meta=VALORANT_WELCOME_META)
+        else:
+            return public_profiles_directory()
 
     sessions, last_evaluated = get_sessions(user)
     if last_evaluated:
