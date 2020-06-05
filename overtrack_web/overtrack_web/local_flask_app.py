@@ -69,10 +69,11 @@ boto3.client = None
 # load and mock all games lists
 from overtrack_web.mocks.apex_mocks import mock_apex_games
 from overtrack_web.mocks.overwatch_mocks import mock_overwatch_games
-from overtrack_web.mocks.valorant_mocks import mock_valorant_games
+from overtrack_web.mocks.valorant_mocks import mock_valorant_games, mock_valorant_winrates
 mock_apex_games()
 mock_overwatch_games()
 mock_valorant_games()
+mock_valorant_winrates()
 
 # Force always superuser (display dev data)
 import overtrack_web.lib

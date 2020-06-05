@@ -2,16 +2,19 @@ import json
 import logging
 import os
 import tempfile
-from typing import List
+from typing import List, Optional, Tuple
 
 import requests
 
+import overtrack_web
 from overtrack_models.orm.valorant_game_summary import ValorantGameSummary
+from overtrack_models.queries.valorant.winrates import MapAgentWinrates
+from overtrack_web.lib import queries
 
 from overtrack_web.mocks.dynamo_mocks import MockIndex
 from overtrack_web.mocks.login_mocks import mock_user
 
-GAMES_SOURCE = os.environ.get('APEX_GAMES_SOURCE', 'mendo')
+GAMES_SOURCE = os.environ.get('VALORANT_GAMES_SOURCE', 'mendo')
 
 logger = logging.getLogger(__name__)
 
@@ -58,3 +61,21 @@ def download_games_list() -> List[ValorantGameSummary]:
         g.user_id = mock_user.user_id
 
     return cached_valorant_games
+
+
+def mock_valorant_winrates() -> None:
+    average_winrates, user_winrates = get_mock_valorant_winrates()
+
+    queries.valorant.get_average_winrates = lambda: average_winrates
+    queries.valorant.get_winrates = lambda _: user_winrates
+
+
+def get_mock_valorant_winrates() -> Tuple[MapAgentWinrates, MapAgentWinrates]:
+    average_winrates = MapAgentWinrates.from_dict(
+        requests.get('https://api2.overtrack.gg/valorant/winrates/all').json()
+    )
+    user_winrates = MapAgentWinrates.from_dict(
+        requests.get('https://api2.overtrack.gg/valorant/winrates/' + GAMES_SOURCE).json()
+    )
+
+    return average_winrates, user_winrates

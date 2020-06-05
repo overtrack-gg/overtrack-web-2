@@ -1,23 +1,88 @@
+$backgroundColor:#00000000;
+$headerBackgroundColor:#00000000;
+$rowBackgroundColor:#00000000;
+$rowAltBackgroundColor:#00000077;
+$borderColor:transparent;
+$headerBorderColor:transparent;
+$rowBorderColor:transparent;
+$textSize:16;
+$headerTextColor:#ffffff;
+$rowTextColor:#ffffff;
+$rowHoverBackground: #ffffff11;
+
+@import "lib/tabulator";
+
 .agent-thumbnail {
     height: 50px;
 }
 
+.agent-thumbnail-small {
+    height: 25px;
+}
+
 .progress {
+    margin-top: 6px;
     height: 25px;
     font-size: 18px;
+    color: #ffffff;
+    background-color: #222222;
+    border: #20507D 1px solid;
+
+    small {
+        position: absolute;
+        right: 5px;
+        top: 2px;
+    }
+
+    .progress-bar {
+        background-color: #20809D;
+    }
+}
+
+.progress-row-hide {
+    filter: grayscale(1);
+}
+
+:not(.progress-row-hide) + .progress-row-hide::before {
+    padding: 3px 10%;
+    display: block;
+    content: "The following agents have less than 5 games recorded";
+}
+
+.progress-hide {
 }
 
 .progress-average {
-    margin-top: 1px;
+    margin-top: 2px;
+    border: #732936 1px solid;
+
+    .progress-bar {
+        background-color: #A32C36;
+    }
 }
 
-.stats-cell {
+.progress-solo {
+    margin-top: 5px;
+    height: 30px;
+
+    span {
+        margin-top: 2px;
+    }
+}
+
+.tabulator-cell[tabulator-field=agent] {
+    font-weight: bold;
+    padding: 0px;
+    text-align: center;
+}
+
+.tabulator-cell[tabulator-field=wr_games],
+.tabulator-cell[tabulator-field=wr_rounds],
+.tabulator-cell[tabulator-field=wr_att_rounds],
+.tabulator-cell[tabulator-field=wr_def_rounds] {
     min-width: 200px;
 }
 
-.if-show-average {
-}
-
-.if-show-detailed {
-    display: none;
+.tabulator {
+    margin-top: 1em;
 }

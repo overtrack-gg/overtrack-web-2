@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+{% block head %}
+<script defer src="{{ url_for('static', filename='js/lib/tabulator.min.js') }}"></script>
+{% endblock %}
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
@@ -8,135 +11,197 @@
             <div class="col mb-2" >
                 <div class="card stats-menu">
                     <div class="card-header">
-                        <h4>Stats</h4>
+                        <h4>Agent Winrates</h4>
                     </div>
                     <div class="card-body pb-0">
                         <div class="row">
-                            <div class="col">
-                                <select class="custom-select">
-                                    <option selected value="all">All Maps</option>
+                            <div class="col-12 col-md-4">
+                                <select class="custom-select map-options">
+                                    <option class="map-option" selected value="None">All Maps</option>
                                     {% for m in maps %}
-                                    <option value="{{ m }}">{{ m | title }}</option>
+                                    <option class="map-option" value="{{ m }}">{{ m | title }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
-                            <div class="col">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" checked class="custom-control-input" id="showAverage" />
-                                    <label class="custom-control-label" for="showAverage">Show Global Averages</label>
-                                </div>
-                            </div>
-                            <div class="col">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" id="showDetailed" />
-                                    <label class="custom-control-label" for="showDetailed">Show Detailed Stats</label>
-                                </div>
-                            </div>
+<!--                            <div class="col">-->
+<!--                                <div class="custom-control custom-checkbox">-->
+<!--                                    <input type="checkbox" checked class="custom-control-input" id="showDetailed" />-->
+<!--                                    <label class="custom-control-label" for="showDetailed">Show Bars</label>-->
+<!--                                </div>-->
+<!--                            </div>-->
                         </div>
                         <div class="row">
-                            <div class="col">
-                                <table class="table table-borderless table-responsive-lg">
-                                    <thead>
-                                    <tr>
-                                        <th scope="col" width="100px"></th>
-                                        <th scope="col">Game Winrate</th>
-                                        <th scope="col">Round Winrate</th>
-                                        <th scope="col">Attack Winrate</th>
-                                        <th scope="col">Defence Winrate</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for agent in sort_agents_by_games(agents) %}
-                                    {% if agent == 'all agents' %}
-                                        {% set winrate = winrates.map(selected_map) %}
-                                        {% set av_winrate = winrates_average.map(selected_map) %}
-                                    {% else %}
-                                        {% set winrate = winrates.map_agent(selected_map, agent) %}
-                                        {% set av_winrate = winrates_average.map_agent(selected_map, agent) %}
-                                    {% endif %}
-                                    <tr style="background-color: {% if loop.index % 2 == 0 %}#00000077{% endif %}">
-                                        <th class="p-0 text-center" scope="row">
-                                            {{ agent | title }}
-                                            <br/>
-                                            {% if agent != 'all agents' %}
-                                            <img class="agent-thumbnail m-0" src="{{ url_for('static', filename='images/valorant/agent_profiles/' + agent.lower() + '.png') }}" />
+                            <div id="stats-table" class="w-100"></div>
+                            <script type="text/javascript">
+                                window.addEventListener('load', function() {
+                                    var tabledata = {
+                                        {% for selected_map in [none] + maps %}
+                                        {{ selected_map }}: [
+                                            {% set wr = winrates.map(selected_map) %}
+                                            {% set wr_av = winrates_average.map(selected_map) %}
+                                            {
+                                                agent: "All Agents",
+                                                wr_games: [{{wr.games.winrate}}, {{wr_av.games.winrate}}, {{wr.games.wins}}, {{wr.games.total}}],
+                                                wr_rounds: [{{wr.rounds.winrate}}, {{wr_av.rounds.winrate}}, {{wr.rounds.wins}}, {{wr.rounds.total}}],
+                                                wr_att_rounds: [{{wr.attacking_rounds.winrate}}, {{wr_av.attacking_rounds.winrate}}, {{wr.attacking_rounds.wins}}, {{wr.attacking_rounds.total}}],
+                                                wr_def_rounds: [{{wr.defending_rounds.winrate}}, {{wr_av.defending_rounds.winrate}}, {{wr.defending_rounds.wins}}, {{wr.defending_rounds.total}}],
+                                            },
+                                            {% for agent in agents %}
+                                            {% if (selected_map, agent) in winrates.maps_agents %}
+                                            {% set wr = winrates.map_agent(selected_map, agent) %}
+                                            {% set wr_av = winrates_average.map_agent(selected_map, agent) %}
+                                            {
+                                                agent: "{{agent | title}}",
+                                                wr_games: [{{wr.games.winrate}}, {{wr_av.games.winrate}}, {{wr.games.wins}}, {{wr.games.total}}],
+                                                wr_rounds: [{{wr.rounds.winrate}}, {{wr_av.rounds.winrate}}, {{wr.rounds.wins}}, {{wr.rounds.total}}],
+                                                wr_att_rounds: [{{wr.attacking_rounds.winrate}}, {{wr_av.attacking_rounds.winrate}}, {{wr.attacking_rounds.wins}}, {{wr.attacking_rounds.total}}],
+                                                wr_def_rounds: [{{wr.defending_rounds.winrate}}, {{wr_av.defending_rounds.winrate}}, {{wr.defending_rounds.wins}}, {{wr.defending_rounds.total}}],
+                                            },
                                             {% endif %}
-                                        </th>
-                                        {% for wr, wr_av in [
-                                            (winrate.games, av_winrate.games),
-                                            (winrate.rounds, av_winrate.rounds),
-                                            (winrate.attacking_rounds, av_winrate.attacking_rounds),
-                                            (winrate.defending_rounds, av_winrate.defending_rounds),
-                                        ] %}
-                                        <td class="stats-cell p-1">
-                                            {% if show_detailed %}
-                                                <table class="table table-borderless m-0" style="font-size: small">
-                                                    <thead>
-                                                    <tr>
-                                                        {% if show_averages %}
-                                                        <th class="p-0" scope="col"></th>
-                                                        {% endif %}
-                                                        <th class="p-0" scope="col">Wins</th>
-                                                        <th class="p-0" scope="col">Losses</th>
-                                                        <th class="p-0" scope="col">Winrate</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    <tr>
-                                                        {% if show_averages %}
-                                                        <th class="p-0" scope="row">
-                                                            {% if loop.first %}
-                                                            Mine
-                                                            {% endif %}
-                                                        </th>
-                                                        {% endif %}
-                                                        <td class="p-0">{{ wr.wins }}</td>
-                                                        <td class="p-0">{{ wr.losses }}</td>
-                                                        <td class="p-0">{{ wr.winrate | percentage }}</td>
-                                                    </tr>
-                                                    {% if show_averages %}
-                                                    <tr>
-                                                        <th class="p-0" scope="row">
-                                                            {% if loop.first %}
-                                                            Average
-                                                            {% endif %}
-                                                        </th>
-                                                        <td class="p-0">{{ wr_av.wins }}</td>
-                                                        <td class="p-0">{{ wr_av.losses }}</td>
-                                                        <td class="p-0">{{ wr_av.winrate | percentage }}</td>
-                                                    </tr>
-                                                    {% endif %}
-                                                    </tbody>
-                                                </table>
-                                            {% else %}
-                                                <div class="progress position-relative">
-                                                    <div class="progress-bar" role="progressbar" style="width: {{ wr.winrate | percentage }}"></div>
-                                                    <span class="justify-content-center d-flex position-absolute w-100">
-                                                        {% if loop.first and show_averages %}
-                                                            Mine:
-                                                        {% endif %}
-                                                        {{ wr.winrate | percentage }}
-                                                    </span>
-                                                </div>
-                                                {% if show_averages %}
-                                                <div class="progress progress-average position-relative">
-                                                    <div class="progress-bar bg-info" role="progressbar" style="width: {{ wr_av.winrate | percentage }}"></div>
-                                                    <span class="justify-content-center d-flex position-absolute w-100">
-                                                        {% if loop.first %}
-                                                            Average:
-                                                        {% endif %}
-                                                        {{ wr_av.winrate | percentage }}
-                                                    </span>
-                                                </div>
-                                                {% endif %}
-                                            {% endif %}
-                                        </td>
+                                            {% endfor %}
+                                        ],
                                         {% endfor %}
-                                    </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
+                                    };
+
+                                    function abbreviateNumber(value) {
+                                        // https://stackoverflow.com/a/10601315
+                                        var newValue = value;
+                                        if (value >= 1000) {
+                                            var suffixes = ["", "k", "m", "b","t"];
+                                            var suffixNum = Math.floor( (""+value).length/3 );
+                                            var shortValue = '';
+                                            for (var precision = 2; precision >= 1; precision--) {
+                                                shortValue = parseFloat( (suffixNum != 0 ? (value / Math.pow(1000,suffixNum) ) : value).toPrecision(precision));
+                                                var dotLessShortValue = (shortValue + '').replace(/[^a-zA-Z 0-9]+/g,'');
+                                                if (dotLessShortValue.length <= 2) { break; }
+                                            }
+                                            if (shortValue % 1 != 0)  shortValue = shortValue.toFixed(1);
+                                            newValue = shortValue+suffixes[suffixNum];
+                                        }
+                                        return newValue;
+                                    }
+
+                                    var agent_formatter = (cell, formatterParams, onRendered) => {
+                                        let agent = cell.getValue();
+                                        var image;
+                                        if (agent == "All Agents") {
+                                            image = "{{ url_for('static', filename='images/valorant.png') }}"
+                                        } else {
+                                            image = `{{ url_for('static', filename='images/valorant/agent_profiles/') }}${agent.toLowerCase()}.png`
+                                        }
+                                        return `
+                                            ${agent}
+                                            <br/>
+                                            <img class="agent-thumbnail{% if not has_user %}-small{% endif %} m-0" src="${image}" />
+                                        `;
+                                    }
+
+                                    var progress_formatter = (cell, formatterParams, onRendered) => {
+                                        let perc = Math.round(cell.getValue()[0] * 100);
+                                        let perc_av = Math.round(cell.getValue()[1] * 100);
+                                        let disp_perc = Math.round((cell.getValue()[0] + Number.EPSILON) * 1000) / 10;
+                                        let disp_perc_av = Math.round((cell.getValue()[1] + Number.EPSILON) * 1000) / 10;
+                                        let wins = abbreviateNumber(cell.getValue()[2]);
+                                        let total = abbreviateNumber(cell.getValue()[3]);
+                                        let mine = cell.getField() == 'wr_games' ? 'You:' : '';
+                                        let average = cell.getField() == 'wr_games' ? 'All Players:' : '';
+                                        let hide_class = total < 5 ? "progress-hide" : "";
+                                        return `
+                                            {% if has_user %}
+                                            <div class="progress ${hide_class} position-relative">
+                                                <div class="progress-bar" role="progressbar" style="width: ${perc}%"></div>
+                                                <span class="justify-content-center d-flex position-absolute w-100">
+                                                    ${mine}
+                                                    ${disp_perc}%
+                                                    <small>(${wins} / ${total})</small>
+                                                </span>
+                                            </div>
+                                            {% endif %}
+                                            <div class="progress progress-average position-relative {% if not has_user %}progress-solo{% endif %}">
+                                                <div class="progress-bar" role="progressbar" style="width: ${perc_av}%"></div>
+                                                <span class="justify-content-center d-flex position-absolute w-100">
+                                                    {% if has_user %}
+                                                    ${average}
+                                                    {% endif %}
+                                                    ${disp_perc_av}%
+                                                    {% if not has_user %}
+                                                    <small>(${wins} / ${total})</small>
+                                                    {% endif %}
+                                                </span>
+                                            </div>
+                                            `;
+                                    };
+
+                                    var agent_sorter = (a, b, aRow, bRow, column, dir, sorterParams) => {
+                                        if (aRow.getCell(column).getValue() == "All Agents") {
+                                            return Infinity * (dir == 'desc' ? 1 : -1);
+                                        }
+                                        else if (bRow.getCell(column).getValue() == "All Agents") {
+                                            return -Infinity * (dir == 'desc' ? 1 : -1);
+                                        }
+                                        else if (aRow.getCells()[1].getValue()[3] < 5) {
+                                            return (aRow.getCell(column).getValue()[0].localeCompare(bRow.getCell(column).getValue()[0])) - 1 * (dir == 'desc' ? 1 : -1);
+                                        }
+                                        else if (bRow.getCells()[1].getValue()[3] < 5) {
+                                            return (aRow.getCell(column).getValue()[0].localeCompare(bRow.getCell(column).getValue()[0])) + 1 * (dir == 'desc' ? 1 : -1);
+                                        }
+                                        else {
+                                            return aRow.getCell(column).getValue()[0].localeCompare(bRow.getCell(column).getValue()[0]);
+                                        }
+                                    };
+
+                                    var progress_sorter = (a, b, aRow, bRow, column, dir, sorterParams) => {
+                                        if (aRow.getCells()[0].getValue() == "All Agents") {
+                                            return Infinity * (dir == 'desc' ? 1 : -1);
+                                        }
+                                        else if (bRow.getCells()[0].getValue() == "All Agents") {
+                                            return -Infinity * (dir == 'desc' ? 1 : -1);
+                                        }
+                                        else if (aRow.getCells()[1].getValue()[3] < 5) {
+                                            return (aRow.getCell(column).getValue()[0] - bRow.getCell(column).getValue()[0]) - 1 * (dir == 'desc' ? 1 : -1);
+                                        }
+                                        else if (bRow.getCells()[1].getValue()[3] < 5) {
+                                            return (aRow.getCell(column).getValue()[0] - bRow.getCell(column).getValue()[0]) + 1 * (dir == 'desc' ? 1 : -1);
+                                        }
+                                        else {
+                                            return aRow.getCell(column).getValue()[0] - bRow.getCell(column).getValue()[0]
+                                        }
+                                    };
+
+                                    var propagate_hide = () => {
+                                        $(".progress-hide").parent().parent().addClass("progress-row-hide");
+                                    }
+
+                                    var table = new Tabulator("#stats-table", {
+                                        layout:"fitColumns",
+                                        responsiveLayout:"collapse",
+                                        resizableColumns:false,
+                                        data:tabledata.None,
+                                        columns:[
+                                            {title:"Agent", field:"agent", width: 100, formatter: agent_formatter, sorter: agent_sorter},
+                                            {title:"Game Winrate", field:"wr_games", formatter: progress_formatter, sorter: progress_sorter},
+                                            {title:"Round Winrate", field:"wr_rounds", formatter: progress_formatter, sorter: progress_sorter},
+                                            {title:"Attack Winrate", field:"wr_att_rounds", formatter: progress_formatter, sorter: progress_sorter},
+                                            {title:"Defence Winrate", field:"wr_def_rounds", formatter: progress_formatter, sorter: progress_sorter},
+                                        ],
+                                    })
+
+                                    $(".map-options").change(() => {
+                                        table.setSort([]);
+                                        let m = $(".map-option:selected").attr("value");
+                                        let new_data = tabledata[m];
+                                        table.replaceData(new_data).then(() => propagate_hide());
+                                        table.setSort([
+                                            {column:"wr_games", dir:"desc"},
+                                        ])
+                                    });
+
+                                    propagate_hide();
+                                    table.setSort([
+                                        {column:"wr_games", dir:"desc"},
+                                    ])
+                                });
+                            </script>
                         </div>
                     </div>
                 </div>
