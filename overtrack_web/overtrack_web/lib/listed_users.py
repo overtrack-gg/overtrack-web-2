@@ -50,6 +50,13 @@ def get_listed_users() -> List[Tuple[User, ValorantGameSummary, MapAgentWinrates
                 continue
 
             logger.info(f'  Adding')
-            users.append((user, last_valorant_game, MapAgentWinrates({})))
+
+            try:
+                from overtrack_web.lib.queries.valorant import get_winrates
+                wr = get_winrates(user.user_id)
+            except:
+                logger.exception('Failed to get winrate')
+                wr = MapAgentWinrates({})
+            users.append((user, last_valorant_game, wr))
 
     return users

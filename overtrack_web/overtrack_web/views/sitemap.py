@@ -63,8 +63,8 @@ def sitemap():
                     priority=priority,
                 )
             )
-        except Exception as e:
-            logger.warning(f'Failed to generate sitemap entry for Overwatch user {username}: {e}')
+        except:
+            logger.exception(f'Failed to generate sitemap entry for Overwatch user')
 
     try:
         for user, last_game in get_listed_users():
@@ -74,8 +74,8 @@ def sitemap():
                 changefreq='daily',
                 priority=0.75,
             ))
-    except Exception as e:
-        logger.warning(f'Failed to generate sitemap entry for Valorant users: {e}')
+    except:
+        logger.exception(f'Failed to generate sitemap entry for Valorant profiles')
 
     return render_template(
         'sitemap.xml',
