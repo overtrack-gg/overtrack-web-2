@@ -13,7 +13,7 @@ WELCOME_META = Meta(
         'Get full match history with details on everything that happened over the course of your games; '
         'kills, deaths, winrate statistics, composition, ults (Overwatch, Valorant), and map route + circles (Apex Legends)'
     ),
-    image_url=f'{CDN_URL}/images/teaser.png',
+    image_url=f'{CDN_URL}/images/teaser_ow_val.jpg',
     summary_large_image=True,
     oembed=f'{CDN_URL}/oembed.json'
 )

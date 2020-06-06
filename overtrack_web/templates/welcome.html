@@ -1,19 +1,19 @@
 {% extends "base.html" %}
-{% block title %}Match History for Overwatch and Apex Legends{% endblock %}
+{% block title %}Match History for Overwatch, Valorant, and Apex Legends{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="row justify-content-md-center no-gutters">
         <div class="card card-main col-main">
             <div class="card-body">
-                <h2 class="card-title" style="padding-bottom: 20pt;">Match History for Overwatch and Apex Legends</h2>
+                <h2 class="card-title" style="padding-bottom: 20pt;">Match History for Overwatch, Valorant, and Apex Legends</h2>
                 <p>
                     Using Computer Vision, OverTrack records your games in the background generates full match history and game
                     details of every match.
                 </p>
                 <p>
-                    Get full details on everything that happened over the course of your games; kills, deaths, statistics,
-                    composition, map route & circles (Apex Legends), ults (Overwatch). Share and analyse your match history or inidividual
+                    Get full details on everything that happened over the course of your games; kills, deaths, weapons, statistics,
+                    team composition, map route & circles (Apex Legends), ults (Overwatch, Valorant). Share and analyse your match history or individual
                     games through the site, or using the Discord and Twitch integrations. Keep track of your overall stats and winrates and
                     watch your progress
                 </p>
@@ -34,7 +34,7 @@
                 <hr>
 
                 <div class="row">
-                    <div class="col-lg-6 col-sm-12 px-1 card" style="padding-left: 5px;padding-right: 5px;">
+                    <div class="col-lg-6 col-sm-12 px-1 card" style="padding-left: 5px; padding-right: 5px;">
                         <div class="card-header">
                             <h5>Overwatch Tracking</h5>
                         </div>
@@ -66,11 +66,52 @@
                             </a>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-sm-12 px-1 card">
-                        <div class="card-header">
+                    <div class="col-lg-6 col-sm-12 px-1 card" style="padding-left: 5px;padding-right: 5px;">
+                        <div class="card-header" style="background-color: #FF4655;">
+                            <h5>Valorant Tracking</h5>
+                        </div>
+                        <div class="card-body" style="background-color: #0F1923; padding: 7px;">
+                            <h4>Valorant Match History</h4>
+                            <p>
+                                OverTrack will record your Unrated and Competitive matches.
+                                Track your results, Agents, maps, and rounds. Get quick insight into Agents played and identify games of interest.
+                            </p>
+                            <a href="#" data-featherlight="{{ url_for('static', filename='images/valorant/demo/games_list_lg.png') }}">
+                                <img class="img-fluid" src="{{ url_for('static', filename='images/valorant/demo/games_list.jpg') }}">
+                            </a>
+                            <hr>
+
+                            <h4 class="d-inline-block">
+                                Valorant Game Details
+                            </h4>
+                            <p>
+                                OverTrack records the team composition, round details, kills+weapons, and ults.
+                                Get full round-by-round details of what led to each round win/loss.
+                                See an overview of your weapon performance and get in depth stats on each players performance and impact.
+                            </p>
+                            <a href="#" data-featherlight="{{ url_for('static', filename='images/valorant/demo/game_details_lg.png') }}">
+                                <img class="img-fluid" src="{{ url_for('static', filename='images/valorant/demo/game_details.png') }}">
+                            </a>
+                            <hr>
+
+                            <h4 class="d-inline-block">
+                                Valorant Agent Winrates
+                            </h4>
+                            <p>
+                                Using the data collected from your games, OverTrack provides full Agent winrates, with the ability to view
+                                map, Agent, round, and attack/defence. Find your best Agents, compare yourself to average winrates, and
+                                idenitify the strongest Agents for any situation.
+                            </p>
+                            <a href="#" data-featherlight="{{ url_for('static', filename='images/valorant/demo/agent_winrates_lg.png') }}">
+                                <img class="img-fluid" src="{{ url_for('static', filename='images/valorant/demo/agent_winrates.png') }}">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-sm-12 px-1 py-1 card">
+                        <div class="card-header" style="background-color: #6D3332;">
                             <h5>Apex Legends Tracking</h5>
                         </div>
-                        <div class="card-body" style="background-color: #622929; padding: 7px;">
+                        <div class="card-body" style="background-color: #343A40; padding: 7px;">
                             <h4>Apex Legends Match History</h4>
                             <p>
                                 OverTrack will record every game you play, giving you a summary a list of each of your games including placement, downs, kills, etc.
