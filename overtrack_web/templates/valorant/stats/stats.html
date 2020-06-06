@@ -49,10 +49,10 @@
                 {% set wr_av = winrates_average.map(selected_map) %}
                 {
                     agent: "All Agents",
-                    wr_games: [{{wr.games.winrate}}, {{wr_av.games.winrate}}, {{wr.games.wins}}, {{wr.games.total}}],
-                    wr_rounds: [{{wr.rounds.winrate}}, {{wr_av.rounds.winrate}}, {{wr.rounds.wins}}, {{wr.rounds.total}}],
-                    wr_att_rounds: [{{wr.attacking_rounds.winrate}}, {{wr_av.attacking_rounds.winrate}}, {{wr.attacking_rounds.wins}}, {{wr.attacking_rounds.total}}],
-                    wr_def_rounds: [{{wr.defending_rounds.winrate}}, {{wr_av.defending_rounds.winrate}}, {{wr.defending_rounds.wins}}, {{wr.defending_rounds.total}}],
+                    wr_games: [{{wr.games.winrate| round(3)}}, {{wr_av.games.winrate| round(3)}}, {{wr.games.wins}}, {{wr.games.total}}],
+                    wr_rounds: [{{wr.rounds.winrate| round(3)}}, {{wr_av.rounds.winrate| round(3)}}, {{wr.rounds.wins}}, {{wr.rounds.total}}],
+                    wr_att_rounds: [{{wr.attacking_rounds.winrate| round(3) | round(3)}}, {{wr_av.attacking_rounds.winrate| round(3)}}, {{wr.attacking_rounds.wins}}, {{wr.attacking_rounds.total}}],
+                    wr_def_rounds: [{{wr.defending_rounds.winrate| round(3) | round(3)}}, {{wr_av.defending_rounds.winrate| round(3)}}, {{wr.defending_rounds.wins}}, {{wr.defending_rounds.total}}],
                 },
                 {% for agent in agents %}
                 {% if (selected_map, agent) in winrates.maps_agents %}
@@ -60,10 +60,10 @@
                 {% set wr_av = winrates_average.map_agent(selected_map, agent) %}
                 {
                     agent: "{{agent | title}}",
-                    wr_games: [{{wr.games.winrate}}, {{wr_av.games.winrate}}, {{wr.games.wins}}, {{wr.games.total}}],
-                    wr_rounds: [{{wr.rounds.winrate}}, {{wr_av.rounds.winrate}}, {{wr.rounds.wins}}, {{wr.rounds.total}}],
-                    wr_att_rounds: [{{wr.attacking_rounds.winrate}}, {{wr_av.attacking_rounds.winrate}}, {{wr.attacking_rounds.wins}}, {{wr.attacking_rounds.total}}],
-                    wr_def_rounds: [{{wr.defending_rounds.winrate}}, {{wr_av.defending_rounds.winrate}}, {{wr.defending_rounds.wins}}, {{wr.defending_rounds.total}}],
+                    wr_games: [{{wr.games.winrate| round(3)}}, {{wr_av.games.winrate| round(3)}}, {{wr.games.wins}}, {{wr.games.total}}],
+                    wr_rounds: [{{wr.rounds.winrate| round(3)}}, {{wr_av.rounds.winrate| round(3)}}, {{wr.rounds.wins}}, {{wr.rounds.total}}],
+                    wr_att_rounds: [{{wr.attacking_rounds.winrate| round(3)}}, {{wr_av.attacking_rounds.winrate| round(3)}}, {{wr.attacking_rounds.wins}}, {{wr.attacking_rounds.total}}],
+                    wr_def_rounds: [{{wr.defending_rounds.winrate| round(3)}}, {{wr_av.defending_rounds.winrate| round(3)}}, {{wr.defending_rounds.wins}}, {{wr.defending_rounds.total}}],
                 },
                 {% endif %}
                 {% endfor %}
@@ -78,10 +78,10 @@
             {% set wr_av = winrates_average.map(map) %}
             {
                 map: "{{map | title}}",
-                wr_games: [{{wr.games.winrate}}, {{wr_av.games.winrate}}, {{wr.games.wins}}, {{wr.games.total}}],
-                wr_rounds: [{{wr.rounds.winrate}}, {{wr_av.rounds.winrate}}, {{wr.rounds.wins}}, {{wr.rounds.total}}],
-                wr_att_rounds: [{{wr.attacking_rounds.winrate}}, {{wr_av.attacking_rounds.winrate}}, {{wr.attacking_rounds.wins}}, {{wr.attacking_rounds.total}}],
-                wr_def_rounds: [{{wr.defending_rounds.winrate}}, {{wr_av.defending_rounds.winrate}}, {{wr.defending_rounds.wins}}, {{wr.defending_rounds.total}}],
+                wr_games: [{{wr.games.winrate | round(3)}}, {{wr_av.games.winrate | round(3)}}, {{wr.games.wins}}, {{wr.games.total}}],
+                wr_rounds: [{{wr.rounds.winrate | round(3)}}, {{wr_av.rounds.winrate | round(3)}}, {{wr.rounds.wins}}, {{wr.rounds.total}}],
+                wr_att_rounds: [{{wr.attacking_rounds.winrate| round(3)}}, {{wr_av.attacking_rounds.winrate| round(3)}}, {{wr.attacking_rounds.wins}}, {{wr.attacking_rounds.total}}],
+                wr_def_rounds: [{{wr.defending_rounds.winrate| round(3)}}, {{wr_av.defending_rounds.winrate| round(3)}}, {{wr.defending_rounds.wins}}, {{wr.defending_rounds.total}}],
             },
             {% endif %}
             {% endfor %}
@@ -142,10 +142,16 @@
             let mine = cell.getField() == 'wr_games' ? 'You:' : '';
             let average = cell.getField() == 'wr_games' ? 'All Players:' : '';
             let hide_class = total < 5 ? "progress-hide" : "";
+            let extrastyle = '';
+            {% if not has_user %}
+            if (cell.getRow().getData().agent == 'All Agents' && (cell.getField() == 'wr_games' || cell.getField() == 'wr_rounds')){
+                extrastyle = 'filter: grayscale(1);';
+            }
+            {% endif %}
             return `
                 {% if has_user %}
-                <div class="progress ${hide_class} position-relative">
-                    <div class="progress-bar" role="progressbar" style="width: ${perc}%"></div>
+                <div class="progress ${hide_class} position-relative" style="${extrastyle};">
+                    <div class="progress-bar" role="progressbar" style="width: ${perc}%;"></div>
                     <span class="justify-content-center d-flex position-absolute w-100">
                         ${mine}
                         ${disp_perc}%
@@ -153,8 +159,8 @@
                     </span>
                 </div>
                 {% endif %}
-                <div class="progress progress-average position-relative {% if not has_user %}progress-solo{% endif %}">
-                    <div class="progress-bar" role="progressbar" style="width: ${perc_av}%"></div>
+                <div class="progress progress-average position-relative {% if not has_user %}progress-solo{% endif %}" style="${extrastyle};">
+                    <div class="progress-bar" role="progressbar" style="width: ${perc_av}%;"></div>
                     <span class="justify-content-center d-flex position-absolute w-100">
                         {% if has_user %}
                         ${average}
@@ -273,8 +279,10 @@
             data:mapdata,
             columns:[
                 {title:"Map", field:"map", width: 100, formatter: map_formatter, sorter: map_sorter},
+                {% if has_user %}
                 {title:"Game Winrate", field:"wr_games", formatter: map_progress_formatter, sorter: map_progress_sorter},
                 {title:"Round Winrate", field:"wr_rounds", formatter: map_progress_formatter, sorter: map_progress_sorter},
+                {% endif %}
                 {title:"Attack Winrate", field:"wr_att_rounds", formatter: map_progress_formatter, sorter: map_progress_sorter},
                 {title:"Defence Winrate", field:"wr_def_rounds", formatter: map_progress_formatter, sorter: map_progress_sorter},
             ],
