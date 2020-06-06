@@ -23,7 +23,7 @@
         </div>
     {% endfor %}
 </div>
-{% for stat in heroes if stat.games >= 5 %}
+{% for stat in heroes if stat.games >= 5 or not complete_only %}
     <div class="row no-gutters justify-content-center">
         <div class="col">
             <div class="card mx-0 mx-sm-2 my-2 stat-card" style="border-bottom: thick solid {{ stat.color }}; border-top: thick solid {{ stat.color }};">
