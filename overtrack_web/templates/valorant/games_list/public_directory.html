@@ -2,21 +2,21 @@
 {% block title %}Valorant Match History{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container public-profiles">
     {% if not user %}
         <div class="alert alert-primary alert-info" role="info">
             <a class="btn btn-sm btn-success" href="{{ url_for('login.login', next=request.url) }}">Sign in</a> and download the client to track your own games!
         </div>
     {% endif %}
 
-    <div class="row public-users mx-0">
+    <div class="row mx-0">
         <div class="col-12 px-0">
             <div class="card">
                 <div class="card-header">
                     <h5>Public Users</h5>
                 </div>
                 <div class="card-body">
-                    <div class="users-list container card-deck m-0">
+                    <div class="container card-deck m-0">
                         {% for user, game, winrate in users %}
                         <div class="card m-2 player-summary">
                             <div class="row no-gutters player-backdrop">

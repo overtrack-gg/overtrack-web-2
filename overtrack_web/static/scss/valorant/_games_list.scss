@@ -60,119 +60,121 @@ $thumbnail-width: 80px;
   text-shadow: stroke($stroke, $color);
 }
 
+.games-list, .public-profiles {
 
-$player-summary-width: 500px;
-.player-summary {
-    height: $summary-height;
-    width: $player-summary-width;
-    min-width: $player-summary-width;
-    max-width: $player-summary-width;
-    background-color: #2b435e;
+    $player-summary-width: 500px;
+    .player-summary {
+        height: $summary-height;
+        width: $player-summary-width;
+        min-width: $player-summary-width;
+        max-width: $player-summary-width;
+        background-color: #2b435e;
 
-    .player-backdrop {
-        height: 100%;
-    }
-}
-
-.game-summary {
-    height: $summary-height;
-    margin: 5px !important;
-    color: #ffffff;
-
-    h1, h2, h3, h4, h5, h6, p {
-        white-space: nowrap;
-    }
-
-    .darken-bg {
-        background-color: rgba(0, 0, 0, 0.6);
-    }
-
-    &.result-win {
-        .game-backdrop {
-            border-left: 5px solid #bdd9d5;
-            background: linear-gradient(to right, #7eb6af 0%, $win-color 15%, $win-color 60%, white 100%);
-            @media (max-width: 740px){
-                background: linear-gradient(to right, #7eb6af 0%, $win-color 15%);
-            }
-        }
-    }
-    &.result-loss {
-        .game-backdrop {
-            border-left: 5px solid #e9b4b7;
-            background: linear-gradient(to right, #d37074 0%, $loss-color 15%, $loss-color 60%, white 100%);
-            @media (max-width: 740px){
-                background: linear-gradient(to right, #d37074 0%, $loss-color 15%);
-            }
-        }
-    }
-    &.result-scrim {
-        .game-backdrop {
-            border-left: 5px solid $scrim-color;
-            background: linear-gradient(to right, #DBBC20 0%, $scrim-color 15%, $scrim-color 60%, white 100%);
-            @media (max-width: 740px){
-                background: linear-gradient(to right, #DBBC20 0%, $scrim-color 15%);
-            }
+        .player-backdrop {
+            height: 100%;
         }
     }
 
-    .game-backdrop {
-        height: 100%;
-        .rank-indicator {
-            z-index: 1;
+    .game-summary {
+        height: $summary-height;
+        margin: 5px !important;
+        color: #ffffff;
+
+        h1, h2, h3, h4, h5, h6, p {
+            white-space: nowrap;
+        }
+
+        .darken-bg {
+            background-color: rgba(0, 0, 0, 0.6);
+        }
+
+        &.result-win {
+            .game-backdrop {
+                border-left: 5px solid #bdd9d5;
+                background: linear-gradient(to right, #7eb6af 0%, $win-color 15%, $win-color 60%, white 100%);
+                @media (max-width: 740px){
+                    background: linear-gradient(to right, #7eb6af 0%, $win-color 15%);
+                }
+            }
+        }
+        &.result-loss {
+            .game-backdrop {
+                border-left: 5px solid #e9b4b7;
+                background: linear-gradient(to right, #d37074 0%, $loss-color 15%, $loss-color 60%, white 100%);
+                @media (max-width: 740px){
+                    background: linear-gradient(to right, #d37074 0%, $loss-color 15%);
+                }
+            }
+        }
+        &.result-scrim {
+            .game-backdrop {
+                border-left: 5px solid $scrim-color;
+                background: linear-gradient(to right, #DBBC20 0%, $scrim-color 15%, $scrim-color 60%, white 100%);
+                @media (max-width: 740px){
+                    background: linear-gradient(to right, #DBBC20 0%, $scrim-color 15%);
+                }
+            }
+        }
+
+        .game-backdrop {
+            height: 100%;
+            .rank-indicator {
+                z-index: 1;
+                position: absolute;
+                left: -40px;
+                bottom: 12.5%;
+                height: 75%;
+                width: 20%;
+
+                display: block;
+                background-origin: border-box;
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: left;
+            }
+        }
+
+        .game-timestamp {
+            color: rgba(255, 255, 255, 0.9) !important;
+            text-shadow: stroke(1, black);
+        }
+
+        .agent-backdrop {
+            width: 30%;
+            height: $summary-height;
             position: absolute;
-            left: -40px;
-            bottom: 12.5%;
-            height: 75%;
-            width: 20%;
+            -webkit-mask-image: -webkit-gradient(linear, 80% top, right top, from(black), to(rgba(0, 0, 0, 0)));
+        }
+
+        .map-image {
+            height: 100%;
+            width: 33%;
+            min-width: 200px;
+            position: absolute;
+            filter: blur(0.5px);
+
+            //-webkit-mask-image: -webkit-gradient(linear, 75% top, right top, from(black), to(rgba(0, 0, 0, 0)));
+            right: 0;
+            -webkit-mask-image: -webkit-gradient(linear, left top, 25% top, from(rgba(0, 0, 0, 0)), to(black));
 
             display: block;
-            background-origin: border-box;
-            background-size: contain;
+            background-size: cover;
             background-repeat: no-repeat;
-            background-position: left;
+            background-position: center;
         }
     }
 
-    .game-timestamp {
-        color: rgba(255, 255, 255, 0.9) !important;
-        text-shadow: stroke(1, black);
-    }
+    .player-summary, .game-summary {
+        .agent-thumbnail {
+            width: $thumbnail-width;
+            min-width: $thumbnail-width;
+            max-width: $thumbnail-width;
+            height: 100%;
 
-    .agent-backdrop {
-        width: 30%;
-        height: $summary-height;
-        position: absolute;
-        -webkit-mask-image: -webkit-gradient(linear, 80% top, right top, from(black), to(rgba(0, 0, 0, 0)));
-    }
-
-    .map-image {
-        height: 100%;
-        width: 33%;
-        min-width: 200px;
-        position: absolute;
-        filter: blur(0.5px);
-
-        //-webkit-mask-image: -webkit-gradient(linear, 75% top, right top, from(black), to(rgba(0, 0, 0, 0)));
-        right: 0;
-        -webkit-mask-image: -webkit-gradient(linear, left top, 25% top, from(rgba(0, 0, 0, 0)), to(black));
-
-        display: block;
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-position: center;
-    }
-}
-
-.player-summary, .game-summary {
-    .agent-thumbnail {
-        width: $thumbnail-width;
-        min-width: $thumbnail-width;
-        max-width: $thumbnail-width;
-        height: 100%;
-
-        display: block;
-        background-size: cover;
-        background-repeat: no-repeat;
-        background-position: center;
+            display: block;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
     }
 }

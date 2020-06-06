@@ -12,91 +12,93 @@ $rowHoverBackground: #ffffff11;
 
 @import "../lib/tabulator";
 
-.agent-thumbnail {
-    height: 50px;
-}
-
-.agent-thumbnail-small {
-    height: 25px;
-}
-
-.map-thumbnail {
-    height: 50px;
-}
-
-.map-thumbnail-small {
-    height: 25px;
-}
-
-.map-name {
-    text-align: center;
-    font-weight: bold;
-}
-
-.progress {
-    margin-top: 6px;
-    height: 25px;
-    font-size: 18px;
-    color: #ffffff;
-    background-color: #222222;
-    border: #20507D 1px solid;
-
-    small {
-        position: absolute;
-        right: 5px;
-        top: 2px;
+.valorant-stats {
+    .agent-thumbnail {
+        height: 50px;
     }
 
-    .progress-bar {
-        background-color: #20809D;
+    .agent-thumbnail-small {
+        height: 25px;
     }
-}
 
-.progress-row-hide {
-    filter: grayscale(1);
-}
-
-:not(.progress-row-hide) + .progress-row-hide::before {
-    padding: 3px 10%;
-    display: block;
-    content: "The following agents have less than 5 games recorded";
-}
-
-.progress-hide {
-}
-
-.progress-average {
-    margin-top: 2px;
-    border: #732936 1px solid;
-
-    .progress-bar {
-        background-color: #A32C36;
+    .map-thumbnail {
+        height: 50px;
     }
-}
 
-.progress-solo {
-    margin-top: 5px;
-    height: 30px;
+    .map-thumbnail-small {
+        height: 25px;
+    }
 
-    span {
+    .map-name {
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .progress {
+        margin-top: 6px;
+        height: 25px;
+        font-size: 18px;
+        color: #ffffff;
+        background-color: #222222;
+        border: #20507D 1px solid;
+
+        small {
+            position: absolute;
+            right: 5px;
+            top: 2px;
+        }
+
+        .progress-bar {
+            background-color: #20809D;
+        }
+    }
+
+    .progress-row-hide {
+        filter: grayscale(1);
+    }
+
+    :not(.progress-row-hide) + .progress-row-hide::before {
+        padding: 3px 10%;
+        display: block;
+        content: "The following agents have less than 5 games recorded";
+    }
+
+    .progress-hide {
+    }
+
+    .progress-average {
         margin-top: 2px;
+        border: #732936 1px solid;
+
+        .progress-bar {
+            background-color: #A32C36;
+        }
     }
-}
 
-.tabulator-cell[tabulator-field=agent],
-.tabulator-cell[tabulator-field=map] {
-    font-weight: bold;
-    padding: 0px;
-    text-align: center;
-}
+    .progress-solo {
+        margin-top: 5px;
+        height: 30px;
 
-.tabulator-cell[tabulator-field=wr_games],
-.tabulator-cell[tabulator-field=wr_rounds],
-.tabulator-cell[tabulator-field=wr_att_rounds],
-.tabulator-cell[tabulator-field=wr_def_rounds] {
-    min-width: 200px;
-}
+        span {
+            margin-top: 2px;
+        }
+    }
 
-.tabulator {
-    margin-top: 1em;
+    .tabulator-cell[tabulator-field=agent],
+    .tabulator-cell[tabulator-field=map] {
+        font-weight: bold;
+        padding: 0px;
+        text-align: center;
+    }
+
+    .tabulator-cell[tabulator-field=wr_games],
+    .tabulator-cell[tabulator-field=wr_rounds],
+    .tabulator-cell[tabulator-field=wr_att_rounds],
+    .tabulator-cell[tabulator-field=wr_def_rounds] {
+        min-width: 200px;
+    }
+
+    .tabulator {
+        margin-top: 1em;
+    }
 }
