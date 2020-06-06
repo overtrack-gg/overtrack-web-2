@@ -108,15 +108,18 @@
         var agent_formatter = (cell, formatterParams, onRendered) => {
             let agent = cell.getValue();
             var image;
+            var all_agents;
             if (agent == "All Agents") {
                 image = "{{ url_for('static', filename='images/valorant.png') }}"
+                all_agents = "all-agents";
             } else {
                 image = `{{ url_for('static', filename='images/valorant/agent_profiles/') }}${agent.toLowerCase()}.png`
+                all_agents = "";
             }
             return `
                 ${agent}
                 <br/>
-                <img class="agent-thumbnail{% if not has_user %}-small{% endif %} m-0" src="${image}" />
+                <img class="agent-thumbnail{% if not has_user %}-small{% endif %} m-0 ${all_agents}" src="${image}" />
             `;
         }
 
@@ -246,6 +249,7 @@
 
         var propagate_hide = () => {
             $(".progress-hide").parent().parent().addClass("progress-row-hide");
+            $(".progress-row-hide:has(.all-agents)").removeClass("progress-row-hide");
         }
 
         var table = new Tabulator("#stats-table", {
