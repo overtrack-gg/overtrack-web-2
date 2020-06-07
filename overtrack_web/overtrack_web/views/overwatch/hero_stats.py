@@ -68,13 +68,12 @@ class OverwatchCollectedHeroStats:
         losses = self.games - self.wins
         return [
             ('PLAYTIME', s2ts(self.time_selected)),
-            ('PLAYRATE', f'{self.time_selected / self.time_active_total:.0%}'),
-            ('WINRATE', f'{self.wins / self.games:.0%}'),
+            ('PLAYRATE', f'{self.time_selected / (self.time_active_total or 0):.0%}'),
+            ('WINRATE', f'{self.wins / (self.games or 0):.0%}'),
             ('RECORD', f'{int(wins):,}-{int(losses):,}'),
         ]
 
     def general_stats(self) -> List[Tuple[str, str, str]]:
-        print(self)
         num_10_mins = self.time_active / 600
         supp_line = [
             ('HEALING DONE', format_num(self.healing_done / num_10_mins), '/10min'),
