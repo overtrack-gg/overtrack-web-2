@@ -341,8 +341,10 @@ def render_games_list(user: User, share_settings: Optional[OverwatchShareSetting
         trial_time_left = f'{raw_time_left.seconds // (60 * 60)} hours'
     elif raw_time_left.seconds > 60:
         trial_time_left = f'{raw_time_left.seconds // 60} minutes'
-    else:
+    elif raw_time_left.total_seconds() > 0:
         trial_time_left = f'{raw_time_left.seconds} seconds'
+    else:
+        trial_time_left = '0 days'
 
     response = make_response(
         render_template(
