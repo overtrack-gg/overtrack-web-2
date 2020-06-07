@@ -40,13 +40,13 @@ def render_winrates(user: Optional[User], public: bool = False) -> FlaskResponse
         has_user = True
         user.refresh()
 
-        if not user.valorant_games:
+        target = get_winrates(user.user_id)
+
+        if not user.valorant_games or len(target.maps_agents) == 0:
             logger.info(f'User {user.username} has no games')
             if not public:
                 return render_template('client.html', no_games_alert=True, meta=WELCOME_META)
 
-        user_winrates = get_winrates(user.user_id)
-        target = user_winrates
         title = user.username.title() + '\'s Valorant Winrates'
     else:
         has_user = False
