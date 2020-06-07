@@ -118,7 +118,7 @@ def game_card(key: str):
                         }
                     </style>
                 </head>
-                <body>
+                <body class="games-list">
                     {% include 'valorant/games_list/game_card.html' %}
                 </body>
             </html>
