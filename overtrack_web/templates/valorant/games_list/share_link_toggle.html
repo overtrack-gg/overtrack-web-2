@@ -1,0 +1,34 @@
+<span class="card">
+    <div class="card-body">
+        <div class="row align-items-center justify-content-end">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <input id="shareLinkURL"
+                           onclick="copy_share_link()"
+                           type="text"
+                           class="form-control"
+                           style="direction: rtl;"
+                           readonly
+                           value="{{ url_for('valorant.games_list.games_list', _external=True) }}/{{ username }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" onclick="copy_share_link()">Copy</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 col-lg-3">
+                <div class="custom-control custom-switch custom-switch-lg">
+                    <input type="checkbox"
+                           {% if games_public %}checked{% endif %}
+                           class="custom-control-input"
+                           id="public-profile"
+                           name="public-profile"
+                           value="public"
+                           ic-post-to="{{ url_for('valorant.games_list.share_links') }}"
+                           ic-target="#share-link-toggle"
+                           ic-trigger-on="change">
+                    <label class="custom-control-label" for="public-profile">Public Profile</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</span>

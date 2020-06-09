@@ -1,11 +1,14 @@
 import datetime
 import random
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Optional
 
 from flask import g
 
 from overtrack_web.data import apex_data, overwatch_data
 from overtrack_web.lib import authentication
+
+
+valorant_games_public: Optional[bool] = None
 
 
 class MockUser(NamedTuple):
@@ -31,7 +34,20 @@ class MockUser(NamedTuple):
 
     trial_valid: bool = True
 
+    @property
+    def valorant_games_public(self) -> Optional[bool]:
+        global valorant_games_public
+        return valorant_games_public
+
+    @valorant_games_public.setter
+    def valorant_games_public(self, value: bool) -> None:
+        global valorant_games_public
+        valorant_games_public = value
+
     def refresh(self):
+        pass
+
+    def save(self) -> None:
         pass
 
 mock_user = MockUser()

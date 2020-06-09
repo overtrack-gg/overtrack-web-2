@@ -18,7 +18,8 @@ from overtrack_models.orm.valorant_game_summary import ValorantGameSummary
 from overtrack_models.queries.valorant.winrates import Winrate, MapAgentWinrates, Winrates
 from overtrack_web.data import WELCOME_META, VALORANT_WELCOME_META
 from overtrack_web.lib import b64_decode, b64_encode, FlaskResponse, parse_args
-from overtrack_web.lib.authentication import check_authentication
+from overtrack_web.lib.authentication import check_authentication, require_login
+from overtrack_web.lib.decorators import restrict_origin
 from overtrack_web.lib.listed_users import get_listed_users
 from overtrack_web.lib.session import session
 
@@ -139,6 +140,24 @@ def games_next() -> FlaskResponse:
     )
 
 
+@games_list_blueprint.route('/share_links', methods=['POST'])
+@require_login
+@restrict_origin(restrict_for=['POST'])
+def share_links() -> FlaskResponse:
+    user = session.user
+
+    public = request.form.get('public-profile', 'private') == 'public'
+
+    user.valorant_games_public = public
+    user.save()
+
+    return render_template(
+        'valorant/games_list/share_link_toggle.html',
+        games_public=bool(user.valorant_games_public),
+        username=user.username,
+    )
+
+
 @games_list_blueprint.context_processor
 def context_processor() -> Dict[str, Any]:
     return {
@@ -231,6 +250,10 @@ def render_games_list(user: User, public: bool = False, **next_args: str) -> Fla
 
         sessions=sessions,
         next_from=next_from,
+
+        show_share_links_edit=not public,
+        games_public=bool(user.valorant_games_public),
+        username=user.username,
 
         OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
     )
