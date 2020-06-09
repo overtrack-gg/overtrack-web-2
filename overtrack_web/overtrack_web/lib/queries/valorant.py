@@ -32,8 +32,15 @@ try:
     @contextmanager
     def db_session() -> ContextManager[Session]:
         sess = session_maker()
-        yield sess
-        sess.close()
+        try:
+            yield sess
+            sess.commit()
+        except:
+            sess.rollback()
+            raise
+        finally:
+            sess.close()
+
 except:
     logging.exception('Failed to connect to database - no db session created')
     db_session = None
