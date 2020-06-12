@@ -49,10 +49,10 @@
                 {% set wr_av = winrates_average.map(selected_map) %}
                 {
                     agent: "All Agents",
-                    wr_games: [{{wr.games.winrate| round(3)}}, {{wr_av.games.winrate| round(3)}}, {{wr.games.wins}}, {{wr.games.total}}],
-                    wr_rounds: [{{wr.rounds.winrate| round(3)}}, {{wr_av.rounds.winrate| round(3)}}, {{wr.rounds.wins}}, {{wr.rounds.total}}],
-                    wr_att_rounds: [{{wr.attacking_rounds.winrate| round(3) | round(3)}}, {{wr_av.attacking_rounds.winrate| round(3)}}, {{wr.attacking_rounds.wins}}, {{wr.attacking_rounds.total}}],
-                    wr_def_rounds: [{{wr.defending_rounds.winrate| round(3) | round(3)}}, {{wr_av.defending_rounds.winrate| round(3)}}, {{wr.defending_rounds.wins}}, {{wr.defending_rounds.total}}],
+                    wr_games: [{{wr.games.winrate | nround(3)}}, {{wr_av.games.winrate| nround(3)}}, {{wr.games.wins}}, {{wr.games.total}}],
+                    wr_rounds: [{{wr.rounds.winrate| nround(3)}}, {{wr_av.rounds.winrate| nround(3)}}, {{wr.rounds.wins}}, {{wr.rounds.total}}],
+                    wr_att_rounds: [{{wr.attacking_rounds.winrate| nround(3) | nround(3)}}, {{wr_av.attacking_rounds.winrate| nround(3)}}, {{wr.attacking_rounds.wins}}, {{wr.attacking_rounds.total}}],
+                    wr_def_rounds: [{{wr.defending_rounds.winrate| nround(3) | nround(3)}}, {{wr_av.defending_rounds.winrate| nround(3)}}, {{wr.defending_rounds.wins}}, {{wr.defending_rounds.total}}],
                 },
                 {% for agent in agents %}
                 {% if (selected_map, agent) in winrates.maps_agents %}
@@ -60,10 +60,10 @@
                 {% set wr_av = winrates_average.map_agent(selected_map, agent) %}
                 {
                     agent: "{{agent | title}}",
-                    wr_games: [{{wr.games.winrate| round(3)}}, {{wr_av.games.winrate| round(3)}}, {{wr.games.wins}}, {{wr.games.total}}],
-                    wr_rounds: [{{wr.rounds.winrate| round(3)}}, {{wr_av.rounds.winrate| round(3)}}, {{wr.rounds.wins}}, {{wr.rounds.total}}],
-                    wr_att_rounds: [{{wr.attacking_rounds.winrate| round(3)}}, {{wr_av.attacking_rounds.winrate| round(3)}}, {{wr.attacking_rounds.wins}}, {{wr.attacking_rounds.total}}],
-                    wr_def_rounds: [{{wr.defending_rounds.winrate| round(3)}}, {{wr_av.defending_rounds.winrate| round(3)}}, {{wr.defending_rounds.wins}}, {{wr.defending_rounds.total}}],
+                    wr_games: [{{wr.games.winrate| nround(3)}}, {{wr_av.games.winrate| nround(3)}}, {{wr.games.wins}}, {{wr.games.total}}],
+                    wr_rounds: [{{wr.rounds.winrate| nround(3)}}, {{wr_av.rounds.winrate| nround(3)}}, {{wr.rounds.wins}}, {{wr.rounds.total}}],
+                    wr_att_rounds: [{{wr.attacking_rounds.winrate| nround(3)}}, {{wr_av.attacking_rounds.winrate| nround(3)}}, {{wr.attacking_rounds.wins}}, {{wr.attacking_rounds.total}}],
+                    wr_def_rounds: [{{wr.defending_rounds.winrate| nround(3)}}, {{wr_av.defending_rounds.winrate| nround(3)}}, {{wr.defending_rounds.wins}}, {{wr.defending_rounds.total}}],
                 },
                 {% endif %}
                 {% endfor %}
@@ -78,10 +78,10 @@
             {% set wr_av = winrates_average.map(map) %}
             {
                 map: "{{map | title}}",
-                wr_games: [{{wr.games.winrate | round(3)}}, {{wr_av.games.winrate | round(3)}}, {{wr.games.wins}}, {{wr.games.total}}],
-                wr_rounds: [{{wr.rounds.winrate | round(3)}}, {{wr_av.rounds.winrate | round(3)}}, {{wr.rounds.wins}}, {{wr.rounds.total}}],
-                wr_att_rounds: [{{wr.attacking_rounds.winrate| round(3)}}, {{wr_av.attacking_rounds.winrate| round(3)}}, {{wr.attacking_rounds.wins}}, {{wr.attacking_rounds.total}}],
-                wr_def_rounds: [{{wr.defending_rounds.winrate| round(3)}}, {{wr_av.defending_rounds.winrate| round(3)}}, {{wr.defending_rounds.wins}}, {{wr.defending_rounds.total}}],
+                wr_games: [{{wr.games.winrate | nround(3)}}, {{wr_av.games.winrate | nround(3)}}, {{wr.games.wins}}, {{wr.games.total}}],
+                wr_rounds: [{{wr.rounds.winrate | nround(3)}}, {{wr_av.rounds.winrate | nround(3)}}, {{wr.rounds.wins}}, {{wr.rounds.total}}],
+                wr_att_rounds: [{{wr.attacking_rounds.winrate| nround(3)}}, {{wr_av.attacking_rounds.winrate| nround(3)}}, {{wr.attacking_rounds.wins}}, {{wr.attacking_rounds.total}}],
+                wr_def_rounds: [{{wr.defending_rounds.winrate| nround(3)}}, {{wr_av.defending_rounds.winrate| nround(3)}}, {{wr.defending_rounds.wins}}, {{wr.defending_rounds.total}}],
             },
             {% endif %}
             {% endfor %}

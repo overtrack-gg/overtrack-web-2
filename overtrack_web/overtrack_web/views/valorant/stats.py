@@ -77,3 +77,11 @@ def context_processor() -> Dict[str, Any]:
     return {
         'game_name': 'valorant',
     }
+
+
+@stats_blueprint.app_template_filter('nround')
+def nround(v: Optional[float], digits=0) -> float:
+    if v is None:
+        return 0
+    else:
+        return round(v, digits)
