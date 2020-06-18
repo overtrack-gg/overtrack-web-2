@@ -1,7 +1,11 @@
 <div class="alert alert-primary trial-reminder" role="alert">
     <h2>Trialing OverTrack</h2>
     <p>
-        You will have access to full details on all games for the next <b>{{ trial_time_left }}</b> or <b>{{ trial_games_left }} games</b> (later of the two).<br/>
+        You will have access to full details on all games for the next <b>{{ trial_time_left }}</b>
+        {% if trial_games_left > 0 %}
+            or <b>{{ trial_games_left }} games</b> (later of the two)
+        {% endif %}
+        .<br/>
         If you would like full access to games after this period, please consider
         <a href="{{ url_for('subscribe.subscribe') }}" class="sub-link">subscribing</a>
         to support the development.<br/>
