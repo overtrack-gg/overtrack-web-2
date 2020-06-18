@@ -3,7 +3,7 @@ import hashlib
 import json
 import logging
 import os
-from dataclasses import fields, is_dataclass
+from dataclasses import fields, is_dataclass, dataclass
 from typing import Tuple, Dict, Any, Optional, List, Union
 from urllib.parse import urlparse
 
@@ -12,7 +12,7 @@ import requests
 from flask import Blueprint, render_template, render_template_string, url_for, request, Response
 from itertools import takewhile, dropwhile, zip_longest
 
-from overtrack_models.dataclasses.valorant import ValorantGame, Kill, Round, Ult
+from overtrack_models.dataclasses.valorant import ValorantGame, Kill, Round, Ult, Player
 from overtrack_models.orm.valorant_game_summary import ValorantGameSummary
 from overtrack_web.lib.authentication import check_authentication
 from overtrack_web.lib.opengraph import Meta
@@ -213,11 +213,19 @@ def get_kill_counts(weapons: Dict[Optional[str], List[Kill]]):
     )
 
 
+@dataclass
+class SpikePlantedEvent:
+    round_timestamp: float
+    planter: Player
+
+
 @game_blueprint.app_template_filter('round_events')
 def round_events(round: Round) -> List[Union[Kill, Ult]]:
     events = round.kills.kills + round.ults_used
+    if round.spike_planted:
+        events.append(SpikePlantedEvent(round.spike_planted, round.spike_planter))
     events.sort(
-        key=lambda e: e.timestamp if isinstance(e, Kill) else e.lost
+        key=lambda e: e.round_timestamp if hasattr(e, 'round_timestamp') else e.lost
     )
     return events
 
@@ -230,6 +238,11 @@ def is_kill(e):
 @game_blueprint.app_template_test('ult')
 def is_ult(e):
     return isinstance(e, Ult)
+
+
+@game_blueprint.app_template_test('plant')
+def is_plant(e):
+    return isinstance(e, SpikePlantedEvent)
 
 
 def load_game(summary: ValorantGameSummary) -> Tuple[ValorantGame, Dict]:

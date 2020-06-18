@@ -74,7 +74,17 @@
                                             <img class="ult" alt="Ult" title="{{ event.player.agent | lower }}" src="{{ url_for('static', filename='images/valorant/ults/' + event.player.agent | lower + '.png') }}" />
                                         </div>
                                     </div>
-
+                                    {% elif event is plant %}
+                                    <div class="row event-row plant">
+                                        <div class="time">{{ event.round_timestamp | s2ts }}</div>
+                                        <div class="planter {{ 'friendly' if round.attacking else 'enemy' }}">
+                                            {% if event.planter %}
+                                            <img src="{{ url_for('static', filename='images/valorant/agent_profiles/' + event.planter.agent.lower() + '.png') }}" alt="{{ event.planter.agent }}" title="{{ event.planter.agent }}" />
+                                            {{ event.planter.name }}
+                                            {% endif %}
+                                            <img class="plant" alt="Spike Planted" title="{{ event.planter.agent | lower }}" src="{{ url_for('static', filename='images/valorant/spike.png') }}" />
+                                        </div>
+                                    </div>
                                     {% endif %}
                                 {% endfor %}
                             </div>
