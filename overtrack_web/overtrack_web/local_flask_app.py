@@ -111,6 +111,14 @@ app.register_blueprint(valorant_game_blueprint, url_prefix='/valorant/games')
 from overtrack_web.views.valorant.stats import stats_blueprint as valorant_stats_blueprint
 app.register_blueprint(valorant_stats_blueprint, url_prefix='/valorant/winrates')
 
+try:
+    # support running even if the discord bot fails (e.g. missing env vars, fails to fetch cache of enabled bots)
+    from overtrack_web.views.valorant.discord_bot import valorant_discord_blueprint
+except:
+    logging.exception('Failed to import valorant_discord_bot - running without /valorant/discord_bot')
+else:
+    app.register_blueprint(valorant_discord_blueprint, url_prefix='/valorant/discord_bot')
+
 
 # ------ APEX ------
 from overtrack_web.views.apex.games_list import games_list_blueprint as apex_games_list_blueprint

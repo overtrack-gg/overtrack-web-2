@@ -153,6 +153,14 @@ try:
 except:
     logger.error('Failed to import valorant winrates')
 
+try:
+    # support running even if the discord bot fails (e.g. missing env vars, fails to fetch cache of enabled bots)
+    from overtrack_web.views.valorant.discord_bot import valorant_discord_blueprint
+except:
+    logging.exception('Failed to import valorant_discord_bot - running without /valorant/discord_bot')
+else:
+    app.register_blueprint(valorant_discord_blueprint, url_prefix='/valorant/discord_bot')
+
 
 # ------ OVERWATCH ------
 from overtrack_web.views.overwatch.games_list import games_list_blueprint as overwatch_games_list_blueprint
