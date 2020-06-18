@@ -242,6 +242,17 @@
                     border-bottom-left-radius: 0;
                 }
 
+                .planter {
+                    min-width: 350px;
+                    display: inline-block;
+                    position: relative;
+
+                    border-top-left-radius: 0;
+                    border-top-right-radius: 5px;
+                    border-bottom-right-radius: 5px;
+                    border-bottom-left-radius: 0;
+                }
+
                 .killer {
                     min-width: 350px;
                     display: inline-block;
@@ -284,6 +295,13 @@
                 }
 
                 .ult {
+                    margin-left: 20px;
+                    margin-right: 8px;
+                    float: right;
+                    font-size: 30px;
+                }
+
+                .plant {
                     margin-left: 20px;
                     margin-right: 8px;
                     float: right;
