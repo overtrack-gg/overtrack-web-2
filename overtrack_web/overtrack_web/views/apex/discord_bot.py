@@ -1,11 +1,11 @@
 from flask import Blueprint
 
-from overtrack_web.views.make_discord_bot import create_discord_pages, Checkbox
+from overtrack_web.views.make_notification_bot import create_notification_pages, Checkbox
 
 apex_discord_blueprint = Blueprint('apex.discord_bot', __name__)
 
 
-create_discord_pages(
+create_notification_pages(
     'apex',
     'Apex Legends',
     [

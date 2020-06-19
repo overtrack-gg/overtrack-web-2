@@ -15,7 +15,7 @@ from jwt import InvalidTokenError
 from markupsafe import Markup
 from oauthlib.oauth2 import OAuth2Error
 
-from overtrack_models.orm.notifications import DiscordBotNotification
+from overtrack_models.orm.notifications import DiscordBotNotification, TwitchBotNotification
 from overtrack_web.lib import metrics
 from overtrack_web.lib.authentication import require_authentication, require_login
 from overtrack_web.lib.decorators import restrict_origin
@@ -106,15 +106,18 @@ class Checkbox:
             default=self.default,
         )
 
+
 BotOption = Union[Checkbox]
 
 
-def create_discord_pages(
+def create_notification_pages(
     game_name: str,
     game_title: str,
+
     bot_options: List[BotOption],
     blueprint: Blueprint,
     legacy_webhooks_fragment_generator: Optional[Callable[[], Optional[Markup]]] = None,
+    twitch_enabled: bool = False,
 ) -> None:
     logger = logging.getLogger(__name__ + '.' + game_name)
     logger.info(f'Creating discord pages for {game_name}')
@@ -128,7 +131,7 @@ def create_discord_pages(
     @blueprint.route('/')
     @require_login
     def root():
-        notifications = []
+        discord_notifications = []
         n: DiscordBotNotification
         logger.info(f'Fetching existing DiscordBotNotifications')
         for n in DiscordBotNotification.user_id_index.query(session.user_id, DiscordBotNotification.game == game_name):
@@ -138,6 +141,7 @@ def create_discord_pages(
             except DiscordBotNotification.DoesNotExist:
                 logger.warning(f'Found matching {n} in cache, but it has been deleted, not included')
                 continue
+            logger.info(f'    {n}')
             for o in list(notification_cache[n.guild_id]):
                 if n.key == o.key:
                     notification_cache[n.guild_id].remove(o)
@@ -151,25 +155,57 @@ def create_discord_pages(
             else:
                 update_notification(n, guild_info, channel_info)
                 logger.info(f'Got {n}')
-                notifications.append({
+                discord_notifications.append({
                     'guild_name': n.guild_name,
                     'channel_name': n.channel_name,
                     'args': _make_signed_payload(
-                        type='delete',
+                        action='delete',
+                        type='discord',
                         key=n.key,
                     )
                 })
 
+        twitch_notification_data = None
+        twitch_channel = None
+        create_twitch_bot_args = None
+        if twitch_enabled:
+            try:
+                twitch_notification = TwitchBotNotification.user_id_index.get(session.user_id, TwitchBotNotification.game == game_name)
+            except TwitchBotNotification.DoesNotExist:
+                session.user.refresh()
+                if session.user.twitch_user and 'login' in session.user.twitch_user:
+                    # Notification not exists and user has twitch channel
+                    twitch_channel = session.user.twitch_user['login']
+            else:
+                # Notification exists - allow for deletion
+                twitch_notification_data = {
+                    'channel': twitch_notification.twitch_channel_name,
+
+                    'args': _make_signed_payload(
+                        action='delete',
+                        type='twitch',
+                        key=twitch_notification.key,
+                    )
+                }
+
         return render_template(
-            'discord_bot/discord_bot.html',
+            'notifications/add_notifications.html',
 
-            notifications=notifications,
+            twitch_enabled=twitch_enabled,
+
+            discord_notifications=discord_notifications,
+            twitch_notification=twitch_notification_data,
+
+            twitch_channel=twitch_channel,
+            create_twitch_bot_args=create_twitch_bot_args,
+
             delete_integration=url_for(blueprint.name + '.delete_integration'),
-
-            legacy_webhooks_fragment=legacy_webhooks_fragment_generator() if legacy_webhooks_fragment_generator else None,
-
             authorize_bot=url_for(blueprint.name + '.authorize_bot'),
             authorize_list_servers=url_for(blueprint.name + '.authorize_list_servers'),
+            create_twitch_bot=url_for(blueprint.name + '.create_twitch_bot') if twitch_enabled else None,
+            authorize_twitch='https://api2.overtrack.gg/login/twitch?next=' + request.url,
+
+            legacy_webhooks_fragment=legacy_webhooks_fragment_generator() if legacy_webhooks_fragment_generator else None,
         )
 
 
@@ -249,7 +285,7 @@ def create_discord_pages(
                 channel_group.append({
                     'name': channel['name'],
                     'args': _make_signed_payload(
-                        type='existing_channel',
+                        action='add_to_existing_channel',
                         channel_id=channel['id'],
                         discord_user_id=discord_user['id'],
                     )
@@ -257,7 +293,7 @@ def create_discord_pages(
 
         # Also provide `create_channel_payload` for creating a new channel
         return render_template(
-            'discord_bot/channel_add.html',
+            'notifications/channel_add.html',
 
             discord_bot_root=url_for(blueprint.name + '.root'),
             bot_options=bot_options,
@@ -267,7 +303,7 @@ def create_discord_pages(
 
             allow_create_channel=int(request.args['permissions']) & MANAGE_CHANNELS,
             create_channel_args=_make_signed_payload(
-                type='create_channel',
+                action='create_channel',
                 guild_id=request.args['guild_id'],
                 create_channel=True,
                 discord_user_id=discord_user['id'],
@@ -310,13 +346,13 @@ def create_discord_pages(
             )
         logger.info(f'JWT payload: {args}')
 
-        if args['type'] == 'existing_channel':
+        if args['action'] == 'add_to_existing_channel':
             # using an existing channel - attempt to add SEND_MESSAGE permission for ourselves... don't mind if this errors
             channel_id = args['channel_id']
             logger.info(f'Using existing channel {channel_id} to post games')
             logger.info(f'Checking for post permission')
             added_post_permission = _add_post_permission(channel_id)
-        elif args['type'] == 'create_channel':
+        elif args['action'] == 'create_channel':
             # creating a new channel - create this channel with SEND_MESSAGE for ourselves and view only for everyone else
             logger.info(f'Creating new channel {request.form["channel_name"]} to post games to')
             channel_id = _create_channel(
@@ -462,7 +498,7 @@ def create_discord_pages(
             )
         logger.info(f'JWT payload: {args}')
 
-        if args['type'] != 'delete':
+        if args['action'] != 'delete':
             logger.error(f'Can\'t handle delete_integration request - unknown type {args["type"]}')
             return Response(
                 json.dumps({
@@ -471,43 +507,51 @@ def create_discord_pages(
                 status=400
             )
 
-        notification = DiscordBotNotification.get(args['key'])
-        logger.info(f'Deleting {notification}')
-        notification.delete()
+        if args['type'] == 'discord':
+            notification = DiscordBotNotification.get(args['key'])
+            logger.info(f'Deleting {notification}')
+            notification.delete()
 
-        try:
-            logger.info(f'Updating announce message')
-            get_message_r = discord_bot.get(
-                CHANNEL_GET_MESSAGE % (notification.channel_id, notification.announce_message_id)
-            )
-            get_message_r.raise_for_status()
-            print(get_message_r.json())
+            try:
+                logger.info(f'Updating announce message')
+                get_message_r = discord_bot.get(
+                    CHANNEL_GET_MESSAGE % (notification.channel_id, notification.announce_message_id)
+                )
+                get_message_r.raise_for_status()
+                print(get_message_r.json())
 
-            content = get_message_r.json()['content']
-            embed = get_message_r.json()['embeds'][0]
-            embed.update({
-                'description': 'Integration deleted',
-                'color': 0xff0000
-            })
+                content = get_message_r.json()['content']
+                embed = get_message_r.json()['embeds'][0]
+                embed.update({
+                    'description': 'Integration deleted',
+                    'color': 0xff0000
+                })
 
-            update_message_r = discord_bot.patch(
-                CHANNEL_EDIT_MESSAGE % (notification.channel_id, notification.announce_message_id),
-                json={
-                    'content': f'~~{content}~~',
-                    'embed': embed,
-                }
-            )
-            update_message_r.raise_for_status()
-        except Exception as e:
-            logger.warning(f'Failed to update announce message: {e}')
+                update_message_r = discord_bot.patch(
+                    CHANNEL_EDIT_MESSAGE % (notification.channel_id, notification.announce_message_id),
+                    json={
+                        'content': f'~~{content}~~',
+                        'embed': embed,
+                    }
+                )
+                update_message_r.raise_for_status()
+            except Exception as e:
+                logger.warning(f'Failed to update announce message: {e}')
+
+        elif args['type'] == 'twitch':
+            notification = TwitchBotNotification.get(args['key'])
+            logger.info(f'Deleting {notification}')
+            notification.delete()
+        else:
+            raise ValueError('Unknown type')
 
         metrics.event(
-            'Discord Bot Removed',
+            f'{args["type"].title()} Bot Removed',
             f'User: {session.username} ({session.user_id})\n' + '\n'.join(
                 f'{k}: {v}' for k, v in notification.asdict().items()
             ),
             tags={
-                'module': 'discord_bot',
+                'module': 'notification_bot',
                 'function': 'delete_integration',
                 'game': game_name,
             }
@@ -631,7 +675,7 @@ def create_discord_pages(
                 allowed_servers.append({
                     'name': f'{existing_notification.guild_name} #{existing_notification.channel_name}',
                     'args': _make_signed_payload(
-                        type='existing_channel',
+                        action='add_to_existing_channel',
                         channel_id=existing_notification.channel_id,
                         discord_user_id=discord_user['id'],
                         parent_key=existing_notification.key,
@@ -639,7 +683,7 @@ def create_discord_pages(
                 })
 
         return render_template(
-            'discord_bot/channel_add.html',
+            'notifications/channel_add.html',
 
             discord_bot_root=url_for(blueprint.name + '.root'),
             bot_options=bot_options,
@@ -649,6 +693,25 @@ def create_discord_pages(
 
             allow_create_channel=False,
         )
+
+    if twitch_enabled:
+
+        @blueprint.route('/create_twitch_bot')
+        @require_authentication
+        @restrict_origin()
+        def create_twitch_bot():
+            logger.info(f'Creating twitch bot for {session.username} - {session.user.twitch_user}')
+
+            n = TwitchBotNotification.create(
+                user_id=session.user_id,
+                game=game_name,
+                twitch_user_id=int(session.user.twitch_user['id']),
+                channel_name=session.user.twitch_user['login'],
+            )
+            logger.info(f'Created {n}')
+            n.save()
+
+            return redirect(url_for(blueprint.name + '.root'))
 
 
 def update_notification(existing_notification: DiscordBotNotification, guild_info: Dict, channel_info: Dict) -> None:

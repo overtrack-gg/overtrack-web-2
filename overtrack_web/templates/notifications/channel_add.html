@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Select Channel{% endblock %}
+{% block meta %}
+{% endblock %}
+{% block content %}
+<style>
+.custom-control-lg .custom-control-label::before,
+.custom-control-lg .custom-control-label::after {
+    top: 0 !important;
+    left: 0 !important;
+    width: 2rem !important;
+    height: 2rem !important;
+}
+
+.custom-control-lg .custom-control-label {
+    margin-left: 1rem !important;
+    font-size: 1.25rem !important;
+}
+</style>
+<div class="container">
+
+    <form action="{{ add_to_channel }}" method="post" class="shadow p-3 rounded">
+        <div class="row">
+            <div class="card card-main col-md-12">
+                <div class="card-header">
+                    {% if server_name %}
+                    <h1>Add OverTrack Bot to <img style="height: 50px; width:auto; top:-10px" src="{{ server_icon }}"/> {{ server_name }}</h1>
+                    {% else %}
+                    <h1>Post games to existing OverTrack Bot</h1>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for option in bot_options %}
+                            {{ option.render() | safe }}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col mx-3 p-3">
+                <h5 class="mb-lg-3">Add to existing channel</h5>
+                {% if channels %}
+                <div class="form-group">
+                    <select name="existing_args" class="custom-select">
+                        <option selected disabled>Choose a channel</option>
+                        {% for channel in channels %}
+                        <option value="{{ channel['args'] }}">{{ channel['name'] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div style="height: 180px;">
+                    {% if not server_name %}
+                    <p>
+                        If you don't see a channel that you expected, make sure you have posting permissions in it and the OverTrack bot is added to it.
+                    </p>
+                    {% else %}
+                    <p>
+                        Note that any users with permission to send messages in this channel will also be able to connect their own OverTrack account to the bot
+                        to post their own games. As a server admin you will be able to remove users from this bot by deleting the corresponding announcement
+                        message.
+                    </p>
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" name="existing" value="true">
+                    Add to channel
+                </button>
+                {% else %}
+                <p>
+                    It looks like you dont't have any valid channels to post your games to.
+                </p>
+                {% if not allow_create_channel %}
+                <p>
+                    A server admin can install the OverTrack bot in a new channel/server with the "Add New Bot" option.
+                    If the bot does exist in a channel you are in, but you don't see it here make sure you have permission to post messages to that channel.
+                </p>
+                <a href="{{ discord_bot_root }}">Back</a>
+                {% endif %}
+                {% endif %}
+            </div>
+            {% if allow_create_channel %}
+            <div class="col mx-3 p-3">
+                <h5 class="mb-lg-3">Create new channel</h5>
+                <div class="form-group">
+                    <input type="text" class="form-control" id="channel_name" name="channel_name" placeholder="Enter channel name">
+                </div>
+                <div style="height: 180px;">
+                    <div class="custom-control custom-checkbox">
+                        <input class="custom-control-input" type="checkbox" name="restrict_post_messages" id="restrict_post_messages">
+                        <label class="custom-control-label" for="restrict_post_messages" style="padding-bottom: 30px;">
+                            Restrict user posting in this channel.
+                        </label>
+                    </div>
+                    <p>
+                        If you do not restrict other users from posting in this channel, other discord users will be able to post messages and connect their own
+                        OverTrack account to this bot. As a server admin you will be able to remove users from this bot by deleting the corresponding
+                        announcement message.
+                    </p>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block" name="create_args" value="{{ create_channel_args }}">
+                    Create new channel
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}
+{% block scripts %}
+<script defer src="{{ url_for('static', filename='js/lib/bootstrap-select-1.13.2.min.js') }}"></script>
+{% endblock %}

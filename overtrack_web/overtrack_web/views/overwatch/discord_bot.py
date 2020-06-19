@@ -10,7 +10,7 @@ from overtrack_models.orm.notifications import DiscordBotNotification
 from overtrack_web.lib.authentication import require_login
 from overtrack_web.lib.decorators import restrict_origin
 from overtrack_web.lib.session import session
-from overtrack_web.views.make_discord_bot import create_discord_pages, Checkbox
+from overtrack_web.views.make_notification_bot import create_notification_pages, Checkbox
 from overtrack_web.views.overwatch.games_list import get_all_account_names
 
 overwatch_discord_blueprint = Blueprint('overwatch.discord_bot', __name__)
@@ -82,7 +82,7 @@ def legacy_webhooks() -> Optional[Markup]:
     )
 
 
-create_discord_pages(
+create_notification_pages(
     'overwatch',
     'Overwatch',
     [
@@ -93,3 +93,14 @@ create_discord_pages(
 
     legacy_webhooks,
 )
+
+@overwatch_discord_blueprint.route('/data')
+@require_login
+def data():
+    return jsonify([
+        b.asdict()
+        for b in DiscordBotNotification.user_id_index.query(session.user_id)
+    ])
+
+
+

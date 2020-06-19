@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Add Discord Bot{% endblock %}
+{% block meta %}
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row justify-content-md-center">
+        <div class="card card-main col-md-12">
+            <div class="card-body">
+                <h2 class="card-title">Discord Bot</h2>
+
+                {% if discord_notifications or legacy_webhooks_fragment%}
+                    <form action="{{ delete_integration }}" method="post" class="shadow p-3 rounded">
+                        <h5 class="card-subtitle mb-2 text-muted">Enabled Channels</h5>
+                        <ul class="list-group discord-notifications">
+                            {% for notification in discord_notifications %}
+                            <li class="list-group-item">
+                                <span class="guild">{{ notification['guild_name'] }}</span>
+                                <span class="channel-hash"></span>
+                                <span class="channel">{{ notification['channel_name'] }}</span>
+                                <button type="submit" class="btn btn-danger float-right delete-button" name="args" value="{{ notification['args'] }}">x</button>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </form>
+                {% else %}
+                    <p class="card-text">
+                        OverTrack can post your games to a discord channel.<br/>
+                    </p>
+                {% endif %}
+                {% if legacy_webhooks_fragment %}
+                {{ legacy_webhooks_fragment }}
+                {% endif %}
+
+                <br/>
+                <div class="row">
+                    <div class="col-md-6" style="padding-right:20px; border-right: 1px solid gray;">
+                        <h5>
+                            Install the OverTrack Bot to a server I manage
+                        </h5>
+                        <a href="{{ authorize_bot }}" class="btn btn-lg btn-success btn-block" style="margin-top: 20px;">
+                            Add New Bot
+                        </a>
+                        <ul class="p-4">
+                            <li>
+                                You will be able to select a channel to receive your games, or create a new channel to receive your games.
+                            </li>
+                            <li>
+                                Other users can be allowed to connect their own accounts based on channel send message permissions.
+                                If you create a new channel (requires "Manage Roles" and "Manage Channels"), you can select to restrict posting,
+                                making it restricted to only your own games.
+                            </li>
+                            <li>
+                                If you use an existing channel and do not wish for other users to to connect their accounts to it, ensure
+                                only OverTrack has posting permissions (it will attempt to grant itself posting permissions provided "Manage Roles" is enabled).
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>
+                            Connect my account to an existing OverTrack Bot
+                        </h5>
+                        <a href="{{ authorize_list_servers }}" class="btn btn-lg btn-success btn-block" style="margin-top: 20px;">
+                            Connect to Existing Bot
+                        </a>
+                        <ul class="p-4">
+                            <li>
+                                You will be able to select an channel that you share with the OverTrack bot.
+                            </li>
+                            <li>
+                                You must have permissions to send messages in the channel.
+                            </li>
+                        </ul>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% if twitch_enabled %}
+        <div class="card card-main col-md-12 mt-2">
+            <div class="card-body">
+                <h2 class="card-title">Twitch Bot</h2>
+
+                {% if twitch_notification %}
+                    <form action="{{ delete_integration }}" method="post" class="shadow p-3 rounded">
+                        <ul class="list-group twitch-notifications">
+                        <li class="list-group-item">
+                            <span class="guild">twitch.tv/</span>
+                            <span class="channel" style="padding-left: 0;">{{ twitch_notification['channel'] }}</span>
+                            <button type="submit" class="btn btn-danger float-right delete-button" name="args" value="{{ twitch_notification['args'] }}">x</button>
+                        </li>
+                        </ul>
+                    </form>
+                {% else %}
+                    <p class="card-text">
+                        OverTrack can post your games to your twitch channel.<br/>
+                    </p>
+
+                    <br/>
+                    <div class="row">
+                        <div class="col-md-6">
+                            {% if twitch_channel %}
+                            <h5>
+                                Post games to my channel
+                            </h5>
+                            <a href="{{ create_twitch_bot }}" class="btn btn-lg btn-success btn-block" style="margin-top: 20px;">
+                                {{ twitch_channel }}
+                            </a>
+                            {% else %}
+                            <h5>
+                                Connect your twitch account
+                            </h5>
+                            <a href="{{ authorize_twitch }}" class="btn btn-lg btn-success btn-block" style="margin-top: 20px;">
+                                Authorize twitch account
+                            </a>
+                            <ul class="p-4">
+                                <li>
+                                    First you must authorize your twitch account.
+                                </li>
+                                <li>
+                                    Once added, you can connect the bot to your channel.
+                                </li>
+                            </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

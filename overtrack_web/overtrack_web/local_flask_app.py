@@ -113,11 +113,11 @@ app.register_blueprint(valorant_stats_blueprint, url_prefix='/valorant/winrates'
 
 try:
     # support running even if the discord bot fails (e.g. missing env vars, fails to fetch cache of enabled bots)
-    from overtrack_web.views.valorant.discord_bot import valorant_discord_blueprint
+    from overtrack_web.views.valorant.notifications import valorant_notifications_blueprint
 except:
-    logging.exception('Failed to import valorant_discord_bot - running without /valorant/discord_bot')
+    logging.exception('Failed to import valorant_notifications_blueprint - running without /valorant/notifications')
 else:
-    app.register_blueprint(valorant_discord_blueprint, url_prefix='/valorant/discord_bot')
+    app.register_blueprint(valorant_notifications_blueprint, url_prefix='/valorant/notifications')
 
 
 # ------ APEX ------
