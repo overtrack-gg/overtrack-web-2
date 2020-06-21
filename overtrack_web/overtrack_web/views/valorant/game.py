@@ -225,7 +225,7 @@ def round_events(round: Round) -> List[Union[Kill, Ult]]:
     if round.spike_planted:
         events.append(SpikePlantedEvent(round.spike_planted, round.spike_planter))
     events.sort(
-        key=lambda e: e.round_timestamp if hasattr(e, 'round_timestamp') else e.lost
+        key=lambda e: e.round_timestamp if hasattr(e, 'round_timestamp') else e.round_lost_timestamp
     )
     return events
 
