@@ -235,6 +235,9 @@ def edit_game(key: str) -> FlaskResponse:
     if summary.user_id != session.user_id and not session.superuser:
         return 'Invalid game', 403
 
+    summary.competitive = summary.game_type == 'competitive'
+    summary.placement = summary.rank == 'placement'
+
     return render_template(
         'overwatch/game/edit.html',
 
