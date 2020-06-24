@@ -16,6 +16,7 @@
                 </h1>
                 <div class="header-row" style="text-align: right">
                     {% if show_edit %}
+                        <a class="btn btn-secondary mr-5" data-toggle="modal" data-target="#editGame">Edit</a>
                         {% include 'overwatch/game/edit.html' %}
                     {% endif %}
                     <span>

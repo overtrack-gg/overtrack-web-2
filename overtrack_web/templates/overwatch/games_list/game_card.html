@@ -54,7 +54,7 @@
             </div>
         </div>
         {% if game.viewable or user.superuser %}
-        <a href="{{ url_for('overwatch.game.game', key=game.key) }}" class="stretched-link"></a>
+            <a href="{{ url_for('overwatch.game.game', key=game.key) }}" class="stretched-link"></a>
         {% elif show_sub_request %}
             <a href="#"
                style="color: #c59b12;"
@@ -65,6 +65,16 @@
                data-html="true"
                data-trigger="click"
                title='Please <a href="{{ url_for('subscribe.subscribe') }}">subscribe</a> to view full game details'></a>
+        {% endif %}
+        {% if show_edit_button %}
+            <a
+                href="#"
+                ic-get-from="{{ url_for('overwatch.games_list.edit_game', key=game.key) }}"
+                ic-trigger-on="click"
+                ic-target="#edit-target"
+                ic-on-complete="setTimeout(function(){$('#editGame').modal('show'); }, 0);"
+                class="edit-link">
+            </a>
         {% endif %}
     </div>
 </div>

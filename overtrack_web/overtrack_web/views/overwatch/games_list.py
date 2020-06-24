@@ -225,6 +225,24 @@ def share_links() -> FlaskResponse:
     )
 
 
+@games_list_blueprint.route('/edit_game/<path:key>')
+@require_login
+def edit_game(key: str) -> FlaskResponse:
+    try:
+        summary = OverwatchGameSummary.get(key)
+    except OverwatchGameSummary.DoesNotExist as e:
+        return 'Invalid game', 403
+    if summary.user_id != session.user_id and not session.superuser:
+        return 'Invalid game', 403
+
+    return render_template(
+        'overwatch/game/edit.html',
+
+        edit_source='games_list',
+        game=summary,
+    )
+
+
 @games_list_blueprint.context_processor
 def context_processor() -> Dict[str, Any]:
     return {
@@ -373,6 +391,7 @@ def render_games_list(user: User, share_settings: Optional[OverwatchShareSetting
             include_quickplay=include_quickplay,
 
             show_share_links_edit=share_settings is None,
+            show_edit_button=share_settings is None or user.superuser,
         )
     )
     if not share_settings or share_settings.include_quickplay:

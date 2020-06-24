@@ -94,6 +94,9 @@ def game(key: str):
             legacy_stylesheet=legacy_stylesheet,
         )
 
+    if not summary.viewable and not(check_authentication() is None and session.superuser):
+        return 'Please subscribe to view game details', 403
+
     game, metadata = load_game(summary)
     game.timestamp = summary.time
 
@@ -230,7 +233,11 @@ def edit_game():
         Metadata=metadata
     )
 
-    return redirect(url_for('overwatch.game.game', key=summary.key), code=303)
+    if request.form['source'] == 'games_list':
+        return redirect(url_for('overwatch.games_list.games_list'), code=303)
+    else:
+        return redirect(url_for('overwatch.game.game', key=summary.key), code=303)
+
 
 @game_blueprint.route('<path:key>/card')
 def game_card(key: str):
