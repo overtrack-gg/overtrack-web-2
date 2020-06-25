@@ -1,5 +1,7 @@
+import itertools
+import json
 import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Tuple, List
 
 from flask import Blueprint, render_template
 
@@ -60,6 +62,33 @@ def render_winrates(user: Optional[User], public: bool = False) -> FlaskResponse
     agents.remove(None)
     keys = list(target.maps_agents.keys())
 
+    def winrates_range(keys: List[Tuple[Optional[str], Optional[str]]]) -> Tuple[float, float]:
+        wr = list(filter(
+            lambda x: x is not None,
+            itertools.chain.from_iterable(
+                [
+                    x.games.winrate,
+                    x.rounds.winrate,
+                    x.attacking_rounds.winrate,
+                    x.defending_rounds.winrate
+                ]
+                for x in [
+                    average_winrates.map_agent(m, a)
+                    for m, a in keys
+                ] + [
+                    target.map_agent(m, a)
+                    for m, a in keys
+                ]
+            )
+        ))
+        return min(wr), max(wr)
+
+    maps_range = winrates_range([(None, None)])
+    agents_range = {
+        m: winrates_range([(m, a) for a in agents_list if (m, a) in keys])
+        for m in maps_list
+    }
+
     return render_template(
         'valorant/stats/stats.html',
         title=title,
@@ -69,6 +98,8 @@ def render_winrates(user: Optional[User], public: bool = False) -> FlaskResponse
         keys=keys,
         winrates=target,
         winrates_average=average_winrates,
+        maps_range=json.dumps(maps_range),
+        agents_range=json.dumps(agents_range),
     )
 
 

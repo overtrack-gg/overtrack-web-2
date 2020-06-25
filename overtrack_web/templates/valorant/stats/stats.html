@@ -42,6 +42,10 @@
     </div>
     <script type="text/javascript">
     window.addEventListener('load', function() {
+        let maps_range = {{ maps_range | safe }};
+        let agents_range = {{ agents_range | safe }};
+        var selected_map = null;
+
         var tabledata = {
             {% for selected_map in [none] + maps %}
             {{ selected_map }}: [
@@ -51,8 +55,8 @@
                     agent: "All Agents",
                     wr_games: [{{wr.games.winrate | nround(3)}}, {{wr_av.games.winrate| nround(3)}}, {{wr.games.wins}}, {{wr.games.total}}],
                     wr_rounds: [{{wr.rounds.winrate| nround(3)}}, {{wr_av.rounds.winrate| nround(3)}}, {{wr.rounds.wins}}, {{wr.rounds.total}}],
-                    wr_att_rounds: [{{wr.attacking_rounds.winrate| nround(3) | nround(3)}}, {{wr_av.attacking_rounds.winrate| nround(3)}}, {{wr.attacking_rounds.wins}}, {{wr.attacking_rounds.total}}],
-                    wr_def_rounds: [{{wr.defending_rounds.winrate| nround(3) | nround(3)}}, {{wr_av.defending_rounds.winrate| nround(3)}}, {{wr.defending_rounds.wins}}, {{wr.defending_rounds.total}}],
+                    wr_att_rounds: [{{wr.attacking_rounds.winrate| nround(3)}}, {{wr_av.attacking_rounds.winrate| nround(3)}}, {{wr.attacking_rounds.wins}}, {{wr.attacking_rounds.total}}],
+                    wr_def_rounds: [{{wr.defending_rounds.winrate| nround(3)}}, {{wr_av.defending_rounds.winrate| nround(3)}}, {{wr.defending_rounds.wins}}, {{wr.defending_rounds.total}}],
                 },
                 {% for agent in agents %}
                 {% if (selected_map, agent) in winrates.maps_agents %}
@@ -133,8 +137,26 @@
         }
 
         var progress_formatter = (cell, formatterParams, onRendered) => {
-            let perc = Math.round(cell.getValue()[0] * 100);
-            let perc_av = Math.round(cell.getValue()[1] * 100);
+            let buffer_ratio = 0.25;
+            var a = agents_range[selected_map][0];
+            var b = agents_range[selected_map][1];
+            let range = b - a;
+            a = Math.max(0, a - range * buffer_ratio);
+            b = Math.min(1.0, b + range * buffer_ratio);
+            let p = cell.getValue()[0];
+            let p_av = cell.getValue()[1];
+
+            var perc;
+            var perc_av;
+
+            {% if not has_user %}
+            perc = (p - a) / (b - a) * 100;
+            perc_av = (p_av - a) / (b - a) * 100;
+            {% else %}
+            perc = Math.round(cell.getValue()[0] * 100);
+            perc_av = Math.round(cell.getValue()[1] * 100);
+            {% endif %}
+
             let disp_perc = Math.round((cell.getValue()[0] + Number.EPSILON) * 1000) / 10;
             let disp_perc_av = Math.round((cell.getValue()[1] + Number.EPSILON) * 1000) / 10;
             let wins = abbreviateNumber(cell.getValue()[2]);
@@ -175,8 +197,28 @@
         };
 
         var map_progress_formatter = (cell, formatterParams, onRendered) => {
-            let perc = Math.round(cell.getValue()[0] * 100);
-            let perc_av = Math.round(cell.getValue()[1] * 100);
+            let buffer_ratio = 0.25;
+            var a = maps_range[0];
+            var b = maps_range[1];
+            a = agents_range[null][0];
+            b = agents_range[null][1];
+            let range = b - a;
+            a = Math.max(0, a - range * buffer_ratio);
+            b = Math.min(1.0, b + range * buffer_ratio);
+            let p = cell.getValue()[0];
+            let p_av = cell.getValue()[1];
+
+            var perc;
+            var perc_av;
+
+            {% if not has_user %}
+            perc = (p - a) / (b - a) * 100;
+            perc_av = (p_av - a) / (b - a) * 100;
+            {% else %}
+            perc = Math.round(cell.getValue()[0] * 100);
+            perc_av = Math.round(cell.getValue()[1] * 100);
+            {% endif %}
+
             let disp_perc = Math.round((cell.getValue()[0] + Number.EPSILON) * 1000) / 10;
             let disp_perc_av = Math.round((cell.getValue()[1] + Number.EPSILON) * 1000) / 10;
             let wins = abbreviateNumber(cell.getValue()[2]);
@@ -291,6 +333,7 @@
         $(".map-options").change(() => {
             table.setSort([]);
             let m = $(".map-option:selected").attr("value");
+            selected_map = m === "None" ? null : m;
             if (m === "None") {
                 $("#stats-table-maps").css("visibility", "visible");
                 $("#stats-table-maps").height("auto");
