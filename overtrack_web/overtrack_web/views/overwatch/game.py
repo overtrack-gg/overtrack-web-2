@@ -97,6 +97,9 @@ def game(key: str):
     if not summary.viewable and not(check_authentication() is None and session.superuser):
         return 'Please subscribe to view game details', 403
 
+    if summary.game_type == 'custom' and (check_authentication() is not None or (not session.superuser and session.user_id != summary.user_id)):
+        return 'Custom games are restricted to being viewed by their owner', 403
+
     game, metadata = load_game(summary)
     game.timestamp = summary.time
 
@@ -154,6 +157,7 @@ def game(key: str):
 
         OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
     )
+
 
 @game_blueprint.route('/edit', methods=['POST'])
 @require_login
@@ -274,6 +278,7 @@ def game_card(key: str):
 
         map_thumbnail_style=map_thumbnail_style,
     )
+
 
 @game_blueprint.route('/<path:key>/card.png')
 def game_card_png(key: str):
