@@ -120,17 +120,19 @@ $thumbnail-width: 80px;
             height: 100%;
             .rank-indicator {
                 z-index: 1;
-                position: absolute;
-                left: -40px;
-                bottom: 12.5%;
-                height: 75%;
-                width: 20%;
-
-                display: block;
+                vertical-align: middle;
+                height: 100%;
+                left: -15px;
+                display: inline-block;
                 background-origin: border-box;
                 background-size: contain;
                 background-repeat: no-repeat;
                 background-position: left;
+            }
+            .rank-image {
+                height: 80%;
+                position: absolute;
+                top: 10%;
             }
         }
 

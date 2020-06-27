@@ -36,8 +36,8 @@
             </h4>
         </div>
         <div class="col-2 rank-indicator rank-valorant">
-            {% if game.game_mode == 'competitive' %}
-            <img width="50" src="{{ url_for('static', filename='images/valorant/ranks/valorant.png') }}" />
+            {% if game.rank %}
+            <img width="70" style="margin-left: -20px;" src="{{ url_for('static', filename='images/valorant/ranks/' + game.rank + '.png') }}" />
             {% endif %}
         </div>
         <div class="col-2">

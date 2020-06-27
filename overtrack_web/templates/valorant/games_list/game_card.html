@@ -42,9 +42,9 @@
             <h2 class="px-1 mb-1">{{ (game.agent or "Unknown") | title }}</h2>
             <h5 class="px-3 m-0">on {{ game.map | title }}</h5>
         </div>
-        <div class="col-1 rank-indicator-2 no-sm" style="max-width: 2.5%; flex: 0 0 2.5%;">
-            {% if game.game_mode == 'competitive' %}
-                <img height="80" style="object-fit: contain" src="{{ url_for('static', filename='images/valorant/ranks/valorant.png') }}" />
+        <div class="col-1 rank-indicator no-sm" style="max-width: 2.5%; flex: 0 0 2.5%;">
+            {% if game.rank %}
+                <img class="rank-image" src="{{ url_for('static', filename='images/valorant/ranks/' + game.rank + '.png') }}" alt="{{ game.rank }}" />
             {% endif %}
         </div>
         <div class="col-2 p-1 text-center">
