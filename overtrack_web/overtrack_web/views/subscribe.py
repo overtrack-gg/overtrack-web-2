@@ -8,6 +8,7 @@ import time
 from flask import Blueprint, Response, render_template, request, url_for
 from werkzeug.utils import redirect
 
+from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
 from overtrack_web.lib import metrics
 from overtrack_web.lib.authentication import require_login
 from overtrack_web.lib.decorators import restrict_origin
@@ -318,6 +319,7 @@ def paypal_approved():
         logger.exception('Failed to get PayPal subscription details')
 
     session.user.save()
+    make_games_viewable(session.user_id)
 
     metrics.record('subscription.paypal.approved')
     metrics.event(
@@ -400,6 +402,17 @@ def stripe_cancel():
     )
 
     return redirect(url_for('subscribe.subscribe'))
+
+
+def make_games_viewable(user_id: int):
+    for g in OverwatchGameSummary.user_id_time_index.query(
+        user_id,
+        OverwatchGameSummary.time > time.time() - 30 * 24 * 60 * 60,
+        OverwatchGameSummary.viewable == False,
+        scan_index_forward=False
+    ):
+        g.viewable = True
+        g.save()
 
 
 def main() -> None:
