@@ -379,11 +379,13 @@ def render_games_list(user: User, share_settings: Optional[OverwatchShareSetting
             current_season=current_season,
             show_sub_request=(
                 not user.subscription_active and
+                not user.free and
                 not user.trial_valid and
                 share_settings is None
             ),
             show_trial_reminder=(
-                not user.subscription_active and
+                not user.account_valid and
+                not user.free and
                 user.trial_valid and
                 share_settings is None
             ),

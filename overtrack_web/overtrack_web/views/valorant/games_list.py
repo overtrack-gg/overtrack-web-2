@@ -104,7 +104,11 @@ def public_games_list(username: str) -> FlaskResponse:
     user = resolve_public_user(username)
     if not user:
         return 'User does not exist or games not public', 404
-    return render_games_list(user, public=True, username=username)
+    return render_games_list(
+        user,
+        public=True,
+        username=username
+    )
 
 
 @games_list_blueprint.route('/next')
