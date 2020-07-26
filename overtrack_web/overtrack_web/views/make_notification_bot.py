@@ -25,22 +25,22 @@ HMAC_KEY = base64.b64decode(os.environ['HMAC_KEY'])
 
 CLIENT_ID = os.environ['DISCORD_CLIENT_ID']
 CLIENT_SECRET = os.environ['DISCORD_CLIENT_SECRET']
-AUTHORISE_URL = 'https://discordapp.com/api/oauth2/authorize'
-TOKEN_URL = 'https://discordapp.com/api/oauth2/token'
+AUTHORISE_URL = 'https://discord.com/api/oauth2/authorize'
+TOKEN_URL = 'https://discord.com/api/oauth2/token'
 
 DISCORD_BOT_TOKEN = os.environ['DISCORD_BOT_TOKEN']
 DISCORD_BOT_ID = os.environ.get('DISCORD_BOT_ID', '470874176350191637')
 
-USER_INFO = 'https://discordapp.com/api/users/@me'
-USER_LIST_GUILDS = 'https://discordapp.com/api/users/%s/guilds'
-GUILD_INFO = 'https://discordapp.com/api/guilds/%s'
-GUILD_LIST_CHANNELS = 'https://discordapp.com/api/guilds/%s/channels'
-GUILD_GET_GUILD_MEMBER = 'https://discordapp.com/api/guilds/%s/members/%s'
-CHANNEL_INFO = 'https://discordapp.com/api/channels/%s'
-CHANNEL_EDIT_PERMISSIONS = 'https://discordapp.com/api/channels/%s/permissions/%s'
-CHANNEL_CREATE_MESSAGE = 'https://discordapp.com/api/channels/%s/messages'
-CHANNEL_GET_MESSAGE = 'https://discordapp.com/api/channels/%s/messages/%s'
-CHANNEL_EDIT_MESSAGE = 'https://discordapp.com/api/channels/%s/messages/%s'
+USER_INFO = 'https://discord.com/api/users/@me'
+USER_LIST_GUILDS = 'https://discord.com/api/users/%s/guilds'
+GUILD_INFO = 'https://discord.com/api/guilds/%s'
+GUILD_LIST_CHANNELS = 'https://discord.com/api/guilds/%s/channels'
+GUILD_GET_GUILD_MEMBER = 'https://discord.com/api/guilds/%s/members/%s'
+CHANNEL_INFO = 'https://discord.com/api/channels/%s'
+CHANNEL_EDIT_PERMISSIONS = 'https://discord.com/api/channels/%s/permissions/%s'
+CHANNEL_CREATE_MESSAGE = 'https://discord.com/api/channels/%s/messages'
+CHANNEL_GET_MESSAGE = 'https://discord.com/api/channels/%s/messages/%s'
+CHANNEL_EDIT_MESSAGE = 'https://discord.com/api/channels/%s/messages/%s'
 
 # https://discordapp.com/developers/docs/topics/permissions#permissions-bitwise-permission-flags
 VIEW_CHANNEL = 0x00000400
