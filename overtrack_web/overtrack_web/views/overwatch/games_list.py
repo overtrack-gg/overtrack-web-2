@@ -1,19 +1,16 @@
+import string
+from collections import defaultdict
+
+import boto3
 import datetime
 import json
 import logging
-import string
-from typing import List, Optional, Tuple, Dict, Any, DefaultDict
-from collections import defaultdict
-from functools import lru_cache
-
-from itertools import permutations
-from urllib.parse import parse_qs, urlparse
-
-import boto3
 import time
 from dataclasses import dataclass
 from flask import Blueprint, Request, render_template, request, url_for, make_response
-from werkzeug.datastructures import MultiDict
+from typing import List, Optional, Tuple, Dict, Any, DefaultDict
+from werkzeug.exceptions import abort
+from werkzeug.utils import redirect
 
 from overtrack_models.dataclasses import s2ts
 from overtrack_models.orm.overwatch_game_summary import OverwatchGameSummary
@@ -192,6 +189,37 @@ def games_next() -> FlaskResponse:
         sessions=sessions,
         next_from=next_from,
     )
+
+
+@games_list_blueprint.route('/latest')
+@games_list_blueprint.route('/<string:username>/latest')
+@games_list_blueprint.route('/latest/<string:card>')
+@games_list_blueprint.route('/<string:username>/latest')
+@games_list_blueprint.route('/<string:username>/latest/<string:card>')
+def latest(username: Optional[str] = None, card: Optional[str] = None) -> FlaskResponse:
+    from overtrack_web.views.overwatch.game import game_card, game_card_png
+    if not username:
+        share_settings = None
+        try:
+            user = session.user
+        except:
+            return 'Not logged in', 403
+    else:
+        user, share_settings = resolve_public_user(username)
+        if not user:
+            return 'User does not exist or games not public', 404
+    sessions, season, include_quickplay, last_evaluated = get_sessions(user, share_settings=share_settings, limit=1)
+    if not sessions:
+        return 'No latest game found', 404
+    latest_game_key = sessions[0].games[0].key
+    if not card:
+        return redirect(url_for('overwatch.game.game', key=latest_game_key))
+    elif card == 'card':
+        return game_card(latest_game_key)
+    elif card == 'card.png':
+        return game_card_png(latest_game_key)
+    else:
+        abort(404)
 
 
 @games_list_blueprint.route('/share_links', methods=['GET', 'POST'])
@@ -410,6 +438,7 @@ def get_sessions(
     share_settings: Optional[OverwatchShareSettings] = None,
     page_minimum_size: int = PAGINATION_PAGE_MINIMUM_SIZE,
     sessions_count_as: int = PAGINATION_SESSIONS_COUNT_AS,
+    limit: Optional[int] = None,
 ) -> Tuple[List[Session], Optional[Season], bool, Optional[str]]:
     logger.info(f'Fetching games for user={user.user_id}: {user.username!r}')
 
@@ -487,6 +516,7 @@ def get_sessions(
         newest_first=True,
         last_evaluated_key=last_evaluated,
         page_size=page_size,
+        limit=limit,
     )
     for game in query:
         if sessions and sessions[-1].add_game(game):

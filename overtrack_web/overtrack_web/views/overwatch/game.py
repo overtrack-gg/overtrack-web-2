@@ -159,6 +159,76 @@ def game(key: str):
     )
 
 
+@game_blueprint.route('<path:key>/card')
+def game_card(key: str):
+    try:
+        game = OverwatchGameSummary.get(key)
+    except OverwatchGameSummary.DoesNotExist:
+        return 'Game does not exist', 404
+
+    return render_template_string(
+        '''
+            <!DOCTYPE html>
+            <html lang="en">
+                <head>
+                    <title>{{ title }}</title>
+                    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/' + game_name + '.css') }}">
+                    <style>
+                        body {
+                            background-color: rgba(0, 0, 0, 0);
+                        }
+                        .game-summary {
+                            margin: 0 !important;
+                        }
+                    </style>
+                </head>
+                <body>
+                    {% include 'overwatch/games_list/game_card.html' %}
+                </body>
+            </html>
+        ''',
+        title='Card',
+        game=game,
+        show_rank=True,
+        OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
+
+        map_thumbnail_style=map_thumbnail_style,
+    )
+
+
+@game_blueprint.route('/<path:key>/card.png')
+def game_card_png(key: str):
+    if 'RENDERTRON_URL' not in os.environ:
+        return 'Rendertron url not set on server', 500
+
+    url = ''.join((
+        os.environ['RENDERTRON_URL'],
+        'screenshot/',
+        url_for('overwatch.game.game_card', key=key, _external=True),
+        f'?width={min(int(request.args.get("width", 356)), 512)}',
+        f'&height={min(int(request.args.get("height", 80)), 512)}',
+        f'&_cachebust={request.args.get("_cachebust", "")}'
+    ))
+    try:
+        r = requests.get(
+            url,
+            timeout=15,
+        )
+    except:
+        logger.exception('Rendertron failed to respond within the timeout')
+        return 'Rendertron failed to respond within the timeout', 500
+    try:
+        r.raise_for_status()
+    except:
+        logger.exception('Rendertron encountered an error fetching screenshot')
+        return f'Rendertron encountered an error fetching screenshot: got status {r.status_code}', 500
+
+    return Response(
+        r.content,
+        headers=dict(r.headers)
+    )
+
+
 @game_blueprint.route('/edit', methods=['POST'])
 @require_login
 @restrict_origin
@@ -241,76 +311,6 @@ def edit_game():
         return redirect(url_for('overwatch.games_list.games_list'), code=303)
     else:
         return redirect(url_for('overwatch.game.game', key=summary.key), code=303)
-
-
-@game_blueprint.route('<path:key>/card')
-def game_card(key: str):
-    try:
-        game = OverwatchGameSummary.get(key)
-    except OverwatchGameSummary.DoesNotExist:
-        return 'Game does not exist', 404
-
-    return render_template_string(
-        '''
-            <!DOCTYPE html>
-            <html lang="en">
-                <head>
-                    <title>{{ title }}</title>
-                    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/' + game_name + '.css') }}">
-                    <style>
-                        body {
-                            background-color: rgba(0, 0, 0, 0);
-                        }
-                        .game-summary {
-                            margin: 0 !important;
-                        }
-                    </style>
-                </head>
-                <body>
-                    {% include 'overwatch/games_list/game_card.html' %}
-                </body>
-            </html>
-        ''',
-        title='Card',
-        game=game,
-        show_rank=True,
-        OLDEST_SUPPORTED_GAME_VERSION=OLDEST_SUPPORTED_GAME_VERSION,
-
-        map_thumbnail_style=map_thumbnail_style,
-    )
-
-
-@game_blueprint.route('/<path:key>/card.png')
-def game_card_png(key: str):
-    if 'RENDERTRON_URL' not in os.environ:
-        return 'Rendertron url not set on server', 500
-
-    url = ''.join((
-        os.environ['RENDERTRON_URL'],
-        'screenshot/',
-        url_for('overwatch.game.game_card', key=key, _external=True),
-        f'?width={min(int(request.args.get("width", 356)), 512)}',
-        f'&height={min(int(request.args.get("height", 80)), 512)}',
-        f'&_cachebust={request.args.get("_cachebust", "")}'
-    ))
-    try:
-        r = requests.get(
-            url,
-            timeout=15,
-        )
-    except:
-        logger.exception('Rendertron failed to respond within the timeout')
-        return 'Rendertron failed to respond within the timeout', 500
-    try:
-        r.raise_for_status()
-    except:
-        logger.exception('Rendertron encountered an error fetching screenshot')
-        return f'Rendertron encountered an error fetching screenshot: got status {r.status_code}', 500
-
-    return Response(
-        r.content,
-        headers=dict(r.headers)
-    )
 
 
 # ----- Template Variables -----
