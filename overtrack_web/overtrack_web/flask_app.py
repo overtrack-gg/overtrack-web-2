@@ -326,7 +326,7 @@ app.register_blueprint(sitemap_blueprint)
 
 @app.route('/riot.txt')
 def riot_proof():
-    return '26313095-f71c-4db7-b3db-9309f3afd071'
+    return '8438891f-f5e7-4ac3-a813-7cb9a7d30ed3'
 
 
 @app.route('/test', methods=['GET', 'POST'])
