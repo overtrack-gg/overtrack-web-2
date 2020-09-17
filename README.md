@@ -105,6 +105,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://overtrack.gg"><img src="https://avatars0.githubusercontent.com/u/2515062?v=4" width="100px;" alt=""/><br /><sub><b>Simon Pinfold</b></sub></a><br /><a href="https://github.com/overtrack-gg/overtrack-web-2/commits?author=synap5e" title="Code">💻</a> <a href="#design-synap5e" title="Design">🎨</a></td>
     <td align="center"><a href="https://github.com/jess-sio"><img src="https://avatars3.githubusercontent.com/u/3945148?v=4" width="100px;" alt=""/><br /><sub><b>Jessica Mortimer</b></sub></a><br /><a href="https://github.com/overtrack-gg/overtrack-web-2/commits?author=jess-sio" title="Code">💻</a> <a href="#design-jess-sio" title="Design">🎨</a></td>
     <td align="center"><a href="https://github.com/JWSenteney"><img src="https://avatars0.githubusercontent.com/u/1554771?v=4" width="100px;" alt=""/><br /><sub><b>JWSenteney</b></sub></a><br /><a href="#ideas-JWSenteney" title="Ideas, Planning, & Feedback">🤔</a></td>
+    <td align="center"><a href="https://sdcore.github.io"><img src="https://avatars2.githubusercontent.com/u/5140203?v=4" width="100px;" alt=""/><br /><sub><b>Michael Voell</b></sub></a><br /><a href="#design-SDCore" title="Design">🎨</a></td>
   </tr>
 </table>
 
