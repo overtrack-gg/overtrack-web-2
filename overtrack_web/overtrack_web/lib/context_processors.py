@@ -31,7 +31,9 @@ COLOURS = {
     'pathfinder': '#58859F',
     'wraith': '#5F439F',
     'bangalore': '#572C23',
-    'lifeline': '#C243D8'
+    'lifeline': '#C243D8',
+    'loba': '#A44D39',
+    'rampart': '#FF51BE'
 }
 
 
