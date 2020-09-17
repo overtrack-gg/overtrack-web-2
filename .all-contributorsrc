@@ -33,6 +33,15 @@
       "contributions": [
         "ideas"
       ]
+    },
+    {
+      "login": "SDCore",
+      "name": "Michael Voell",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/5140203?v=4",
+      "profile": "https://sdcore.github.io",
+      "contributions": [
+        "design"
+      ]
     }
   ],
   "contributorsPerLine": 7,
