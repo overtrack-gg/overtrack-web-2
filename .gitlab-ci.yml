@@ -6,7 +6,7 @@ before_script:
   - ssh-add <(echo "$SSH_PRIVATE_KEY")
   - mkdir ~/.ssh
   - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-  - pip install --upgrade pip
+  - pip install --upgrade pip virtualenv virtualenvwrapper
   - pip install poetry
 
 stages:
@@ -17,6 +17,7 @@ deploy:
   script:
     - python -m venv venv
     - source venv/bin/activate
+    - pip install --upgrade pip virtualenv virtualenvwrapper wheel
     - poetry install --no-dev
 
     # optional dependency for metrics
@@ -24,6 +25,8 @@ deploy:
     - mv -t overtrack_web ./overtrack_2_api/api
     - git clone git@gitlab.com:OverTrack/overtrack-v2.git
     - mv -t overtrack_web ./overtrack-v2/overtrack
+    - git clone git@gitlab.com:OverTrack/overtrack-models.git
+    - mv -t overtrack_web ./overtrack-models/overtrack_models  # ??? why does poetry no longer install this from deps?
 
     - pushd overtrack_web
 
