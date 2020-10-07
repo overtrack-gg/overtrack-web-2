@@ -485,7 +485,11 @@ def get_sessions(
     if share_settings and share_settings.accounts:
         logger.info(f'Share settings has whitelisted accounts {share_settings.accounts}')
         filter_condition &= OverwatchGameSummary.player_name.is_in(*share_settings.accounts)
-    if not include_quickplay:
+
+    if not share_settings and hopeful_int(args.get('custom_games')) == 1:
+        logger.info(f'Returning custom games from share_settings={share_settings}, custom_games={args.get("custom_games")}')
+        filter_condition &= (OverwatchGameSummary.game_type == 'custom')
+    elif not include_quickplay:
         filter_condition &= (OverwatchGameSummary.game_type == 'competitive') | OverwatchGameSummary.game_type.does_not_exist()
     else:
         filter_condition &= OverwatchGameSummary.game_type.is_in('quickplay', 'competitive') | OverwatchGameSummary.game_type.does_not_exist()
