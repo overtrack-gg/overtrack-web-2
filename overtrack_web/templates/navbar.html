@@ -63,7 +63,17 @@
             {{ navbar_elem('Download Client', 'client') }}
             {{ navbar_elem('FAQ & Help', 'faq', game=game_name) }}
             {{ navbar_elem('Join Discord', 'discord_redirect', new_tab=True) }}
-            <div class="dropdown-divider"></div>
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" style="color: #7e5abf !important;">
+                    Legal
+                </a>
+                 <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="{{ url_for('tos') }}" target="_blank">Terms of Service</a>
+                    <a class="dropdown-item" href="{{ url_for('privacy') }}" target="_blank">Privacy Policy</a>
+                </div>
+            </li>
+
             <li class="divider-vertical"></li>
             {% if user %}
             <li class="nav-item dropdown" style="font-weight: bold;">

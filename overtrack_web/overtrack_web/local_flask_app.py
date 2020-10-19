@@ -241,3 +241,15 @@ def faq():
         'faq.html',
         game_name=game if game in ['overwatch', 'apex'] else None
     )
+
+@app.route('/legal/tos')
+def tos():
+    return render_template(
+        'legal/tos.html',
+    )
+
+@app.route('/legal/privacy')
+def privacy():
+    return render_template(
+        'legal/privacy.html',
+    )

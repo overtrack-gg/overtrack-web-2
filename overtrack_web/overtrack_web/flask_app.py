@@ -23,6 +23,7 @@ LOG_FORMAT = '[%(asctime)16s | %(levelname)8s | %(filename)s:%(lineno)s %(funcNa
 
 
 request: Request = request
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -131,13 +132,13 @@ app.register_blueprint(results_blueprint, url_prefix='/apex/stats')
 from overtrack_web.views.apex.scrims import scrims_blueprint
 app.register_blueprint(scrims_blueprint, url_prefix='/apex/scrims')
 
-try:
-    # support running even if the discord bot fails (e.g. missing env vars, fails to fetch cache of enabled bots)
-    from overtrack_web.views.apex.discord_bot import apex_discord_blueprint
-except:
-    logging.exception('Failed to import apex_discord_bot - running without /apex/discord_bot')
-else:
-    app.register_blueprint(apex_discord_blueprint, url_prefix='/apex/discord_bot')
+# try:
+#     # support running even if the discord bot fails (e.g. missing env vars, fails to fetch cache of enabled bots)
+#     from overtrack_web.views.apex.discord_bot import apex_discord_blueprint
+# except:
+#     logging.exception('Failed to import apex_discord_bot - running without /apex/discord_bot')
+# else:
+#     app.register_blueprint(apex_discord_blueprint, url_prefix='/apex/discord_bot')
 
 
 # ------ VALORANT ------
@@ -153,13 +154,13 @@ try:
 except:
     logger.error('Failed to import valorant winrates')
 
-try:
-    # support running even if the discord bot fails (e.g. missing env vars, fails to fetch cache of enabled bots)
-    from overtrack_web.views.valorant.notifications import valorant_notifications_blueprint
-except:
-    logging.exception('Failed to import valorant_notifications_blueprint - running without /valorant/notifications')
-else:
-    app.register_blueprint(valorant_notifications_blueprint, url_prefix='/valorant/notifications')
+# try:
+#     # support running even if the discord bot fails (e.g. missing env vars, fails to fetch cache of enabled bots)
+#     from overtrack_web.views.valorant.notifications import valorant_notifications_blueprint
+# except:
+#     logging.exception('Failed to import valorant_notifications_blueprint - running without /valorant/notifications')
+# else:
+#     app.register_blueprint(valorant_notifications_blueprint, url_prefix='/valorant/notifications')
 
 
 # ------ OVERWATCH ------
@@ -172,13 +173,13 @@ app.register_blueprint(overwatch_game_blueprint, url_prefix='/overwatch/games')
 from overtrack_web.views.overwatch.hero_stats import hero_stats_blueprint
 app.register_blueprint(hero_stats_blueprint, url_prefix='/overwatch/hero_stats')
 
-try:
-    # support running even if the discord bot fails (e.g. missing env vars, fails to fetch cache of enabled bots)
-    from overtrack_web.views.overwatch.discord_bot import overwatch_discord_blueprint
-except:
-    logging.exception('Failed to import overwatch_discord_bot - running without /overwatch/discord_bot')
-else:
-    app.register_blueprint(overwatch_discord_blueprint, url_prefix='/overwatch/discord_bot')
+# try:
+#     # support running even if the discord bot fails (e.g. missing env vars, fails to fetch cache of enabled bots)
+#     from overtrack_web.views.overwatch.discord_bot import overwatch_discord_blueprint
+# except:
+#     logging.exception('Failed to import overwatch_discord_bot - running without /overwatch/discord_bot')
+# else:
+#     app.register_blueprint(overwatch_discord_blueprint, url_prefix='/overwatch/discord_bot')
 
 
 # ------ LEGACY PAGE REDIRECTS ------
@@ -319,6 +320,18 @@ def faq():
         game_name=game if game in ['overwatch', 'apex', 'valorant'] else None
     )
 
+@app.route('/legal/tos')
+def tos():
+    return render_template(
+        'legal/tos.html',
+    )
+
+@app.route('/legal/privacy')
+def privacy():
+    return render_template(
+        'legal/privacy.html',
+    )
+
 
 # -------- SITEMAPS + ROBOTS
 
@@ -334,3 +347,20 @@ def test():
     if 'exception' in request.args:
         return '1/0=' + str(1/0)
     return render_template_string('<pre>{{ form }}</pre><pre>{{ args }}</pre>', form=request.form, args=request.args)
+
+
+@app.route('/test2')
+def test2():
+    return render_template('base.html')
+
+
+@app.route('/user')
+@require_login
+def user_info():
+    from flask import jsonify
+    from overtrack_models.dataclasses.typedload import typedload
+    data = session.user.asdict()
+    data['account_valid'] = session.user.account_valid
+    data['trial_valid'] = session.user.trial_valid
+    data = typedload.dump(data)
+    return jsonify(data)
