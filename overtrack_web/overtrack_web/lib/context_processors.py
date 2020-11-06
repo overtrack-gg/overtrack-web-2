@@ -33,7 +33,8 @@ COLOURS = {
     'bangalore': '#572C23',
     'lifeline': '#C243D8',
     'loba': '#A44D39',
-    'rampart': '#FF51BE'
+    'rampart': '#FF51BE',
+    'horizon': "#365EB1"
 }
 
 
