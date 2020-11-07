@@ -49,6 +49,7 @@ seasons = {
     22: Season(name='Season 22', start=1588874400, end=1593712800, index=22, display=True),
     23: Season(name='Season 23', start=1593712800, end=1599156000, index=23, display=True),
     24: Season(name='Season 24', start=1599156000, end=1604599200, index=24, display=True),
+    25: Season(name='Season 25', start=1604599200, end=1610042400, index=25, display=True),
 }
 current_season = seasons[sorted(seasons.keys())[-1]]
 # TODO: update seasons from API

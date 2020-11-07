@@ -68,8 +68,8 @@ class OverwatchCollectedHeroStats:
         losses = self.games - self.wins
         return [
             ('PLAYTIME', s2ts(self.time_selected)),
-            ('PLAYRATE', f'{self.time_selected / (self.time_active_total or 0):.0%}'),
-            ('WINRATE', f'{self.wins / (self.games or 0):.0%}'),
+            ('PLAYRATE', f'{self.time_selected / (self.time_active_total or 1):.0%}'),
+            ('WINRATE', f'{self.wins / (self.games or 1):.0%}'),
             ('RECORD', f'{int(wins):,}-{int(losses):,}'),
         ]
 
