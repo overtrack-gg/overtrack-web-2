@@ -484,7 +484,10 @@ def get_sessions(
     range_key_condition = OverwatchGameSummary.time.between(season.start, season.end)
 
     # Construct the filter condition combining season, share accounts, show quickplay
-    filter_condition = OverwatchGameSummary.season == season.index
+    if season.index is not None:
+        filter_condition = OverwatchGameSummary.season == season.index
+    else:
+        filter_condition = OverwatchGameSummary.key.exists()
     if share_settings and share_settings.accounts:
         logger.info(f'Share settings has whitelisted accounts {share_settings.accounts}')
         filter_condition &= OverwatchGameSummary.player_name.is_in(*share_settings.accounts)
