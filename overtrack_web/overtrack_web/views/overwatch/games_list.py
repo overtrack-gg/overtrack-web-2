@@ -239,7 +239,10 @@ def share_links() -> FlaskResponse:
         session.user.overwatch_games_public = new_settings
         session.user.save()
 
-    account_names = list(session.user.overwatch_games_public.accounts or [])
+    if session.user.overwatch_games_public and session.user.overwatch_games_public.accounts:
+        account_names = list(session.user.overwatch_games_public.accounts)
+    else:
+        account_names = []
     for name in get_all_account_names(session.user):
         if name not in account_names:
             account_names.append(name)
