@@ -625,8 +625,19 @@ def get_dev_info(summary, game, metatada):
             }
         )
         summary_dict['frames_uri'] = (summary.frames_uri, signed_url)
+
+        log_url = urlparse(summary.log_uri)
+        # noinspection PyNoneFunctionAssignment
+        signed_url = s3.generate_presigned_url(
+            'get_object',
+            Params={
+                'Bucket': log_url.netloc,
+                'Key': log_url.path[1:]
+            }
+        )
+        summary_dict['log_uri'] = (summary.log_uri, signed_url)
     except:
-        pass
+        logger.exception('Failed to create signed url')
 
     def _quickdump(val):
         if not isinstance(val, (tuple, str)) and isinstance(val, collections.Sequence):
