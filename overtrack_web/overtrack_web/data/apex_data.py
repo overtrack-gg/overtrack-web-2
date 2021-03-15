@@ -30,7 +30,7 @@ class ApexRankSummary:
             'gold': '#4d4030',
             'platinum': '#24424a',
             'diamond': '#3a4b9e',
-            # TODO: master
+            'master': '#9e67d2',
             'apex predator': '#8a1f1c',
         }[self.rank]
 
@@ -56,11 +56,13 @@ seasons: Dict[int, ApexSeason] = {
     4: ApexSeason(index=4, start=1580839200.0, end=1589302800.0),
     5: ApexSeason(index=5, start=1589302800.0, end=1597726800.0),
     6: ApexSeason(index=6, start=1597726800.0, end=1604548800.0),
-    7: ApexSeason(index=7, start=1604548800.0, end=1612324800.0),
+    7: ApexSeason(index=7, start=1604548800.0, end=1612303200.0),
+    8: ApexSeason(index=8, start=1612303200.0, end=1620165600.0),
 
-    1005: ApexSeason(1005, start=1589302800.0, end=159772680008, season_name='Season 5 Duos', has_ranked=False),
+    1005: ApexSeason(1005, start=1589302800.0, end=1597726800.0, season_name='Season 5 Duos', has_ranked=False),
     1006: ApexSeason(1006, start=1597726800.0, end=1604548800.0, season_name='Season 6 Duos', has_ranked=False),
-    1007: ApexSeason(1007, start=1604548800.0, end=1612324800.0, season_name='Season 7 Duos', has_ranked=False),
+    1007: ApexSeason(1007, start=1604548800.0, end=1612303200.0, season_name='Season 7 Duos', has_ranked=False),
+    1008: ApexSeason(1008, start=1612303200.0, end=1620165600.0, season_name='Season 8 Duos', has_ranked=False),
 }
 current_season = seasons[sorted(seasons.keys())[-1]]
 try:
