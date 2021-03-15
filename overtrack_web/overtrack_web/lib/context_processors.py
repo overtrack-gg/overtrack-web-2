@@ -23,18 +23,22 @@ def image_url(champ: Optional[str], large: bool = False) -> str:
 
 
 COLOURS = {
-    'octane': '#486F3B',
-    'mirage': '#D09B49',
-    'bloodhound': '#AD2A33',
-    'gibraltar': '#6B4B3C',
-    'caustic': '#689122',
-    'pathfinder': '#58859F',
-    'wraith': '#5F439F',
-    'bangalore': '#572C23',
-    'lifeline': '#C243D8',
-    'loba': '#A44D39',
-    'rampart': '#FF51BE',
-    'horizon': '#365EB1',
+    'octane': '#7CB660',
+    'mirage': '#D19342',
+    'bloodhound': '#B93933',
+    'gibraltar': '#C17743',
+    'caustic': '#A48857',
+    'pathfinder': '#619BC4',
+    'wraith': '#875FF1',
+    'bangalore': '#AB3B2F',
+    'lifeline': '#9E6DAE',
+    'loba': '#C59456',
+    'rampart': '#AE3A84',
+    'horizon': '#406BBE',
+    'crypto': '#594F7F',
+    'fuse': '#AA4F34',
+    'revenant': '#A3A36A',
+    'wattson': '#406BBE',
 }
 
 
