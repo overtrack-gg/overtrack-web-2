@@ -4,7 +4,7 @@ import os
 
 import flask
 import sentry_sdk
-from flask import Flask, Request, render_template, request, url_for, render_template_string
+from flask import Flask, Request, render_template, request, url_for, render_template_string, jsonify
 from sentry_sdk.integrations.aws_lambda import AwsLambdaIntegration
 from werkzeug.utils import redirect
 
@@ -352,6 +352,12 @@ def test():
 @app.route('/test2')
 def test2():
     return render_template('base.html')
+
+
+@app.route('/data')
+def data():
+    from overtrack_web.data.overwatch_data import seasons
+    return jsonify(seasons=seasons)
 
 
 @app.route('/user')
