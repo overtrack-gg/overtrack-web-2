@@ -10,7 +10,7 @@
                 <br/>
 
                 <p>
-                    I have worked full time developing OverTrack for over two years now, with the goal to provide the best tracking tool possible.
+                    I have worked hard developing OverTrack for over two years now, with the goal to provide the best tracking tool possible.
                 </p>
                 <p>
                     I view what I do here as similar to how a streamer provides content to their community and supports themselves off subscriptions and donations.
@@ -34,6 +34,10 @@
                     Remember to join the <a href="https://discord.gg/JywstAB">Discord</a> and (once joined), link your discord and OverTrack account to
                     pick up the subscriber role <a href="https://api2.overtrack.gg/discord/authorize?next={{ url_for('subscribe.subscribe', _external=True) }}">here</a>.
                     {% endif %}
+                </p>
+                {% else if complimentary %}
+                <p>
+                    You have complimentary OverTrack!
                 </p>
                 {% else %}
                 <p>
