@@ -5,7 +5,7 @@ description = ""
 authors = ["Simon Pinfold <simon@uint8.me>"]
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.6.2"
 
 overtrack-models = { git = "https://gitlab.com/OverTrack/overtrack-models.git", branch = "master" }
 pynamodb = "^4"
@@ -13,6 +13,7 @@ aws-psycopg2 = "^1.2"
 sqlalchemy = "^1"
 
 zappa = { git = "https://github.com/overtrack-gg/Zappa.git", branch = "api-gateway-http-endpoint-support" }
+troposphere = "^3.0.0"
 flask = "^1"
 pyjwt = "*"
 requests_oauthlib = "*"
