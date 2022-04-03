@@ -126,6 +126,7 @@ def subscribe():
         'subscribe/subscribe.html',
 
         subscription_active=session.user.subscription_active,
+        complimentary=session.user.free,
         has_discord_role=session.user.discord_id is not None,
 
         show_sub_buttons=show_sub_buttons,
