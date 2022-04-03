@@ -819,11 +819,11 @@ signals = ["blinker (>=1.3,<2.0)"]
 
 [[package]]
 name = "python-dateutil"
-version = "2.6.1"
+version = "2.8.2"
 description = "Extensions to the standard Python datetime module"
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
 
 [package.dependencies]
 six = ">=1.5"
@@ -1123,29 +1123,29 @@ develop = false
 
 [package.dependencies]
 argcomplete = "*"
-boto3 = "*"
+boto3 = ">=1.17.28"
 durationpy = "*"
 future = "*"
 hjson = "*"
 jmespath = "*"
 kappa = "0.6.0"
 pip-tools = "*"
-python-dateutil = "<2.7.0"
+python-dateutil = "*"
 python-slugify = "*"
 PyYAML = "*"
 requests = ">=2.20.0"
 six = "*"
 toml = "*"
 tqdm = "*"
-troposphere = "*"
+troposphere = ">=3.0"
 Werkzeug = "*"
 wsgi-request-logger = "*"
 
 [package.source]
 type = "git"
 url = "https://github.com/overtrack-gg/Zappa.git"
-reference = "api-gateway-http-endpoint-support"
-resolved_reference = "093933279516f7570fd668fed9bb78841aa5f457"
+reference = "api-gateway-http-endpoint-support-2"
+resolved_reference = "66c780bcdb1cad90a19b79f3df026cfd2bba1c10"
 
 [[package]]
 name = "zipp"
@@ -1162,7 +1162,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.2"
-content-hash = "f304c8870777dc4437aa2c3d9d8d105fbd3b633d4e9d3098528598bebfd93574"
+content-hash = "1bd6c07be1dc00d944623583d8e4eb5aa96f08b83f5af5f7931d769271341845"
 
 [metadata.files]
 argcomplete = [
@@ -1478,8 +1478,8 @@ pynamodb = [
     {file = "pynamodb-4.3.3.tar.gz", hash = "sha256:ced47c200073dbbfafb10b26931b9c9bf3c6b898f41dffa3676f5c2e2eddc2f0"},
 ]
 python-dateutil = [
-    {file = "python-dateutil-2.6.1.tar.gz", hash = "sha256:891c38b2a02f5bb1be3e4793866c8df49c7d19baabf9c1bad62547e0b4866aca"},
-    {file = "python_dateutil-2.6.1-py2.py3-none-any.whl", hash = "sha256:95511bae634d69bc7329ba55e646499a842bc4ec342ad54a8cdb65645a0aad3c"},
+    {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
+    {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
 ]
 python-slugify = [
     {file = "python-slugify-6.1.1.tar.gz", hash = "sha256:00003397f4e31414e922ce567b3a4da28cf1436a53d332c9aeeb51c7d8c469fd"},

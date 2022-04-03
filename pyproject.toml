@@ -12,7 +12,7 @@ pynamodb = "^4"
 aws-psycopg2 = "^1.2"
 sqlalchemy = "^1"
 
-zappa = { git = "https://github.com/overtrack-gg/Zappa.git", branch = "api-gateway-http-endpoint-support" }
+zappa = { git = "https://github.com/overtrack-gg/Zappa.git", branch = "api-gateway-http-endpoint-support-2" }
 troposphere = "^3.0.0"
 flask = "^1"
 pyjwt = "*"
