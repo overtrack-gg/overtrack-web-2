@@ -876,4 +876,4 @@ def _make_signed_payload(**kwargs: Union[str, bool, int]) -> str:
         },
         key=HMAC_KEY,
         algorithm='HS256'
-    ).decode()
+    )
