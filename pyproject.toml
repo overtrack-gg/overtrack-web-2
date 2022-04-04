@@ -14,17 +14,18 @@ sqlalchemy = "^1"
 
 zappa = { git = "https://github.com/overtrack-gg/Zappa.git", branch = "api-gateway-http-endpoint-support-2" }
 troposphere = "^3.0.0"
+PyJWT = "^2.3.0"
 flask = "^1"
-pyjwt = "*"
-requests_oauthlib = "*"
-dataclasses = "*"
-shortuuid = "*"
+requests-oauthlib = "^1.3.1"
+dataclasses = "^0.6"
+shortuuid = "^1.0.8"
 
 datadog = "^0"
 sentry_sdk = "^0"
 stripe = "^2.35"
 humanize = "^2.4.0"
 wheel = "^0.35.1"
+
 
 [tool.poetry.dev-dependencies]
 
