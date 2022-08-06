@@ -206,7 +206,7 @@ def make_cookie(user: User, audience: str = 'webapp', expiry: Optional[int] = SE
     }
     if expiry:
         data['exp'] = now + expiry
-    return jwt.encode(data, HMAC_KEY, algorithm='HS256').decode()
+    return jwt.encode(data, HMAC_KEY, algorithm='HS256')
 
 
 def make_error(reason: str, status=401) -> Response:

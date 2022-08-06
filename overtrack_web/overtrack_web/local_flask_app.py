@@ -130,9 +130,6 @@ app.register_blueprint(game_blueprint, url_prefix='/apex/games')
 from overtrack_web.views.apex.stats import results_blueprint
 app.register_blueprint(results_blueprint, url_prefix='/apex/stats')
 
-from overtrack_web.views.apex.scrims import scrims_blueprint
-app.register_blueprint(scrims_blueprint, url_prefix='/apex/scrims')
-
 try:
     # support running even if the discord bot fails (e.g. missing env vars, fails to fetch cache of enabled bots)
     from overtrack_web.views.apex.discord_bot import apex_discord_blueprint

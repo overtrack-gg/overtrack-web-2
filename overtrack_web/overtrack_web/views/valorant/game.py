@@ -53,6 +53,11 @@ def game(key: str):
     game, metadata = load_game(summary)
     dev_info = get_dev_info(summary, game, metadata)
 
+    with open(r'C:\Users\simon\overtrack_2\valorant-api-test\valorant_test.json') as f:
+        game = ValorantGame.from_dict(json.load(f))
+
+    print(game.teams.players[0].performance.kills)
+
     if game.won is not None:
         result = ['LOSS', 'WIN'][game.won]
     elif game.rounds.has_game_resets:

@@ -247,7 +247,7 @@ def create_notification_pages(
             logger.warning(f'OAuth verification failed: {e}')
             return Response(
                 json.dumps({
-                    'error': f'OAuth verification failed: {e}'
+                    'error': f'OAuth verification failed'
                 }),
                 status=403
             )
@@ -363,12 +363,12 @@ def create_notification_pages(
             )
             if not channel_id:
                 # if we didn't create the channel, complain
-                return Response(
-                    f'<html><head></head><body>'
-                    f'<p>Did not have permission to create channel - '
-                    f'please verify that the OverTrack bot has permission create a channel then <a href="{request.url}">retry</a></p>'
-                    f'</body></html>',
-                    content_type='text/html'
+                return render_template_string(
+                    '<html><head></head><body>'
+                    '<p>Did not have permission to create channel - '
+                    'please verify that the OverTrack bot has permission create a channel then <a href="{{ request_url }}">retry</a></p>'
+                    '</body></html>',
+                    request_url=request.url
                 )
         else:
             logger.error(f'Can\'t handle add_to_channel request - unknown type {args["type"]}')
@@ -418,12 +418,12 @@ def create_notification_pages(
         )
         if create_message_r.status_code == 403:
             logger.warning(f'Failed to send intro message: {create_message_r.status_code}')
-            return Response(
-                f'<html><head></head><body>'
-                f'<p>Could not post to channel - '
-                f'please verify that the OverTrack bot has permission to post (or to modify channel permissions) then <a href="{request.url}">retry</a></p>'
-                f'</body></html>',
-                content_type='text/html'
+            return render_template_string(
+                '<html><head></head><body>'
+                '<p>Could not post to channel - '
+                'please verify that the OverTrack bot has permission to post (or to modify channel permissions) then <a href="{{ request_url }}">retry</a></p>'
+                '</body></html>',
+                request_url=request.url
             )
         create_message_r.raise_for_status()
         create_message = create_message_r.json()
@@ -592,7 +592,7 @@ def create_notification_pages(
             logger.error(f'OAuth verification failed')
             return Response(
                 json.dumps({
-                    'error': f'OAuth verification failed: {e}'
+                    'error': f'OAuth verification failed'
                 }),
                 status=403
             )
