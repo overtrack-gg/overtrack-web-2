@@ -54,13 +54,8 @@
             {{ navbar_elem('Discord Bot', game_name + '.discord_bot.root') }}
             {% endif %}
             <div class="dropdown-divider"></div>
-            <li class="divider-vertical"></li>
-            {% if not user or not user.subscription_active %}
-            {{ navbar_elem('Subscribe ♥', 'subscribe.subscribe') }}
-            {% endif %}
         </ul>
         <ul class="navbar-nav pull-right">
-            {{ navbar_elem('Download Client', 'client') }}
             {{ navbar_elem('FAQ & Help', 'faq', game=game_name) }}
             {{ navbar_elem('Join Discord', 'discord_redirect', new_tab=True) }}
 

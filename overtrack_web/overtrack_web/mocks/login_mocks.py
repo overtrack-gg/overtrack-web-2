@@ -33,6 +33,8 @@ class MockUser(NamedTuple):
     superuser: bool = True
 
     trial_valid: bool = True
+    free: bool = False
+    account_valid: bool = True
 
     @property
     def valorant_games_public(self) -> Optional[bool]:
