@@ -21,7 +21,7 @@ dataclasses = "^0.6"
 shortuuid = "^1.0.8"
 
 datadog = "^0"
-sentry_sdk = "^0"
+sentry_sdk = "^1"
 stripe = "^2.35"
 humanize = "^2.4.0"
 wheel = "^0.35.1"
